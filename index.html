@@ -585,11 +585,15 @@
             </div>
 
             <div class="kj-actions">
-                <button type="button" class="kj-nav" id="kj-prev" aria-label="Kartu sebelumnya">‹</button>
-                <button type="button" class="kj-btn nope" id="kj-nope">🥺 Belum</button>
-                <span class="kj-counter" id="kj-counter">1 / 50</span>
-                <button type="button" class="kj-btn yes" id="kj-yes">💗 Hafal!</button>
-                <button type="button" class="kj-nav" id="kj-next" aria-label="Kartu berikutnya">›</button>
+                <div class="kj-navrow">
+                    <button type="button" class="kj-nav" id="kj-prev" aria-label="Kartu sebelumnya">‹</button>
+                    <span class="kj-counter" id="kj-counter">1 / 50</span>
+                    <button type="button" class="kj-nav" id="kj-next" aria-label="Kartu berikutnya">›</button>
+                </div>
+                <div class="kj-answer">
+                    <button type="button" class="kj-btn nope" id="kj-nope"><span class="kj-btn-emo" aria-hidden="true">🥺</span><span>Belum</span></button>
+                    <button type="button" class="kj-btn yes" id="kj-yes"><span class="kj-btn-emo" aria-hidden="true">💗</span><span>Hafal!</span></button>
+                </div>
             </div>
             <p class="kj-tip">💡 Geser kartu ke kiri/kanan, atau pakai Spasi &amp; panah di keyboard</p>
 
