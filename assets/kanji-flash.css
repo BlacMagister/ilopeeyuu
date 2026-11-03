@@ -11,12 +11,25 @@ body.kj-seen .kj-new-badge{display:none}
 .kj-select{display:flex;align-items:center;gap:8px;font-weight:900;font-size:12px;color:#a45880}
 .kj-select select{background:#fff6fa;border:1px solid #ffc8de;border-radius:14px;padding:8px 12px;font-weight:800;color:#753455;cursor:pointer;font-size:13px}
 .kj-select select:focus{outline:2px solid #f476a8;outline-offset:1px}
-.kj-custom{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff6fa;border:1px dashed #ffc8de;border-radius:16px;padding:8px 10px;font-weight:900;font-size:12px;color:#a45880;animation:kjCustomIn .25s ease-out}
+.kj-custom{flex-basis:100%;background:linear-gradient(135deg,#fff6fa,#fff0f6);border:1.5px dashed #ffbcd6;border-radius:20px;padding:12px 14px;color:#a45880;animation:kjCustomIn .25s ease-out}
 .kj-custom[hidden]{display:none}
-.kj-custom label{display:flex;align-items:center;gap:6px}
-.kj-custom input{width:72px;background:#fff;border:1px solid #ffc8de;border-radius:12px;padding:6px 8px;font-weight:800;color:#753455;font-size:13px;text-align:center}
-.kj-custom input:focus{outline:2px solid #f476a8;outline-offset:1px}
-.kj-custom small{flex-basis:100%;font-weight:700;color:#c07a9c;font-size:11px}
+.kj-custom-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kj-custom-head b{font-size:13px;font-weight:900;color:#874168}
+.kj-custom-x{width:30px;height:30px;border-radius:99px;background:#fff;border:1px solid #ffd0e2;color:#c0668f;font-weight:900;font-size:13px;line-height:1;transition:transform .15s ease,background-color .15s ease;touch-action:manipulation}
+.kj-custom-x:hover{background:#ffe9f2;transform:rotate(90deg)}
+.kj-custom-row{display:flex;align-items:flex-end;gap:8px}
+.kj-field{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:900;color:#b06a8d}
+.kj-field input{width:100%;height:48px;background:#fff;border:1.5px solid #ffc8de;border-radius:14px;padding:0 8px;font-weight:900;color:#753455;font-size:20px;text-align:center;-moz-appearance:textfield;transition:border-color .15s ease,box-shadow .15s ease}
+.kj-field input::-webkit-outer-spin-button,.kj-field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.kj-field input:focus{outline:none;border-color:#f476a8;box-shadow:0 0 0 3px #f476a833}
+.kj-arrow{height:48px;display:flex;align-items:center;font-weight:900;color:#f08bb3;font-size:18px}
+.kj-apply{height:48px;padding:0 16px;border-radius:14px;background:linear-gradient(135deg,#f986b4,#e75b94);color:#fff;font-weight:900;font-size:14px;box-shadow:0 8px 18px #e75b9440;white-space:nowrap;transition:transform .15s ease,filter .15s ease;touch-action:manipulation}
+.kj-apply:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.kj-apply:active{transform:scale(.95)}
+.kj-custom small{display:block;margin-top:8px;font-weight:800;color:#c07a9c;font-size:11.5px}
+.kj-custom-btn.active{background:#e75b94;color:#fff;border-color:#e75b94;box-shadow:0 6px 14px #e75b9433}
+.kj-custom-btn[aria-expanded="true"]:not(.active){background:#ffe3ee;border-color:#f7a6c6}
+@media(max-width:420px){.kj-custom-row{flex-wrap:wrap}.kj-apply{flex-basis:100%}}
 @keyframes kjCustomIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .kj-chips{display:flex;flex-wrap:wrap;gap:6px}
 .kj-chip{background:#fff6fa;border:1px solid #ffd0e2;color:#a45880;font-weight:800;font-size:12px;padding:7px 12px;border-radius:99px;transition:transform .15s ease,background-color .15s ease}
