@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakura Study Club ♡ — Japanese Learning Game</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Noto Serif JP & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            50: '#fff6fa',
+                            100: '#ffe5f0',
+                            200: '#ffc8de',
+                            300: '#ff9bc3',
+                            400: '#f476a8',
+                            500: '#e75b94',
+                            600: '#c63e79',
+                        },
+                        matcha: {
+                            50: '#f3f8f3',
+                            100: '#e2efe2',
+                            500: '#4e8252',
+                            600: '#3c683f',
+                        },
+                        matchaDark: '#2a472c',
+                        jpPaper: '#fbf9f5'
+                    },
+                    fontFamily: {
+                        sans: ['Nunito', 'DM Sans', 'sans-serif'],
+                        jp: ['"Noto Serif JP"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f7f4ee;
+            background-image: radial-gradient(#e5dec9 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+
+        /* 3D Card Flip Animation */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f46a90;
+            border-radius: 4px;
+        }
+
+        /* Pulse Animation for Matched Cards */
+        @keyframes matchedPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .animate-matched {
+            animation: matchedPulse 0.4s ease-in-out;
+        }
+
+        :root { --berry:#94365f; --pink:#e75b94; --ink:#53364e; --muted:#a18195; }
+        html { scroll-behavior:smooth; }
+        body { color:var(--ink); background: radial-gradient(circle at 10% 12%,#ffe6f0 0,transparent 32%), radial-gradient(circle at 88% 42%,#fce7f7 0,transparent 34%), linear-gradient(155deg,#fffafc,#fff1f7 52%,#fbf7ff); background-attachment:fixed; }
+        body::before { content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.32;background-image:radial-gradient(#eaa7c5 .65px, transparent .65px);background-size:22px 22px; }
+        header { background:rgba(255,250,252,.80)!important; border-bottom:1px solid #f8d9e7!important; box-shadow:0 4px 30px #ab50700b!important; }
+        header .max-w-6xl { max-width:1100px; padding-block:16px; }
+        header h1 { font-family:Nunito,sans-serif!important;font-size:1.04rem!important;letter-spacing:-.03em;color:#6f3155!important; }
+        header p { color:#b18a9f!important;font-size:.68rem!important; }
+        header .text-3xl { display:grid;place-items:center;width:44px;height:44px;border-radius:16px;background:#ffe9f2;box-shadow:inset 0 0 0 1px #ffd8e8; }
+        main {max-width:1100px!important;}
+        .hero { position:relative;overflow:hidden;margin:2px 0 24px;border:1px solid #fff;background:linear-gradient(120deg,#fffdfd 0%,#fff0f6 58%,#ffe0ef 100%);box-shadow:0 20px 55px #b1487815,0 3px 10px #ad477409;border-radius:32px;padding:clamp(24px,5vw,48px); }
+        .hero::before { content:'✿';position:absolute;right:6%;top:-80px;font-size:280px;line-height:1;color:#ffc3db;opacity:.33;transform:rotate(-15deg);pointer-events:none; }
+        .hero::after {content:'♡';position:absolute;right:22%;bottom:-80px;font-size:220px;color:#fff;opacity:.72;pointer-events:none;}
+        .hero-inner {position:relative;z-index:1;max-width:670px;}
+        .eyebrow {display:inline-flex;align-items:center;gap:8px;border:1px solid #ffd0e2;background:#fff9fc;border-radius:100px;padding:8px 14px;color:#b74e81;font-weight:900;font-size:11px;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 2px 7px #df8ead15;}
+        .hero h2 {font-weight:900;font-size:clamp(2.1rem,5vw,3.6rem);line-height:1.12;letter-spacing:-.065em;color:#753455;margin:16px 0 12px;}
+        .hero h2 em {font-style:normal;color:#dc6498;}
+        .hero p {font-size:clamp(.88rem,2vw,1.02rem);line-height:1.75;color:#956b83;max-width:550px;}
+        .hero-stickers {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:22px;}
+        .hero-stickers span {background:#fff;border:1px solid #ffe0eb;padding:8px 12px;border-radius:100px;font-size:12px;font-weight:800;color:#a45880;box-shadow:0 3px 12px #bb517015;}
+        .hero-art {position:absolute;right:5%;top:27%;font-size:105px;filter:drop-shadow(0 16px 18px #d68bad40);transform:rotate(12deg);animation:floaty 5s ease-in-out infinite;}
+        @keyframes floaty {50%{transform:translateY(-11px) rotate(5deg)}}
+        .section-heading {text-align:center;margin:8px 0 24px;}
+        .section-heading h3 {font-size:1.45rem;font-weight:900;letter-spacing:-.035em;color:#713954;}
+        .section-heading p {font-size:.85rem;color:#aa8197;margin-top:5px;}
+        .progress-track {height:8px;background:#ffe0ed;border-radius:99px;overflow:hidden;width:100%;max-width:420px;margin:16px auto 0;}
+        #study-progress {height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#f49abf,#d94b88);transition:width .35s ease;}
+        .progress-label {text-align:center;font-size:11px;color:#ae8097;font-weight:800;margin-top:8px;}
+        #mode-flashcard>.flex {padding-top:2px;}
+        #main-card-inner {box-shadow:0 24px 58px #a5527b25,0 3px 9px #bb6a9520!important;border:1px solid #fff!important;border-radius:32px!important;}
+        #main-card-inner>div {border-radius:32px!important;}
+        #main-card-inner>div:first-child {background:radial-gradient(circle at 85% 15%,#ffe6f2,transparent 47%),linear-gradient(155deg,#fff,#fff7fb)!important;}
+        #main-card-inner>div:nth-child(2) {background:radial-gradient(circle at 82% 12%,#fff0f6,transparent 45%),linear-gradient(155deg,#fff,#fff5f9)!important;border-color:#f8c8df!important;}
+        #fc-kanji {color:#693553!important;line-height:1.4;overflow-wrap:anywhere;font-size:clamp(1.7rem,5.5vw,3rem)!important;}
+        #fc-meaning {color:#733f5b!important;}
+        #fc-furigana {color:#c45a8a!important;}
+        #card-counter {min-width:98px;text-align:center;}
+        #mode-flashcard button, #mode-memory button {box-shadow:0 7px 20px #b85a811a!important;}
+        #mode-flashcard button:hover, #mode-memory button:hover {transform:translateY(-2px)}
+        #tab-flashcard, #tab-memory {border-radius:13px!important;}
+        .bg-sakura-500 {background-color:#e75b94!important;}
+        .bg-sakura-50 {background-color:#fff2f8!important;}
+        .text-sakura-500 {color:#d85790!important;}
+        #mode-memory .grid>div {box-shadow:0 10px 30px #af598015!important;border-color:#ffe3ee!important;border-radius:22px!important;}
+        #memory-grid {gap:12px!important;}
+        #memory-grid>div {height:132px!important;transition:transform .25s ease;}
+        #memory-grid>div:hover {transform:translateY(-3px);}
+        #memory-grid .transform-style-3d {box-shadow:0 8px 24px #b9558123!important;}
+        #memory-grid .backface-hidden {border-radius:20px!important;}
+        #memory-grid .backface-hidden:first-child {background:radial-gradient(circle at 76% 15%,#ffd3e6,transparent 45%),linear-gradient(145deg,#f5a2c5,#dc659a)!important;border:1px solid #ffcee0!important;}
+        #memory-grid .backface-hidden:last-child {background:#fffafd!important;}
+        .animate-matched {box-shadow:0 0 0 3px #eeb1d4,0 12px 34px #d56d9b55!important;}
+        #victory-modal>div {border:1px solid #ffd4e7!important;box-shadow:0 30px 90px #65314b40!important;background:linear-gradient(160deg,#fff,#fff2f8)!important;}
+        footer {background:transparent!important;border-color:#f8d5e4!important;color:#b68da2!important;}
+        .petal {position:fixed;top:-32px;z-index:2;pointer-events:none;opacity:.45;animation:petalFall linear forwards;}
+        @keyframes petalFall {to {transform:translate3d(var(--drift),110vh,0) rotate(440deg);opacity:0;}}
+        .confetti {position:fixed;width:9px;height:13px;top:-20px;z-index:60;pointer-events:none;animation:confettiDown 3.4s ease-in forwards;}
+        @keyframes confettiDown {to {transform:translate3d(var(--dx),110vh,0) rotate(700deg);opacity:0;}}
+        @media(max-width:720px) {.hero-art{right:2%;top:8%;font-size:65px;opacity:.45}.hero{border-radius:25px}.hero h2{padding-right:35px}header .max-w-6xl{justify-content:center}header .max-w-6xl>div:first-child{width:100%;justify-content:center}header .max-w-6xl>div:first-child>div{text-align:left}main{padding-top:18px!important}#memory-grid>div{height:116px!important}#memory-grid .text-lg{font-size:.9rem!important}#memory-grid .text-sm{font-size:.76rem!important}.hero-stickers{gap:6px}}
+        @media(prefers-reduced-motion:reduce){.hero-art,.petal,.confetti{animation:none!important}*{scroll-behavior:auto!important}}
+
+    </style>
+    <link rel="stylesheet" href="assets/usagi-show.css">
+</head>
+<body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-sakura-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl">🎀</span>
+                <div>
+                    <h1 class="text-xl font-bold font-jp text-gray-800 leading-tight">Sakura Study Club ♡</h1>
+                    <p class="text-xs text-gray-500">Belajar bahasa Jepang bareng cinta 🌷</p>
+                </div>
+            </div>
+
+            <!-- Mode Switcher -->
+            <div class="flex bg-sakura-50 p-1 rounded-xl border border-sakura-100">
+                <button id="tab-flashcard" onclick="switchMode('flashcard')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm">
+                    <i class="fa-solid fa-clone"></i>
+                    <span>Flashcards</span>
+                </button>
+                <button id="tab-memory" onclick="switchMode('memory')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Memory Match</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+        <!-- Usagi-chan motion graphic video (synced to assets/voiceover.mp3) -->
+        <section class="vs-wrap" id="usagi-show" aria-label="Video pesan dari Usagi-chan">
+            <div class="vs-head">
+                <span class="vs-chip">🎬 tonton dulu yuk~</span>
+                <h3>Pesan rahasia dari <em>Usagi-chan</em> 💌</h3>
+            </div>
+            <div class="vs-frame" id="vs-frame">
+                <div class="vs-stage" id="vs-stage" data-scene="1">
+                    <div class="vs-deco" aria-hidden="true"><i>🌸</i><i>✿</i><i>🌸</i><i>♡</i><i>🌸</i><i>✿</i><i>🌸</i><i>♡</i></div>
+
+                    <!-- Scene 1: intro -->
+                    <div class="vs-el vs-bub" style="--x:72%;--y:30%" data-t="1.5,4.2">Haaai! 👋</div>
+                    <div class="vs-el drop vs-big" style="--x:50%;--y:15%" data-t="2.6,8.3">Konnichiwa! <span class="jp">こんにちは</span></div>
+                    <div class="vs-el slide-l vs-tag" style="--x:21%;--y:56%" data-t="4.2,8.3">🎀 Aku <b>Usagi-chan</b></div>
+                    <div class="vs-el slide-r vs-tag" style="--x:79%;--y:50%" data-t="5.4,8.3">paling gemes ✨</div>
+                    <div class="vs-el slide-r vs-tag pink" style="--x:79%;--y:66%" data-t="6.7,8.3">🌸 Sakura Study Club ♡</div>
+
+                    <!-- Scene 2: secret message -->
+                    <div class="vs-el vs-bub" style="--x:40%;--y:28%" data-t="8.7,10.2">Eh eh… 👀</div>
+                    <div class="vs-el drop vs-tag" style="--x:64%;--y:15%" data-t="10.4,16.6">🤫 pesan rahasia</div>
+                    <div class="vs-el vs-emo wig" style="--x:64%;--y:50%;--s:17cqw" data-t="9.9,11.8">💌</div>
+                    <div class="vs-el vs-card vs-letter" style="--x:64%;--y:53%" data-t="11.8,16.6">
+                        <b>Katanya…</b>
+                        <p style="--d:1.4s">ada orang yang</p>
+                        <p class="hot" style="--d:2.1s">sayaaang banget</p>
+                        <p style="--d:3.4s">sama kamu 💗</p>
+                    </div>
+                    <div class="vs-el vs-big" style="--x:64%;--y:46%" data-t="16.7,18.7">Siapa ya? 🤔</div>
+                    <div class="vs-el vs-emo wig" style="--x:46%;--y:24%;--s:6cqw" data-t="16.8,18.7">❓</div>
+                    <div class="vs-el vs-emo wig" style="--x:85%;--y:26%;--s:5cqw" data-t="17,18.7">❔</div>
+                    <div class="vs-el vs-emo wig" style="--x:82%;--y:70%;--s:6cqw" data-t="17.3,18.7">❓</div>
+                    <div class="vs-el drop vs-tag" style="--x:64%;--y:13%" data-t="18.8,21.2">pokoknya dia orangnya…</div>
+                    <div class="vs-el vs-card vs-polaroid" style="--x:62%;--y:53%" data-t="19.5,21.2"><span class="face">😎</span><small>dia 💕</small></div>
+                    <div class="vs-el vs-emo spin" style="--x:48%;--y:36%;--s:5cqw" data-t="19.8,21.2">✨</div>
+                    <div class="vs-el vs-emo spin" style="--x:75%;--y:30%;--s:4cqw" data-t="20,21.2">✨</div>
+                    <div class="vs-el stamp vs-stamp" style="--x:78%;--y:68%" data-t="20.2,21.2">GANTENG! ✨</div>
+
+                    <!-- Scene 3: learning Japanese -->
+                    <div class="vs-el drop vs-big sm" style="--x:57%;--y:14%" data-t="21.7,24.6">Belajar Bahasa Jepang 🇯🇵</div>
+                    <div class="vs-el vs-emo bob" style="--x:57%;--y:50%;--s:17cqw" data-t="22.3,24.6">📖</div>
+                    <div class="vs-el vs-tag pink" style="--x:57%;--y:79%" data-t="23.9,24.6">bareng-bareng! 🤝</div>
+                    <div class="vs-el drop vs-label" style="--x:58%;--y:12%" data-t="24.6,30.6">Hiragana <span class="jp">ひらがな</span></div>
+                    <div class="vs-el vs-kana" style="--x:34%;--y:34%" data-t="26.2,30.6"><b>あ</b><small>a</small></div>
+                    <div class="vs-el vs-kana" style="--x:46%;--y:34%" data-t="26.45,30.6"><b>い</b><small>i</small></div>
+                    <div class="vs-el vs-kana" style="--x:58%;--y:34%" data-t="26.65,30.6"><b>う</b><small>u</small></div>
+                    <div class="vs-el vs-kana" style="--x:70%;--y:34%" data-t="26.8,30.6"><b>え</b><small>e</small></div>
+                    <div class="vs-el vs-kana" style="--x:82%;--y:34%" data-t="27,30.6"><b>お</b><small>o</small></div>
+                    <div class="vs-el vs-label mint" style="--x:58%;--y:55%" data-t="27.6,30.6">Katakana <span class="jp">カタカナ</span></div>
+                    <div class="vs-el vs-kana mint" style="--x:34%;--y:74%" data-t="28,30.6"><b>ア</b><small>a</small></div>
+                    <div class="vs-el vs-kana mint" style="--x:46%;--y:74%" data-t="28.1,30.6"><b>イ</b><small>i</small></div>
+                    <div class="vs-el vs-kana mint" style="--x:58%;--y:74%" data-t="28.2,30.6"><b>ウ</b><small>u</small></div>
+                    <div class="vs-el vs-kana mint" style="--x:70%;--y:74%" data-t="28.3,30.6"><b>エ</b><small>e</small></div>
+                    <div class="vs-el vs-kana mint" style="--x:82%;--y:74%" data-t="28.4,30.6"><b>オ</b><small>o</small></div>
+                    <div class="vs-el drop vs-label" style="--x:58%;--y:12%" data-t="30.7,37.9">Kosakata lucu 🍡</div>
+                    <div class="vs-el vs-card vs-vocab" style="--x:36%;--y:46%" data-t="30.8,37.9"><span>🐱</span><b class="jp">ねこ</b><small>neko</small></div>
+                    <div class="vs-el vs-card vs-vocab" style="--x:58%;--y:46%" data-t="33,37.9"><span>🐶</span><b class="jp">いぬ</b><small>inu</small></div>
+                    <div class="vs-el vs-card vs-vocab star" style="--x:80%;--y:46%" data-t="34.7,37.9"><span>🐰</span><b class="jp">うさぎ</b><small>usagi</small></div>
+                    <div class="vs-el vs-tag" style="--x:36%;--y:76%" data-t="32.1,37.9">= kucing</div>
+                    <div class="vs-el vs-tag" style="--x:58%;--y:76%" data-t="33.7,37.9">= anjing</div>
+                    <div class="vs-el vs-tag pink" style="--x:80%;--y:76%" data-t="35.7,37.9">= itu aku! 🙋‍♀️</div>
+                    <div class="vs-el vs-bub" style="--x:15%;--y:40%" data-t="36.6,37.9">Kyaa~! 💕</div>
+
+                    <!-- Scene 4: flashcard + memory match -->
+                    <div class="vs-el drop vs-label" style="--x:42%;--y:12%" data-t="38.7,42.3">Flashcard 🃏</div>
+                    <div class="vs-el vs-flip" style="--x:42%;--y:50%" data-t="38.1,42.3" data-cls="41.1:flip">
+                        <div class="vs-flip-in">
+                            <div class="f"><b class="jp">ねこ</b><small>neko</small></div>
+                            <div class="b"><span>🐱</span><b>kucing</b></div>
+                        </div>
+                    </div>
+                    <div class="vs-el vs-emo tap" style="--x:50%;--y:76%;--s:7cqw" data-t="40,41.5">👆</div>
+                    <div class="vs-el vs-big pinkt" style="--x:66%;--y:28%" data-t="41.1,42.3">cling! ✨</div>
+                    <div class="vs-el vs-tag pink" style="--x:66%;--y:72%" data-t="41.6,42.3">kebalik! 🔄</div>
+                    <div class="vs-el drop vs-label" style="--x:42%;--y:12%" data-t="42.3,48.9">Memory Match 💞</div>
+                    <div class="vs-el vs-mini" style="--x:22%;--y:38%" data-t="42.5,45.8"><i>🌸</i></div>
+                    <div class="vs-el vs-mini" style="--x:34%;--y:38%" data-t="42.6,45.8" data-cls="44.5:flip"><i>🌸</i><u>🐰</u></div>
+                    <div class="vs-el vs-mini" style="--x:46%;--y:38%" data-t="42.7,45.8"><i>🌸</i></div>
+                    <div class="vs-el vs-mini" style="--x:58%;--y:38%" data-t="42.8,45.8"><i>🌸</i></div>
+                    <div class="vs-el vs-mini" style="--x:22%;--y:66%" data-t="42.9,45.8"><i>🌸</i></div>
+                    <div class="vs-el vs-mini" style="--x:34%;--y:66%" data-t="43,45.8"><i>🌸</i></div>
+                    <div class="vs-el vs-mini" style="--x:46%;--y:66%" data-t="43.1,45.8" data-cls="45.1:flip"><i>🌸</i><u>🐰</u></div>
+                    <div class="vs-el vs-mini" style="--x:58%;--y:66%" data-t="43.2,45.8"><i>🌸</i></div>
+                    <div class="vs-el vs-couple" style="--x:42%;--y:50%" data-t="45.8,47.1"><span><i>👧</i><small>kamu</small></span><b>💞</b><span><i>👦</i><small>dia</small></span></div>
+                    <div class="vs-el vs-ciee" style="--x:46%;--y:48%" data-t="47.1,48.9">CIEEE~ <span>🙈</span></div>
+
+                    <!-- Scene 5: semangat -->
+                    <div class="vs-el vs-emo shake" style="--x:64%;--y:40%;--s:15cqw" data-t="49.2,50.4">❌</div>
+                    <div class="vs-el vs-tag" style="--x:64%;--y:72%" data-t="49.2,50.4">kalau salah…</div>
+                    <div class="vs-el vs-emo bob" style="--x:64%;--y:40%;--s:15cqw" data-t="50.4,52.2">🫶</div>
+                    <div class="vs-el vs-tag pink" style="--x:64%;--y:72%" data-t="50.4,52.2">gapapa kok! 🤗</div>
+                    <div class="vs-el vs-snail" style="--x:50%;--y:82%" data-t="51,54.5"><span>🐌</span><small>pelan-pelan aja~</small></div>
+                    <div class="vs-el drop vs-big jpbig" style="--x:64%;--y:24%" data-t="52.3,54.5"><span class="jp">がんばって!</span></div>
+                    <div class="vs-el vs-tag" style="--x:64%;--y:42%" data-t="52.4,54.5">Ganbatte ne!</div>
+                    <div class="vs-el vs-big pinkt pulse" style="--x:64%;--y:62%" data-t="53.2,54.5">SEMANGAT!! 💪🔥</div>
+                    <div class="vs-el vs-screen" style="--x:44%;--y:46%" data-t="54.6,59.9">
+                        <div class="bar"><i></i><i></i><i></i><span>Sakura Study Club ♡</span></div>
+                        <div class="body"><b></b><p></p><p></p><div class="cards"><s></s><s></s><s></s></div></div>
+                    </div>
+                    <div class="vs-el slide-l vs-tag pink" style="--x:54%;--y:62%" data-t="55.8,59.9">aku di pojok sini! ↘</div>
+                    <div class="vs-el vs-bub" style="--x:84%;--y:48%" data-t="56.8,57.7">hehe 🤭</div>
+                    <div class="vs-el vs-emo tap" style="--x:79%;--y:89%;--s:6cqw" data-t="57.7,59.6">👆</div>
+                    <div class="vs-el drop vs-tag" style="--x:44%;--y:30%" data-t="57.7,59.9">butuh semangat? <b>tap aku!</b> 💗</div>
+
+                    <!-- Scene 6: daisuki -->
+                    <div class="vs-el vs-big" style="--x:60%;--y:40%" data-t="60.3,61.7">💡 Oh iya!</div>
+                    <div class="vs-el vs-big sm" style="--x:60%;--y:36%" data-t="61.7,64">kata paling penting…</div>
+                    <div class="vs-el vs-emo drum" style="--x:60%;--y:62%;--s:10cqw" data-t="61.9,64">🥁</div>
+                    <div class="vs-el vs-heart" style="--x:60%;--y:42%" data-t="64,71.3" aria-hidden="true">❤</div>
+                    <div class="vs-el vs-daisuki jp" style="--x:60%;--y:40%" data-t="64,71.3">大好き</div>
+                    <div class="vs-el vs-tag" style="--x:60%;--y:66%" data-t="64.4,67">daisuki</div>
+                    <div class="vs-el vs-tag pink" style="--x:60%;--y:79%" data-t="65.1,67">= sayang banget 💗</div>
+                    <div class="vs-el vs-from" style="--x:60%;--y:73%" data-t="67,69"><span>dari 👦</span><b>💌</b><span>👧 buat kamu</span></div>
+                    <div class="vs-el vs-big pinkt pulse" style="--x:60%;--y:74%" data-t="69.1,71.3">Daisuki dayo~! 💗</div>
+
+                    <!-- Scene 7: outro -->
+                    <div class="vs-el drop vs-big" style="--x:50%;--y:15%" data-t="71.6,72.4">Yosh! 💪</div>
+                    <div class="vs-el drop vs-big" style="--x:50%;--y:15%" data-t="72.4,73.7">Ayo mulai belajar! 📚✨</div>
+                    <div class="vs-el drop vs-big" style="--x:50%;--y:15%" data-t="73.7,75.2">Mata ne~ <span class="jp">またね</span></div>
+                    <div class="vs-el vs-emo wave" style="--x:22%;--y:56%;--s:9cqw" data-t="74.4,75.3">👋</div>
+                    <div class="vs-el vs-emo wave" style="--x:78%;--y:56%;--s:9cqw" data-t="74.4,75.3">👋</div>
+                    <div class="vs-el vs-big pinkt boing" style="--x:50%;--y:48%" data-t="75.2,99">BOING! 💨</div>
+
+                    <!-- Usagi-chan -->
+                    <div class="vb" id="vb" aria-hidden="true"><div class="vb-jump"><div class="vb-bob">
+                        <svg viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+                            <g class="ear-l"><ellipse cx="36" cy="24" rx="10" ry="24" fill="#fff" stroke="#f3bcd3" stroke-width="2"/><ellipse cx="36" cy="26" rx="5" ry="16" fill="#ffc8de"/></g>
+                            <g class="ear-r"><ellipse cx="64" cy="24" rx="10" ry="24" fill="#fff" stroke="#f3bcd3" stroke-width="2"/><ellipse cx="64" cy="26" rx="5" ry="16" fill="#ffc8de"/></g>
+                            <path d="M60 10 l8 -6 l2 9 z M60 10 l-9 -4 l3 9 z" fill="#e75b94"/><circle cx="60" cy="10" r="3" fill="#c63e79"/>
+                            <g class="arm-l"><ellipse cx="24" cy="88" rx="7" ry="10" fill="#fff" stroke="#f3bcd3" stroke-width="2"/></g>
+                            <g class="arm-r"><ellipse cx="76" cy="88" rx="7" ry="10" fill="#fff" stroke="#f3bcd3" stroke-width="2"/></g>
+                            <ellipse cx="50" cy="93" rx="27" ry="15" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+                            <circle cx="50" cy="66" r="30" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+                            <g class="band"><path d="M21 52 Q50 40 79 52 L79 58 Q50 46 21 58 Z" fill="#fff" stroke="#e75b94" stroke-width="1.5"/><circle cx="50" cy="49" r="4" fill="#e75b94"/><path d="M79 54 l9 -4 l-2 7 z M79 55 l8 5 l-7 2 z" fill="#e75b94"/></g>
+                            <g class="eyes"><ellipse class="eye" cx="39" cy="64" rx="3.8" ry="4.8" fill="#53364e"/><ellipse class="eye" cx="61" cy="64" rx="3.8" ry="4.8" fill="#53364e"/><circle cx="40.3" cy="62.2" r="1.3" fill="#fff"/><circle cx="62.3" cy="62.2" r="1.3" fill="#fff"/></g>
+                            <path class="happy-eye" d="M34 65 q5 -6 10 0 M56 65 q5 -6 10 0" stroke="#53364e" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+                            <g class="heart-eye" fill="#e75b94"><path d="M39 69 l-5.5 -5.5 a3.2 3.2 0 0 1 5.5 -3.6 a3.2 3.2 0 0 1 5.5 3.6 z"/><path d="M61 69 l-5.5 -5.5 a3.2 3.2 0 0 1 5.5 -3.6 a3.2 3.2 0 0 1 5.5 3.6 z"/></g>
+                            <ellipse class="blush" cx="30" cy="74" rx="6" ry="3.5" fill="#ff9bc3" opacity=".6"/>
+                            <ellipse class="blush" cx="70" cy="74" rx="6" ry="3.5" fill="#ff9bc3" opacity=".6"/>
+                            <path d="M48 69 l2 2 l2 -2 z" fill="#f476a8"/>
+                            <path class="mouth-c" d="M46 72 q4 4 8 0" stroke="#c63e79" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            <ellipse class="mouth-o" cx="50" cy="75" rx="3.6" ry="3.2" fill="#c63e79"/>
+                            <ellipse cx="36" cy="106" rx="9" ry="5" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+                            <ellipse cx="64" cy="106" rx="9" ry="5" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+                        </svg>
+                    </div></div></div>
+
+                    <div class="vs-fx" id="vs-fx" aria-hidden="true"></div>
+                    <div class="vs-cap" id="vs-cap" aria-live="off"></div>
+
+                    <!-- Poster / end card -->
+                    <button class="vs-poster" id="vs-poster" type="button" aria-label="Putar video pesan dari Usagi-chan">
+                        <span class="peek">🐰</span>
+                        <span class="pt">Ada pesan buat kamu! 💌</span>
+                        <span class="play">▶</span>
+                        <span class="hint">🔊 nyalain suaranya ya~</span>
+                    </button>
+                    <div class="vs-end" id="vs-end" hidden>
+                        <span class="pt">Daisuki dayo~ 💗</span>
+                        <div class="row">
+                            <button type="button" id="vs-replay">🔁 Tonton lagi</button>
+                            <a href="#mode-flashcard" id="vs-go">📚 Mulai belajar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="vs-ctrl">
+                <button type="button" id="vs-play" aria-label="Putar">▶</button>
+                <div class="vs-bar" id="vs-bar" role="slider" tabindex="0" aria-label="Posisi video" aria-valuemin="0" aria-valuemax="76" aria-valuenow="0">
+                    <div class="fill" id="vs-fill"></div>
+                    <span class="knob" id="vs-knob">🐰</span>
+                </div>
+                <span class="vs-time" id="vs-time">0:00 / 1:16</span>
+                <button type="button" id="vs-cc" aria-pressed="true" title="Teks">CC</button>
+                <button type="button" id="vs-fs" aria-label="Layar penuh" title="Layar penuh">⛶</button>
+            </div>
+            <audio id="vs-audio" src="assets/voiceover.mp3" preload="metadata"></audio>
+        </section>
+
+        <section class="hero" aria-label="Welcome to Sakura Study Club">
+            <div class="hero-inner">
+                <span class="eyebrow">✦ a little love, a lot of learning ✦</span>
+                <h2>Belajar Jepang,<br><em>makin gemes! ♡</em></h2>
+                <p>Hai, cantik! 🌷 Setiap kata baru adalah langkah kecil menuju mimpi kamu. Pelan-pelan aja, yang penting terus semangat. Ganbatte ne! ✨</p>
+                <div class="hero-stickers"><span>🎀 Made with love</span><span>🌸 JLPT N4 & JFT A2</span><span>💗 You got this!</span></div>
+            </div>
+            <div class="hero-art" aria-hidden="true">🐰</div>
+        </section>
+
+        <!-- Controls & Filter Bar -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <!-- Category Selector -->
+            <div class="flex items-center space-x-2 w-full md:w-auto">
+                <label for="category-select" class="text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap">Kategori:</label>
+                <select id="category-select" onchange="onCategoryChange()" class="w-full md:w-auto bg-sakura-50/50 border border-sakura-200 text-gray-700 text-sm rounded-xl focus:ring-sakura-400 focus:border-sakura-400 p-2.5 font-medium cursor-pointer">
+                    <option value="all">🌟 Semua Kategori (88 Kata/Frasa)</option>
+                    <option value="cat1">1. Salam & Etiket Situasional (24)</option>
+                    <option value="cat2">2. Adverbia Kunci & Kolokasi (27)</option>
+                    <option value="cat3">3. Reaksi & Penyela Percakapan (14)</option>
+                    <option value="cat4">4. Kata Sambung & Transisi (19)</option>
+                    <option value="cat5">5. Adverbia Waktu & Kepastian (15)</option>
+                </select>
+            </div>
+
+            <!-- Additional Display Options -->
+            <div class="flex items-center space-x-4 w-full md:w-auto justify-end">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggle-furigana" checked onchange="renderCurrentView()" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sakura-500"></div>
+                    <span class="ms-2 text-xs font-semibold text-gray-600">Furigana</span>
+                </label>
+                
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggle-romaji" checked onchange="renderCurrentView()" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sakura-500"></div>
+                    <span class="ms-2 text-xs font-semibold text-gray-600">Romaji</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- MODE 1: FLASHCARD STUDY MODE -->
+        <section id="mode-flashcard" class="space-y-6">
+            <div class="section-heading"><h3>Daily little lessons 🌷</h3><p>Satu kartu, satu langkah lebih dekat ke impianmu.</p>
+            <div class="progress-track"><div id="study-progress"></div></div><div id="progress-label" class="progress-label">Ayo mulai belajar ♡</div></div>
+            <div class="flex flex-col items-center">
+                <!-- Single Big Flip Card -->
+                <div class="w-full max-w-md h-80 perspective-1000 cursor-pointer" onclick="flipMainCard()">
+                    <div id="main-card-inner" class="relative w-full h-full transform-style-3d shadow-xl rounded-3xl bg-white border border-sakura-100">
+                        
+                        <!-- Front side (Japanese) -->
+                        <div class="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 flex flex-col justify-between items-center text-center bg-gradient-to-b from-white to-sakura-50/30">
+                            <div class="w-full flex justify-between items-center text-xs text-sakura-500 font-medium">
+                                <span id="fc-category-badge" class="bg-sakura-100 px-3 py-1 rounded-full">Etiket</span>
+                                <span>Klik kartu untuk membalik <i class="fa-solid fa-rotate text-sakura-400 ml-1"></i></span>
+                            </div>
+
+                            <div class="my-auto space-y-2">
+                                <div id="fc-furigana" class="text-base text-sakura-600 font-jp h-6">いただ・きます</div>
+                                <div id="fc-kanji" class="text-4xl md:text-5xl font-bold font-jp text-gray-800 tracking-wide">いただきます</div>
+                                <div id="fc-romaji" class="text-sm font-semibold text-gray-400 italic">itadakimasu</div>
+                            </div>
+
+                            <div class="w-full flex justify-center pb-2">
+                                <button onclick="speakJapanese(event)" title="Dengarkan Pengucapan (TTS)" class="bg-sakura-100 hover:bg-sakura-200 text-sakura-600 p-3 rounded-full transition-transform active:scale-95 shadow-sm">
+                                    <i class="fa-solid fa-volume-high text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Back side (Indonesian Meaning) -->
+                        <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl p-6 flex flex-col justify-between items-center text-center bg-gradient-to-b from-matcha-50 to-white border-2 border-matcha-500/20">
+                            <div class="w-full flex justify-between items-center text-xs text-matcha-600 font-medium">
+                                <span class="bg-matcha-100 px-3 py-1 rounded-full">Arti / Fungsi</span>
+                                <span>Klik kartu untuk kembali</span>
+                            </div>
+
+                            <div class="my-auto px-4">
+                                <h3 id="fc-meaning" class="text-2xl font-bold text-gray-800 mb-2">Diucapkan sebelum makan</h3>
+                                <p id="fc-context-note" class="text-xs text-gray-500 italic"></p>
+                            </div>
+
+                            <div class="text-xs text-gray-400">
+                                💡 Tip: Tekan Panah Kiri/Kanan di keyboard untuk ganti kartu
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Card Controls -->
+                <div class="flex items-center space-x-4 mt-6">
+                    <button onclick="prevCard()" class="bg-white hover:bg-sakura-50 text-gray-700 p-3.5 rounded-2xl border border-gray-200 shadow-sm transition active:scale-95">
+                        <i class="fa-solid fa-chevron-left text-lg"></i>
+                    </button>
+                    
+                    <span id="card-counter" class="text-sm font-semibold text-gray-600 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+                        1 / 88
+                    </span>
+
+                    <button onclick="nextCard()" class="bg-white hover:bg-sakura-50 text-gray-700 p-3.5 rounded-2xl border border-gray-200 shadow-sm transition active:scale-95">
+                        <i class="fa-solid fa-chevron-right text-lg"></i>
+                    </button>
+
+                    <button onclick="shuffleFlashcards()" title="Acak Kartu" class="bg-sakura-50 hover:bg-sakura-100 text-sakura-600 p-3.5 rounded-2xl border border-sakura-200 shadow-sm transition active:scale-95">
+                        <i class="fa-solid fa-shuffle text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODE 2: MEMORY MATCHING GAME -->
+        <section id="mode-memory" class="hidden space-y-6">
+            <div class="section-heading"><h3>Match the cuties! 🧸</h3><p>Temukan pasangan kata Jepang dan artinya. Kamu pasti bisa! 💕</p></div>
+            <!-- Stats Dashboard -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <span class="text-xs text-gray-400 block font-medium">Langkah</span>
+                    <span id="mem-moves" class="text-xl font-bold text-gray-800">0</span>
+                </div>
+                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <span class="text-xs text-gray-400 block font-medium">Cocok</span>
+                    <span id="mem-matches" class="text-xl font-bold text-sakura-500">0 / 6</span>
+                </div>
+                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <span class="text-xs text-gray-400 block font-medium">Waktu</span>
+                    <span id="mem-timer" class="text-xl font-bold text-gray-800">00:00</span>
+                </div>
+                <button onclick="initMemoryGame()" class="bg-sakura-500 hover:bg-sakura-600 text-white p-3 rounded-2xl font-semibold shadow-md transition active:scale-95 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+
+            <!-- Memory Card Grid -->
+            <div id="memory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
+                <!-- Cards will be dynamically injected here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Victory Modal for Memory Game -->
+    <div id="victory-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl transform scale-95 transition-transform duration-300 border-4 border-sakura-200">
+            <div class="text-5xl mb-3">🐰🎀🌸</div>
+            <h2 class="text-2xl font-bold text-gray-800 font-jp mb-1">おめでとうございます!</h2>
+            <p class="text-sm text-gray-500 mb-4">Yeay, sayang! Semua pasangan berhasil kamu temukan. Proud of you! 💗</p>
+            
+            <div class="bg-sakura-50 p-4 rounded-2xl space-y-2 mb-6 text-sm text-gray-700">
+                <div class="flex justify-between"><span>Total Langkah:</span> <strong id="modal-moves" class="text-sakura-600">0</strong></div>
+                <div class="flex justify-between"><span>Total Waktu:</span> <strong id="modal-time" class="text-sakura-600">00:00</strong></div>
+            </div>
+
+            <button onclick="initMemoryGame(); hideVictoryModal();" class="w-full bg-sakura-500 hover:bg-sakura-600 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95">
+                Main lagi, yuk! ♡ <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 py-4 mt-8 text-center text-xs text-gray-400">
+        Made with ♡ for you • Sakura Study Club — Hyougen JFT A2 & JLPT N4
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Data Extraction from PDF
+        const hyougenData = [
+            // Category 1: Salam & Etiket Situasional (Aisatsu & Kanyouku)
+            { id: 1, cat: 'cat1', catName: 'Salam & Etiket', jp: 'いただきます', furigana: 'いただきます', romaji: 'itadakimasu', idn: 'Diucapkan sebelum makan' },
+            { id: 2, cat: 'cat1', catName: 'Salam & Etiket', jp: 'ごちそうさまでした', furigana: 'ごちそうさまでした', romaji: 'gochisousamadeshita', idn: 'Diucapkan sesudah makan' },
+            { id: 3, cat: 'cat1', catName: 'Salam & Etiket', jp: 'いってきます', furigana: 'いってきます', romaji: 'ittekimasu', idn: 'Diucapkan saat akan berangkat' },
+            { id: 4, cat: 'cat1', catName: 'Salam & Etiket', jp: 'いってらっしゃい', furigana: 'いってらっしゃい', romaji: 'itterasshai', idn: 'Diucapkan saat melepas orang berangkat' },
+            { id: 5, cat: 'cat1', catName: 'Salam & Etiket', jp: 'ただいま', furigana: 'ただいま', romaji: 'tadaima', idn: 'Diucapkan saat pulang' },
+            { id: 6, cat: 'cat1', catName: 'Salam & Etiket', jp: 'おかえりなさい', furigana: 'おかえりなさい', romaji: 'okaerinasai', idn: 'Menyambut orang yang pulang' },
+            { id: 7, cat: 'cat1', catName: 'Salam & Etiket', jp: 'おじゃまします', furigana: 'おじゃまします', romaji: 'ojamashimasu', idn: 'Diucapkan saat masuk ke rumah/ruangan orang lain' },
+            { id: 8, cat: 'cat1', catName: 'Salam & Etiket', jp: 'おじゃましました', furigana: 'おじゃましました', romaji: 'ojamashimashita', idn: 'Diucapkan saat pamit dari rumah/ruangan orang lain' },
+            { id: 9, cat: 'cat1', catName: 'Salam & Etiket', jp: 'ごめんください', furigana: 'ごめんください', romaji: 'gomenkudasai', idn: 'Permisi, untuk memanggil pemilik rumah' },
+            { id: 10, cat: 'cat1', catName: 'Salam & Etiket', jp: 'いらっしゃい', furigana: 'いらっしゃい', romaji: 'irasshai', idn: 'Selamat datang (suasana kasual)' },
+            { id: 11, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お疲れさまでした', furigana: 'おつかれさまでした', romaji: 'otsukaresamadeshita', idn: 'Terima kasih atas kerja kerasnya (selesai kerja)' },
+            { id: 12, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お先に失礼します', furigana: 'おさきにしつれいします', romaji: 'osakini shitsureishimasu', idn: 'Permisi, saya pulang duluan' },
+            { id: 13, cat: 'cat1', catName: 'Salam & Etiket', jp: 'いらっしゃいませ', furigana: 'いらっしゃいませ', romaji: 'irasshaimase', idn: 'Selamat datang (oleh pelayan toko/restoran)' },
+            { id: 14, cat: 'cat1', catName: 'Salam & Etiket', jp: 'かしこまりました', furigana: 'かしこまりました', romaji: 'kashikomarimashita', idn: 'Baik, saya mengerti (respons sopan instruksi/pesanan)' },
+            { id: 15, cat: 'cat1', catName: 'Salam & Etiket', jp: '少々お待ちください', furigana: 'しょうしょうおまちください', romaji: 'shoushou omachi kudasai', idn: 'Mohon tunggu sebentar' },
+            { id: 16, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お待たせしました', furigana: 'おまたせしました', romaji: 'omataseshimashita', idn: 'Maaf telah membuat Anda menunggu' },
+            { id: 17, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お世話になります', furigana: 'おせわになります', romaji: 'osewani narimasu', idn: 'Terima kasih atas bantuan/kerja samanya (bisnis/formal)' },
+            { id: 18, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お大事に', furigana: 'おだいじに', romaji: 'odaijini', idn: 'Semoga lekas sembuh (kepada orang sakit)' },
+            { id: 19, cat: 'cat1', catName: 'Salam & Etiket', jp: 'おかげさまで', furigana: 'おかげさまで', romaji: 'okagesamade', idn: 'Berkat bantuan atau perhatian Anda' },
+            { id: 20, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お気をつけて', furigana: 'おきをつけて', romaji: 'okiwotsukete', idn: 'Hati-hati di jalan' },
+            { id: 21, cat: 'cat1', catName: 'Salam & Etiket', jp: 'お元気で', furigana: 'おげんきで', romaji: 'ogenkide', idn: 'Jaga diri baik-baik (saat berpisah lama)' },
+            { id: 22, cat: 'cat1', catName: 'Salam & Etiket', jp: 'おめでとうございます', furigana: 'おめでとうございます', romaji: 'omedetou gozaimasu', idn: 'Selamat atas ulang tahun, kelulusan, dll.' },
+            { id: 23, cat: 'cat1', catName: 'Salam & Etiket', jp: '残念ですね', furigana: 'ざんねんですね', romaji: 'zannendesune', idn: 'Sayang sekali; ikut prihatin' },
+            { id: 24, cat: 'cat1', catName: 'Salam & Etiket', jp: '申し訳ありません', furigana: 'もうしわけありません', romaji: 'moushiwake arimasen', idn: 'Mohon maaf yang sebesar-besarnya' },
+
+            // Category 2: Adverbia Kunci & Kolokasi (Fukushi)
+            { id: 25, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'きっと', furigana: 'きっと', romaji: 'kitto', idn: 'Pasti; harapan atau dugaan kuat' },
+            { id: 26, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'たぶん', furigana: 'たぶん', romaji: 'tabun', idn: 'Mungkin, barangkali (~と思います)' },
+            { id: 27, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'ぜひ', furigana: 'ぜひ', romaji: 'zehi', idn: 'Sangat ingin (harapan/ajakan kuat)' },
+            { id: 28, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'もしかしたら', furigana: 'もしかしたら', romaji: 'moshikashitara', idn: 'Bisa jadi, mungkin (~かもしれません)' },
+            { id: 29, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'なかなか', furigana: 'なかなか', romaji: 'nakanaka', idn: 'Tidak mudah (sering diikuti bentuk negatif)' },
+            { id: 30, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'ぜんぜん', furigana: 'ぜんぜん', romaji: 'zenzen', idn: 'Sama sekali tidak (diikuti bentuk negatif)' },
+            { id: 31, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'あまり', furigana: 'あまり', romaji: 'amari', idn: 'Tidak begitu (diikuti bentuk negatif)' },
+            { id: 32, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'ちっとも', furigana: 'ちっとも', romaji: 'chittomo', idn: 'Sedikit pun tidak (diikuti bentuk negatif)' },
+            { id: 33, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'やっと', furigana: 'やっと', romaji: 'yatto', idn: 'Akhirnya (setelah usaha/penantian)' },
+            { id: 34, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'とうとう', furigana: 'とうとう', romaji: 'toutou', idn: 'Pada akhirnya (hasil positif/negatif)' },
+            { id: 35, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'だんだん', furigana: 'だんだん', romaji: 'dandan', idn: 'Berangsur-angsur; sedikit demi sedikit' },
+            { id: 36, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'どんどん', furigana: 'どんどん', romaji: 'dondon', idn: 'Terus-menerus; cepat/semakin pesat' },
+            { id: 37, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'そろそろ', furigana: 'そろそろ', romaji: 'sorosoro', idn: 'Sebentar lagi (waktunya beraksi/pamit)' },
+            { id: 38, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'ずっと', furigana: 'ずっと', romaji: 'zutto', idn: 'Terus-menerus / jauh lebih (perbandingan)' },
+            { id: 39, cat: 'cat2', catName: 'Adverbia Kunci', jp: '急に', furigana: 'きゅうに', romaji: 'kyuuni', idn: 'Tiba-tiba' },
+            { id: 40, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'たいてい', furigana: 'たいてい', romaji: 'taitei', idn: 'Biasanya; sebagian besar' },
+            { id: 41, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'たまに', furigana: 'たまに', romaji: 'tamani', idn: 'Kadang-kadang; sesekali' },
+            { id: 42, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'たしか', furigana: 'たしか', romaji: 'tashika', idn: 'Kalau tidak salah; seingat saya' },
+            { id: 43, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'たしかに', furigana: 'たしかに', romaji: 'tashikani', idn: 'Memang benar; mengakui kebenaran' },
+            { id: 44, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'じつは', furigana: 'じつは', romaji: 'jitsuwa', idn: 'Sebenarnya (mengungkapkan fakta)' },
+            { id: 45, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'とにかく', furigana: 'とにかく', romaji: 'tonikaku', idn: 'Pokoknya; bagaimanapun juga' },
+            { id: 46, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'とりあえず', furigana: 'とりあえず', romaji: 'toriあえず', romaji: 'toriaezu', idn: 'Untuk sementara; langkah awal' },
+            { id: 47, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'いっしょうけんめい', furigana: 'いっしょうけんめい', romaji: 'isshoukenmei', idn: 'Dengan sungguh-sungguh; sekuat tenaga' },
+            { id: 48, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'しっかり', furigana: 'しっかり', romaji: 'shikkari', idn: 'Dengan kuat, mantap, teliti, rajin' },
+            { id: 49, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'はっきり', furigana: 'はっきり', romaji: 'hakkiri', idn: 'Dengan jelas (suara, pendapat, dll)' },
+            { id: 50, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'ちゃんと', furigana: 'ちゃんと', romaji: 'chanto', idn: 'Dengan benar; sesuai aturan' },
+            { id: 51, cat: 'cat2', catName: 'Adverbia Kunci', jp: 'まっすぐ', furigana: 'まっすぐ', romaji: 'massugu', idn: 'Lurus; tanpa berbelok' },
+
+            // Category 3: Reaksi & Penyela Percakapan (Aizuchi & Hentou)
+            { id: 52, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'なるほど', furigana: 'なるほど', romaji: 'naruhodo', idn: 'Oh, begitu (menunjukkan pemahaman)' },
+            { id: 53, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'そうですね', furigana: 'そうですね', romaji: 'soudesune', idn: 'Benar juga ya (persetujuan/jeda berpikir)' },
+            { id: 54, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'そのとおりです', furigana: 'そのとおりです', romaji: 'sonotooridesu', idn: 'Benar sekali; tepat seperti itu' },
+            { id: 55, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'もちろんです', furigana: 'もちろんです', romaji: 'mochirondesu', idn: 'Tentu saja' },
+            { id: 56, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'かまいません', furigana: 'かまいません', romaji: 'kamaimasen', idn: 'Tidak apa-apa; tidak keberatan' },
+            { id: 57, cat: 'cat3', catName: 'Reaksi Percakapan', jp: '結構です', furigana: 'けっこうです', romaji: 'kekkoudesu', idn: 'Tidak, terima kasih / sudah cukup' },
+            { id: 58, cat: 'cat3', catName: 'Reaksi Percakapan', jp: '承知しました', furigana: 'しょうちしました', romaji: 'shouchishimashita', idn: 'Baik, saya mengerti (respons sopan)' },
+            { id: 59, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'ちょっと...', furigana: 'ちょっと...', romaji: 'chotto...', idn: 'Agak... (penolakan halus)' },
+            { id: 60, cat: 'cat3', catName: 'Reaksi Percakapan', jp: '遠慮しておきます', furigana: 'えんりょしておきます', romaji: 'enryoshiteokimasu', idn: 'Tidak usah, terima kasih (memilih menolak)' },
+            { id: 61, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'さあ...', furigana: 'さあ...', romaji: 'saa...', idn: 'Entahlah (ketidaktahuan/keraguan)' },
+            { id: 62, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'まさか', furigana: 'まさか', romaji: 'masaka', idn: 'Masa sih!; tidak mungkin!' },
+            { id: 63, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'へえ', furigana: 'へえ', romaji: 'hee', idn: 'Wah! (keterkejutan/kekaguman)' },
+            { id: 64, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'しまった', furigana: 'しまった', romaji: 'shimatta', idn: 'Gawat! (menyadari kesalahan)' },
+            { id: 65, cat: 'cat3', catName: 'Reaksi Percakapan', jp: 'どうしよう', furigana: 'どうしよう', romaji: 'doushiyou', idn: 'Bagaimana ini? (kebingungan/kepanikan)' },
+
+            // Category 4: Kata Sambung & Transisi Alur (Tsunagi Kotoba)
+            { id: 66, cat: 'cat4', catName: 'Kata Sambung', jp: 'ところで', furigana: 'ところで', romaji: 'tokorode', idn: 'Ngomong-ngomong (mengalihkan topik)' },
+            { id: 67, cat: 'cat4', catName: 'Kata Sambung', jp: 'さて', furigana: 'さて', romaji: 'sate', idn: 'Baiklah, nah (memulai topik baru)' },
+            { id: 68, cat: 'cat4', catName: 'Kata Sambung', jp: 'それから', furigana: 'それから', romaji: 'sorekara', idn: 'Setelah itu, lalu (menambah info)' },
+            { id: 69, cat: 'cat4', catName: 'Kata Sambung', jp: 'それに', furigana: 'それに', romaji: 'soreni', idn: 'Lagipula (menambahkan alasan/info)' },
+            { id: 70, cat: 'cat4', catName: 'Kata Sambung', jp: 'そして', furigana: 'そして', romaji: 'soshite', idn: 'Dan, kemudian (menghubungkan informasi)' },
+            { id: 71, cat: 'cat4', catName: 'Kata Sambung', jp: 'まず', furigana: 'まず', romaji: 'mazu', idn: 'Pertama-tama' },
+            { id: 72, cat: 'cat4', catName: 'Kata Sambung', jp: '次に', furigana: 'つぎに', romaji: 'tsugini', idn: 'Selanjutnya' },
+            { id: 73, cat: 'cat4', catName: 'Kata Sambung', jp: 'だから', furigana: 'だから', romaji: 'dakara', idn: 'Oleh karena itu (bentuk umum)' },
+            { id: 74, cat: 'cat4', catName: 'Kata Sambung', jp: 'ですから', furigana: 'ですから', romaji: 'desukara', idn: 'Oleh karena itu (bentuk sopan)' },
+            { id: 75, cat: 'cat4', catName: 'Kata Sambung', jp: 'それで', furigana: 'それで', romaji: 'sorede', idn: 'Lalu, jadi (menghubungkan sebab-akibat)' },
+            { id: 76, cat: 'cat4', catName: 'Kata Sambung', jp: 'それなら', furigana: 'それなら', romaji: 'sorenara', idn: 'Kalau begitu (merespons info)' },
+            { id: 77, cat: 'cat4', catName: 'Kata Sambung', jp: 'じゃあ', furigana: 'じゃあ', romaji: 'jaa', idn: 'Kalau begitu (kasual)' },
+            { id: 78, cat: 'cat4', catName: 'Kata Sambung', jp: 'では', furigana: 'では', romaji: 'dewa', idn: 'Kalau begitu (formal)' },
+            { id: 79, cat: 'cat4', catName: 'Kata Sambung', jp: 'でも', furigana: 'でも', romaji: 'demo', idn: 'Tetapi (bentuk umum)' },
+            { id: 80, cat: 'cat4', catName: 'Kata Sambung', jp: 'けれども', furigana: 'けれども', romaji: 'keredomo', idn: 'Tetapi, meskipun' },
+            { id: 81, cat: 'cat4', catName: 'Kata Sambung', jp: 'しかし', furigana: 'しかし', romaji: 'shikashi', idn: 'Namun (lebih formal)' },
+            { id: 82, cat: 'cat4', catName: 'Kata Sambung', jp: 'それなのに', furigana: 'それなのに', romaji: 'sorenanoni', idn: 'Padahal begitu (bertentangan harapan)' },
+            { id: 83, cat: 'cat4', catName: 'Kata Sambung', jp: 'または', furigana: 'または', romaji: 'matawa', idn: 'Atau (pilihan kata benda/opsi)' },
+            { id: 84, cat: 'cat4', catName: 'Kata Sambung', jp: 'それとも', furigana: 'それとも', romaji: 'soretomo', idn: 'Atau (pilihan dalam pertanyaan)' },
+
+            // Category 5: Adverbia Waktu, Derajat & Kepastian
+            { id: 85, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'ちょうど', furigana: 'ちょうど', romaji: 'choudo', idn: 'Tepat / pas (waktu, ukuran, uang)' },
+            { id: 86, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'ほとんど', furigana: 'ほとんど', romaji: 'hontondo', idn: 'Hampir semua / sebagian besar' },
+            { id: 87, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'かならず', furigana: 'かならず', romaji: 'kanarazu', idn: 'Pasti/selalu (janji, kewajiban)' },
+            { id: 88, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'ぜったいに', furigana: 'ぜったいに', romaji: 'zettaini', idn: 'Mutlak / pasti (tekad/larangan)' },
+            { id: 89, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'まったく', furigana: 'まったく', romaji: 'mattaku', idn: 'Sama sekali (penekanan/negatif)' },
+            { id: 90, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'しばらく', furigana: 'しばらく', romaji: 'shibaraku', idn: 'Sebentar / beberapa lama' },
+            { id: 91, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'いつも', furigana: 'いつも', romaji: 'itsumo', idn: 'Selalu (rutinitas/kebiasaan)' },
+            { id: 92, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'よく', furigana: 'よく', romaji: 'yoku', idn: 'Sering / dengan baik' },
+            { id: 93, cat: 'cat5', catName: 'Waktu & Kepastian', jp: '時々', furigana: 'ときどき', romaji: 'tokidoki', idn: 'Kadang-kadang' },
+            { id: 94, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'さっき', furigana: 'さっき', romaji: 'sakki', idn: 'Tadi / belum lama ini' },
+            { id: 95, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'すぐに', furigana: 'すぐに', romaji: 'suguni', idn: 'Segera / langsung' },
+            { id: 96, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'もうすぐ', furigana: 'もうすぐ', romaji: 'mousugu', idn: 'Sebentar lagi (segera terjadi)' },
+            { id: 97, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'これから', furigana: 'これから', romaji: 'korekara', idn: 'Mulai sekarang / setelah ini' },
+            { id: 98, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'むかし', furigana: 'むかし', romaji: 'mukashi', idn: 'Zaman dulu / dahulu kala' },
+            { id: 99, cat: 'cat5', catName: 'Waktu & Kepastian', jp: 'このごろ', furigana: 'このごろ', romaji: 'konogoro', idn: 'Akhir-akhir ini (kondisi/tren)' }
+        ];
+
+        // State variables
+        let currentMode = 'flashcard'; // 'flashcard' or 'memory'
+        let selectedCategory = 'all';
+        let filteredData = [...hyougenData];
+        let currentCardIndex = 0;
+        let isCardFlipped = false;
+
+        // Memory Game State
+        let memoryCards = [];
+        let flippedMemoryCards = [];
+        let matchedPairs = 0;
+        let memoryMoves = 0;
+        let memoryTimer = null;
+        let secondsElapsed = 0;
+        let isTimerRunning = false;
+        let gameEpoch = 0;
+
+        // Initialization
+        window.onload = function() {
+            filterData();
+            updateFlashcard();
+            setupKeyboardNav();
+            const select = document.getElementById('category-select');
+            const total = hyougenData.length;
+            select.options[0].textContent = `🌟 Semua Kategori (${total} Kata/Frasa)`;
+            Array.from(select.options).slice(1).forEach((opt) => {
+                const count = hyougenData.filter(item => item.cat === opt.value).length;
+                opt.textContent = opt.textContent.replace(/\(\d+\)$/, `(${count})`);
+            });
+        };
+
+        // Switch between Flashcard and Memory modes
+        function switchMode(mode) {
+            currentMode = mode;
+            const fcBtn = document.getElementById('tab-flashcard');
+            const memBtn = document.getElementById('tab-memory');
+            const fcSec = document.getElementById('mode-flashcard');
+            const memSec = document.getElementById('mode-memory');
+
+            if (mode === 'flashcard') {
+                fcBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm";
+                memBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600";
+                fcSec.classList.remove('hidden');
+                memSec.classList.add('hidden');
+                clearInterval(memoryTimer);
+                isTimerRunning = false;
+            } else {
+                memBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm";
+                fcBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600";
+                memSec.classList.remove('hidden');
+                fcSec.classList.add('hidden');
+                initMemoryGame();
+            }
+        }
+
+        // Handle Category Filtering
+        function onCategoryChange() {
+            selectedCategory = document.getElementById('category-select').value;
+            filterData();
+            currentCardIndex = 0;
+            if (currentMode === 'flashcard') {
+                resetMainCardFlip();
+                updateFlashcard();
+            } else {
+                initMemoryGame();
+            }
+        }
+
+        function filterData() {
+            if (selectedCategory === 'all') {
+                filteredData = [...hyougenData];
+            } else {
+                filteredData = hyougenData.filter(item => item.cat === selectedCategory);
+            }
+        }
+
+        // Render toggles (Furigana / Romaji)
+        function renderCurrentView() {
+            if (currentMode === 'flashcard') {
+                updateFlashcardDisplay();
+            } else {
+                // Re-render memory cards with new toggle settings
+                const showFurigana = document.getElementById('toggle-furigana').checked;
+                const showRomaji = document.getElementById('toggle-romaji').checked;
+                
+                document.querySelectorAll('.mem-furigana').forEach(el => {
+                    el.style.display = showFurigana ? 'block' : 'none';
+                });
+                document.querySelectorAll('.mem-romaji').forEach(el => {
+                    el.style.display = showRomaji ? 'block' : 'none';
+                });
+            }
+        }
+
+        /* -------------------------------------------------------------
+           FLASHCARD MODE LOGIC
+        ------------------------------------------------------------- */
+        function flipMainCard() {
+            const inner = document.getElementById('main-card-inner');
+            isCardFlipped = !isCardFlipped;
+            if (isCardFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function resetMainCardFlip() {
+            isCardFlipped = false;
+            document.getElementById('main-card-inner').classList.remove('rotate-y-180');
+        }
+
+        function updateFlashcard() {
+            if (filteredData.length === 0) return;
+            const current = filteredData[currentCardIndex];
+
+            document.getElementById('fc-category-badge').innerText = current.catName;
+            document.getElementById('fc-kanji').innerText = current.jp;
+            document.getElementById('fc-furigana').innerText = current.furigana;
+            document.getElementById('fc-romaji').innerText = current.romaji;
+            document.getElementById('fc-meaning').innerText = current.idn;
+
+            document.getElementById('card-counter').innerText = `${currentCardIndex + 1} / ${filteredData.length}`;
+
+            updateFlashcardDisplay();
+            const progress = document.getElementById('study-progress');
+            if (progress) {
+                const pct = Math.round(((currentCardIndex + 1) / filteredData.length) * 100);
+                progress.style.width = pct + '%';
+                document.getElementById('progress-label').textContent = `Kartu ${currentCardIndex + 1} dari ${filteredData.length} • ${pct}% 🌸`;
+            }
+        }
+
+        function updateFlashcardDisplay() {
+            const showFurigana = document.getElementById('toggle-furigana').checked;
+            const showRomaji = document.getElementById('toggle-romaji').checked;
+
+            document.getElementById('fc-furigana').style.visibility = showFurigana ? 'visible' : 'hidden';
+            document.getElementById('fc-romaji').style.display = showRomaji ? 'block' : 'none';
+        }
+
+        function nextCard() {
+            resetMainCardFlip();
+            setTimeout(() => {
+                currentCardIndex = (currentCardIndex + 1) % filteredData.length;
+                updateFlashcard();
+            }, 150);
+        }
+
+        function prevCard() {
+            resetMainCardFlip();
+            setTimeout(() => {
+                currentCardIndex = (currentCardIndex - 1 + filteredData.length) % filteredData.length;
+                updateFlashcard();
+            }, 150);
+        }
+
+        function shuffleFlashcards() {
+            resetMainCardFlip();
+            setTimeout(() => {
+                // Fisher-Yates Shuffle
+                for (let i = filteredData.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [filteredData[i], filteredData[j]] = [filteredData[j], filteredData[i]];
+                }
+                currentCardIndex = 0;
+                updateFlashcard();
+            }, 150);
+        }
+
+        // Text-To-Speech (TTS) for Japanese
+        function speakJapanese(e) {
+            e.stopPropagation(); // prevent flipping card when clicking speaker icon
+            const current = filteredData[currentCardIndex];
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(current.jp);
+                utterance.lang = 'ja-JP';
+                utterance.rate = 0.85; // Slightly slower for clear learning
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Fitur Text-to-Speech tidak didukung di browser ini.');
+            }
+        }
+
+        function setupKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                if (currentMode !== 'flashcard') return;
+                if (e.key === 'ArrowRight') nextCard();
+                if (e.key === 'ArrowLeft') prevCard();
+                if (e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    flipMainCard();
+                }
+            });
+        }
+
+        /* -------------------------------------------------------------
+           MEMORY GAME MODE LOGIC
+        ------------------------------------------------------------- */
+        function initMemoryGame() {
+            gameEpoch++;
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+            flippedMemoryCards = [];
+            matchedPairs = 0;
+            memoryMoves = 0;
+            secondsElapsed = 0;
+
+            document.getElementById('mem-moves').innerText = '0';
+            document.getElementById('mem-timer').innerText = '00:00';
+
+            clearInterval(memoryTimer);
+            isTimerRunning = false;
+
+            // Pick 6 random items from filtered pool
+            let pool = [...filteredData];
+            if (pool.length < 6) {
+                pool = [...hyougenData]; // Fallback if current category has less than 6 items
+            }
+            
+            // Shuffle pool
+            pool.sort(() => 0.5 - Math.random());
+            const selectedItems = pool.slice(0, 6);
+
+            document.getElementById('mem-matches').innerText = `0 / ${selectedItems.length}`;
+
+            // Create cards (1 JP, 1 ID for each item)
+            memoryCards = [];
+            selectedItems.forEach(item => {
+                memoryCards.push({
+                    pairId: item.id,
+                    type: 'jp',
+                    content: item.jp,
+                    furigana: item.furigana,
+                    romaji: item.romaji,
+                    isFlipped: false,
+                    isMatched: false
+                });
+                memoryCards.push({
+                    pairId: item.id,
+                    type: 'idn',
+                    content: item.idn,
+                    isFlipped: false,
+                    isMatched: false
+                });
+            });
+
+            // Shuffle cards in grid
+            memoryCards.sort(() => 0.5 - Math.random());
+
+            // Build DOM
+            const showFurigana = document.getElementById('toggle-furigana').checked;
+            const showRomaji = document.getElementById('toggle-romaji').checked;
+
+            memoryCards.forEach((card, idx) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'h-36 perspective-1000 cursor-pointer';
+                cardEl.onclick = () => flipMemoryCard(idx);
+
+                cardEl.innerHTML = `
+                    <div id="mem-card-inner-${idx}" class="relative w-full h-full transform-style-3d shadow-md rounded-2xl bg-white transition-transform duration-500">
+                        <!-- Front (Cover) -->
+                        <div class="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-gradient-to-br from-sakura-400 to-sakura-600 flex flex-col justify-center items-center text-white border-2 border-sakura-300 shadow-inner">
+                            <span class="text-3xl font-bold opacity-30">🌸</span>
+                        </div>
+                        
+                        <!-- Back (Content) -->
+                        <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-2xl p-3 flex flex-col justify-center items-center text-center bg-white border-2 ${card.type === 'jp' ? 'border-sakura-300' : 'border-matcha-500/40'}">
+                            ${card.type === 'jp' ? `
+                                <div class="mem-furigana text-xs text-sakura-500 font-jp" style="display: ${showFurigana ? 'block' : 'none'}">${card.furigana}</div>
+                                <div class="text-lg md:text-xl font-bold font-jp text-gray-800">${card.content}</div>
+                                <div class="mem-romaji text-xs text-gray-400 italic" style="display: ${showRomaji ? 'block' : 'none'}">${card.romaji}</div>
+                            ` : `
+                                <div class="text-xs text-matcha-600 font-bold mb-1 uppercase tracking-wider">Arti</div>
+                                <div class="text-sm font-semibold text-gray-800 leading-tight">${card.content}</div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            memoryTimer = setInterval(() => {
+                secondsElapsed++;
+                const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+                const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+                document.getElementById('mem-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function flipMemoryCard(index) {
+            const card = memoryCards[index];
+            if (card.isFlipped || card.isMatched || flippedMemoryCards.length >= 2) return;
+            startTimer();
+
+            // Flip visual
+            card.isFlipped = true;
+            const inner = document.getElementById(`mem-card-inner-${index}`);
+            inner.classList.add('rotate-y-180');
+
+            flippedMemoryCards.push({ index, card });
+
+            if (flippedMemoryCards.length === 2) {
+                memoryMoves++;
+                document.getElementById('mem-moves').innerText = memoryMoves;
+                checkMemoryMatch();
+            }
+        }
+
+        function checkMemoryMatch() {
+            const [card1, card2] = flippedMemoryCards;
+            
+            const epoch = gameEpoch;
+            if (card1.card.pairId === card2.card.pairId) {
+                // Match Found!
+                card1.card.isMatched = true;
+                card2.card.isMatched = true;
+                matchedPairs++;
+                
+                document.getElementById('mem-matches').innerText = `${matchedPairs} / ${memoryCards.length / 2}`;
+
+                // Add success visual effect
+                setTimeout(() => {
+                    if (epoch !== gameEpoch) return;
+                    document.getElementById(`mem-card-inner-${card1.index}`).classList.add('animate-matched');
+                    document.getElementById(`mem-card-inner-${card2.index}`).classList.add('animate-matched');
+                }, 300);
+
+                flippedMemoryCards = [];
+
+                // Check Victory Condition
+                if (matchedPairs === memoryCards.length / 2) {
+                    clearInterval(memoryTimer);
+                    isTimerRunning = false;
+                    setTimeout(() => { if (epoch === gameEpoch) showVictoryModal(); }, 600);
+                }
+            } else {
+                // Not a match -> Flip back
+                setTimeout(() => {
+                    if (epoch !== gameEpoch) return;
+                    card1.card.isFlipped = false;
+                    card2.card.isFlipped = false;
+                    document.getElementById(`mem-card-inner-${card1.index}`).classList.remove('rotate-y-180');
+                    document.getElementById(`mem-card-inner-${card2.index}`).classList.remove('rotate-y-180');
+                    flippedMemoryCards = [];
+                }, 1000);
+            }
+        }
+
+        function showVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            document.getElementById('modal-moves').innerText = memoryMoves;
+            document.getElementById('modal-time').innerText = document.getElementById('mem-timer').innerText;
+
+            modal.classList.remove('hidden');
+            showerConfetti();
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function showerConfetti() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            for (let i = 0; i < 55; i++) {
+                const el = document.createElement('span');
+                el.className = 'confetti';
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.background = ['#f095bd','#e4b7f7','#ffcf73','#ffffff','#e75b94'][i%5];
+                el.style.borderRadius = i%3 === 0 ? '50%' : '2px';
+                el.style.animationDelay = Math.random()*.65 + 's';
+                el.style.setProperty('--dx', (Math.random()*220-110)+'px');
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 4400);
+            }
+        }
+
+        function hideVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+    <!-- ============ Cute motion layer ♡ ============ -->
+    <style>
+        .cute-layer{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+        .cute-pop{position:fixed;pointer-events:none;z-index:70;font-size:18px;line-height:1;will-change:transform,opacity;animation:cutePop .9s cubic-bezier(.2,.8,.3,1) forwards}
+        @keyframes cutePop{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}70%{opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1) rotate(var(--r));opacity:0}}
+        .cute-spark{position:fixed;pointer-events:none;z-index:70;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);animation:sparkFade .7s ease-out forwards}
+        @keyframes sparkFade{to{transform:translate(-50%,calc(-50% + 18px)) scale(.1);opacity:0}}
+        .cute-balloon{position:absolute;bottom:-60px;font-size:26px;opacity:.55;animation:balloonUp linear forwards}
+        @keyframes balloonUp{0%{transform:translate(0,0)}25%{transform:translate(14px,-30vh)}50%{transform:translate(-12px,-60vh)}75%{transform:translate(10px,-90vh)}100%{transform:translate(0,-125vh)}}
+        .cute-walker{position:fixed;bottom:6px;left:-70px;z-index:44;pointer-events:none;font-size:34px;animation:walkAcross 16s linear forwards}
+        .cute-walker span{display:inline-block;animation:hop .45s ease-in-out infinite alternate}
+        .cute-walker.rev{left:auto;right:-70px;animation-name:walkBack}
+        .cute-walker.rev span{transform:scaleX(-1)}
+        @keyframes walkAcross{to{transform:translateX(calc(100vw + 140px))}}
+        @keyframes walkBack{to{transform:translateX(calc(-100vw - 140px))}}
+        @keyframes hop{from{translate:0 0}to{translate:0 -7px}}
+        .cute-walker small{position:absolute;top:-18px;left:30px;font-size:12px;font-weight:800;color:#c45a8a;white-space:nowrap;font-family:Nunito,sans-serif}
+
+        /* Mascot bunny */
+        #cute-mascot{position:fixed;right:18px;bottom:18px;z-index:46;width:92px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 10px 14px #d0679a40);animation:mascotBob 2.6s ease-in-out infinite}
+        #cute-mascot.jump{animation:mascotJump .6s cubic-bezier(.3,1.6,.5,1)}
+        @keyframes mascotBob{50%{transform:translateY(-6px)}}
+        @keyframes mascotJump{0%{transform:translateY(0) scale(1)}25%{transform:translateY(4px) scale(1.12,.86)}55%{transform:translateY(-30px) scale(.92,1.1)}80%{transform:translateY(2px) scale(1.06,.94)}100%{transform:translateY(0) scale(1)}}
+        #cute-mascot .ear-l{transform-origin:40px 44px;animation:earL 3.2s ease-in-out infinite}
+        #cute-mascot .ear-r{transform-origin:60px 44px;animation:earR 3.2s ease-in-out infinite}
+        @keyframes earL{0%,80%,100%{transform:rotate(0)}88%{transform:rotate(-14deg)}}
+        @keyframes earR{0%,70%,100%{transform:rotate(0)}78%{transform:rotate(14deg)}}
+        #cute-mascot .eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+        @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+        #cute-mascot .blush{animation:blushPulse 2.6s ease-in-out infinite}
+        @keyframes blushPulse{50%{opacity:.95}}
+        #cute-mascot.happy .eye{display:none}
+        #cute-mascot .happy-eye{display:none}
+        #cute-mascot.happy .happy-eye{display:inline}
+        #cute-bubble{position:fixed;right:24px;bottom:122px;z-index:47;max-width:220px;background:#fff;border:2px solid #ffc8de;color:#8a3c64;font:800 13px/1.45 Nunito,sans-serif;padding:10px 14px;border-radius:18px 18px 4px 18px;box-shadow:0 10px 28px #c4578a2a;opacity:0;transform:translateY(8px) scale(.85);transform-origin:bottom right;transition:opacity .25s,transform .35s cubic-bezier(.3,1.6,.5,1);pointer-events:none}
+        #cute-bubble.show{opacity:1;transform:none}
+        #cute-toggle{position:fixed;right:22px;bottom:4px;z-index:47;font:800 10px Nunito,sans-serif;color:#c4789d;background:#fff8fbcc;border:1px solid #ffd7e7;border-radius:99px;padding:2px 8px;cursor:pointer}
+
+        /* Hero wavy text + extra floating friends */
+        .wavy span{display:inline-block;animation:wavy 1.8s ease-in-out infinite;animation-delay:calc(var(--i) * .08s)}
+        @keyframes wavy{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px) rotate(-4deg)}}
+        .hero-friend{position:absolute;font-size:30px;pointer-events:none;z-index:0;animation:friendFloat 4s ease-in-out infinite}
+        @keyframes friendFloat{50%{transform:translateY(-12px) rotate(10deg) scale(1.08)}}
+        .hero-art{cursor:pointer;pointer-events:auto}
+        .cute-wobble{animation:wobble .5s ease}
+        @keyframes wobble{0%,100%{transform:scale(1)}30%{transform:scale(1.04,.96)}60%{transform:scale(.97,1.03)}}
+        .cute-shake{animation:shake .4s ease}
+        @keyframes shake{0%,100%{translate:0}20%{translate:-6px}40%{translate:6px}60%{translate:-4px}80%{translate:4px}}
+        .eyebrow{animation:eyebrowGlow 3s ease-in-out infinite}
+        @keyframes eyebrowGlow{50%{box-shadow:0 0 0 5px #ffd0e255,0 2px 7px #df8ead15}}
+        header .text-3xl{animation:bowSpin 6s ease-in-out infinite}
+        @keyframes bowSpin{0%,85%,100%{transform:rotate(0)}90%{transform:rotate(-15deg) scale(1.1)}95%{transform:rotate(12deg) scale(1.1)}}
+
+        @media(max-width:720px){#cute-mascot{width:70px;right:10px;bottom:22px}#cute-bubble{right:14px;bottom:104px;max-width:180px;font-size:12px}.hero-friend{display:none}}
+        body.cute-off .cute-layer,body.cute-off .cute-walker{display:none}
+        @media(prefers-reduced-motion:reduce){#cute-mascot,#cute-mascot *,.wavy span,.hero-friend,.eyebrow,header .text-3xl{animation:none!important}.cute-layer,.cute-walker{display:none}}
+    </style>
+
+    <div class="cute-layer" id="cute-layer" aria-hidden="true"></div>
+    <div id="cute-bubble" role="status" aria-live="polite"></div>
+    <div id="cute-mascot" title="Pencet aku dong~" aria-label="Kelinci lucu, klik untuk pesan manis" role="button" tabindex="0">
+        <svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+            <g class="ear-l"><ellipse cx="36" cy="24" rx="10" ry="24" fill="#fff" stroke="#f3bcd3" stroke-width="2"/><ellipse cx="36" cy="26" rx="5" ry="16" fill="#ffc8de"/></g>
+            <g class="ear-r"><ellipse cx="64" cy="24" rx="10" ry="24" fill="#fff" stroke="#f3bcd3" stroke-width="2"/><ellipse cx="64" cy="26" rx="5" ry="16" fill="#ffc8de"/></g>
+            <path d="M60 10 l8 -6 l2 9 z M60 10 l-9 -4 l3 9 z" fill="#e75b94"/><circle cx="60" cy="10" r="3" fill="#c63e79"/>
+            <ellipse cx="50" cy="92" rx="30" ry="16" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+            <circle cx="50" cy="66" r="30" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+            <ellipse class="eye" cx="39" cy="63" rx="3.6" ry="4.6" fill="#53364e"/>
+            <ellipse class="eye" cx="61" cy="63" rx="3.6" ry="4.6" fill="#53364e"/>
+            <circle cx="40.2" cy="61.3" r="1.2" fill="#fff" class="eye"/><circle cx="62.2" cy="61.3" r="1.2" fill="#fff" class="eye"/>
+            <path class="happy-eye" d="M34 64 q5 -6 10 0 M56 64 q5 -6 10 0" stroke="#53364e" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <ellipse class="blush" cx="31" cy="73" rx="6" ry="3.5" fill="#ff9bc3" opacity=".6"/>
+            <ellipse class="blush" cx="69" cy="73" rx="6" ry="3.5" fill="#ff9bc3" opacity=".6"/>
+            <path d="M46 71 q4 4 8 0" stroke="#c63e79" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M48 68 l2 2 l2 -2 z" fill="#f476a8"/>
+            <ellipse cx="36" cy="104" rx="9" ry="5" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+            <ellipse cx="64" cy="104" rx="9" ry="5" fill="#fff" stroke="#f3bcd3" stroke-width="2"/>
+        </svg>
+    </div>
+    <button id="cute-toggle" type="button" aria-pressed="true">✨ efek: on</button>
+
+    <script>
+    (() => {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const layer = document.getElementById('cute-layer');
+        const mascot = document.getElementById('cute-mascot');
+        const bubble = document.getElementById('cute-bubble');
+        const toggle = document.getElementById('cute-toggle');
+        const rand = (a, b) => Math.random() * (b - a) + a;
+        const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+        let effectsOn = localStorage.getItem('cute-effects') !== 'off';
+
+        const sweet = [
+            'Semangat belajarnya, sayang! 💗', 'Kamu pinter banget sih~ (｡♥‿♥｡)', 'Ganbatte ne! がんばってね ✨',
+            'Istirahat bentar juga gapapa kok 🍵', 'Aku bangga sama kamu! 🥹💕', 'Daisuki dayo~ 大好きだよ ♡',
+            'Satu kata lagi, kamu pasti bisa! 🌸', 'Jangan lupa minum air ya 💧🐰', 'Kamu lucu banget hari ini 🎀',
+            'Pelan-pelan aja, yang penting jalan 🐢💗', 'Sugoi! すごい! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', 'Peluk virtual dulu sini 🫂'
+        ];
+        const yay = ['Yatta! やった! 🎉', 'Cocok! Pinter banget~ 💕', 'Sugoi ne! ✨', 'Pasangan serasi kayak kita 💑'];
+        const oops = ['Daijoubu~ coba lagi ya 🥺', 'Hampir! Dikit lagi 💪', 'Gapapa, salah itu belajar 🌷'];
+        const burstSet = ['💗','💖','🌸','✨','💕','🎀','⭐','🫧'];
+
+        function pop(x, y, count = 8, set = burstSet) {
+            if (!effectsOn || reduce) return;
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('span');
+                el.className = 'cute-pop';
+                el.textContent = pick(set);
+                const ang = (Math.PI * 2 * i) / count + rand(-.3, .3), dist = rand(40, 90);
+                el.style.left = x + 'px'; el.style.top = y + 'px';
+                el.style.fontSize = rand(14, 24) + 'px';
+                el.style.setProperty('--x', Math.cos(ang) * dist + 'px');
+                el.style.setProperty('--y', Math.sin(ang) * dist - 20 + 'px');
+                el.style.setProperty('--r', rand(-60, 60) + 'deg');
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 950);
+            }
+        }
+        const popAt = (el, n, set) => { if (!el) return; const r = el.getBoundingClientRect(); pop(r.left + r.width / 2, r.top + r.height / 2, n, set); };
+
+        let bubbleTimer;
+        function say(text, ms = 2800) {
+            bubble.textContent = text;
+            bubble.classList.add('show');
+            clearTimeout(bubbleTimer);
+            bubbleTimer = setTimeout(() => bubble.classList.remove('show'), ms);
+        }
+        function happy() {
+            mascot.classList.remove('jump'); void mascot.offsetWidth; mascot.classList.add('jump', 'happy');
+            setTimeout(() => mascot.classList.remove('happy'), 1200);
+        }
+        const poke = () => { happy(); say(pick(sweet)); popAt(mascot, 10, ['💗','💖','💕','🥰','✨']); };
+        mascot.addEventListener('click', e => { e.stopPropagation(); poke(); });
+        mascot.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); poke(); } });
+        mascot.addEventListener('animationend', e => { if (e.animationName === 'mascotJump') mascot.classList.remove('jump'); });
+
+        // Click / tap anywhere → little heart burst
+        document.addEventListener('pointerdown', e => {
+            if (e.target.closest('#cute-mascot, #cute-toggle')) return;
+            pop(e.clientX, e.clientY, 6);
+        });
+
+        // Sparkle trail (mouse only, throttled)
+        let last = 0;
+        document.addEventListener('pointermove', e => {
+            if (!effectsOn || reduce || e.pointerType !== 'mouse') return;
+            const now = performance.now(); if (now - last < 45) return; last = now;
+            const s = document.createElement('span');
+            s.className = 'cute-spark';
+            s.style.left = e.clientX + 'px'; s.style.top = e.clientY + 'px';
+            s.style.background = pick(['#ff9bc3','#ffd3e6','#e4b7f7','#ffcf73','#fff']);
+            s.style.boxShadow = '0 0 6px ' + s.style.background;
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 720);
+        }, { passive: true });
+
+        // Floating balloons / bubbles in the background
+        function balloon() {
+            if (!effectsOn || reduce || document.hidden) return;
+            const b = document.createElement('span');
+            b.className = 'cute-balloon';
+            b.textContent = pick(['🎈','💗','🫧','🌷','💕','🍡','🍓','⭐']);
+            b.style.left = rand(2, 96) + 'vw';
+            b.style.fontSize = rand(18, 32) + 'px';
+            const dur = rand(12, 20);
+            b.style.animationDuration = dur + 's';
+            layer.appendChild(b);
+            setTimeout(() => b.remove(), dur * 1000 + 200);
+        }
+        setInterval(balloon, 2600);
+
+        // A little friend strolls across the bottom every now and then
+        const walkers = [['🐱','nyan~'],['🐰','pyon pyon'],['🐥','piyo piyo'],['🐶','wan wan!'],['🐹','mochi mochi'],['🐧','penguin lewat~']];
+        function stroll() {
+            if (!effectsOn || reduce || document.hidden) return;
+            const [emoji, line] = pick(walkers);
+            const w = document.createElement('div');
+            w.className = 'cute-walker' + (Math.random() < .5 ? ' rev' : '');
+            w.innerHTML = `<small>${line}</small><span>${emoji}</span>`;
+            document.body.appendChild(w);
+            setTimeout(() => w.remove(), 16500);
+        }
+        setTimeout(stroll, 4000);
+        setInterval(stroll, 22000);
+
+        // Hero: wavy "makin gemes" + floating friends + clickable bunny
+        const em = document.querySelector('.hero h2 em');
+        if (em) {
+            const txt = em.textContent;
+            em.classList.add('wavy');
+            em.innerHTML = [...txt].map((c, i) => `<span style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
+        }
+        const hero = document.querySelector('.hero');
+        if (hero) {
+            [['🍓','70%','8%','0s'],['🧸','86%','12%','.8s'],['💌','66%','72%','1.6s'],['🌷','90%','66%','2.2s']].forEach(([e, l, t, d]) => {
+                const f = document.createElement('span');
+                f.className = 'hero-friend'; f.textContent = e; f.setAttribute('aria-hidden', 'true');
+                Object.assign(f.style, { left: l, top: t, animationDelay: d });
+                hero.appendChild(f);
+            });
+            const art = hero.querySelector('.hero-art');
+            if (art) art.addEventListener('click', () => { popAt(art, 12); say('Hehe, geli~ (≧▽≦) 🐰'); happy(); });
+        }
+
+        // Hook into the game for reactions
+        const cardEl = () => document.getElementById('main-card-inner');
+        const wrap = (name, after) => {
+            const orig = window[name];
+            if (typeof orig !== 'function') return;
+            window[name] = function (...args) { const r = orig.apply(this, args); try { after(...args); } catch (_) {} return r; };
+        };
+        let flips = 0;
+        wrap('flipMainCard', () => {
+            popAt(cardEl(), 7, ['✨','⭐','💫','🌸']);
+            if (++flips % 6 === 0) { happy(); say(pick(sweet)); }
+        });
+        const wob = () => { const c = cardEl()?.parentElement; if (!c) return; c.classList.remove('cute-wobble'); void c.offsetWidth; c.classList.add('cute-wobble'); };
+        wrap('nextCard', wob); wrap('prevCard', wob);
+
+        const origCheck = window.checkMemoryMatch;
+        if (typeof origCheck === 'function') {
+            window.checkMemoryMatch = function () {
+                const pair = flippedMemoryCards.slice();
+                const r = origCheck.apply(this, arguments);
+                try {
+                    if (pair.length === 2) {
+                        const els = pair.map(p => document.getElementById(`mem-card-inner-${p.index}`));
+                        if (pair[0].card.pairId === pair[1].card.pairId) {
+                            setTimeout(() => els.forEach(el => popAt(el, 8, ['💗','💖','💕','✨'])), 300);
+                            happy(); say(pick(yay), 1800);
+                        } else {
+                            setTimeout(() => els.forEach(el => { const p = el?.parentElement; if (!p) return; p.classList.remove('cute-shake'); void p.offsetWidth; p.classList.add('cute-shake'); }), 600);
+                            if (Math.random() < .45) say(pick(oops), 1800);
+                        }
+                    }
+                } catch (_) {}
+                return r;
+            };
+        }
+        wrap('showVictoryModal', () => { happy(); say('KAMU HEBAT BANGET!! 🏆💗 Love you~', 4000); });
+
+        // Effects toggle
+        function applyToggle() {
+            document.body.classList.toggle('cute-off', !effectsOn);
+            toggle.textContent = effectsOn ? '✨ efek: on' : '💤 efek: off';
+            toggle.setAttribute('aria-pressed', String(effectsOn));
+        }
+        toggle.addEventListener('click', () => { effectsOn = !effectsOn; localStorage.setItem('cute-effects', effectsOn ? 'on' : 'off'); applyToggle(); });
+        applyToggle();
+
+        // Greeting + occasional sweet nothings
+        const h = new Date().getHours();
+        const greet = h < 11 ? 'Ohayou, sayang! おはよう ☀️' : h < 15 ? 'Konnichiwa, cantik! こんにちは 🌸' : h < 19 ? 'Sore-sore tetap semangat ya 🍵' : 'Konbanwa~ jangan begadang ya 🌙💗';
+        setTimeout(() => { happy(); say(greet, 3500); }, 1200);
+        setInterval(() => { if (!document.hidden && effectsOn && !bubble.classList.contains('show')) say(pick(sweet)); }, 45000);
+    })();
+    </script>
+    <script src="assets/usagi-show.js" defer></script>
+</body>
+</html>
