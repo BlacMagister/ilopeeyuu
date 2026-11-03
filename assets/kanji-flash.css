@@ -11,6 +11,13 @@ body.kj-seen .kj-new-badge{display:none}
 .kj-select{display:flex;align-items:center;gap:8px;font-weight:900;font-size:12px;color:#a45880}
 .kj-select select{background:#fff6fa;border:1px solid #ffc8de;border-radius:14px;padding:8px 12px;font-weight:800;color:#753455;cursor:pointer;font-size:13px}
 .kj-select select:focus{outline:2px solid #f476a8;outline-offset:1px}
+.kj-custom{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff6fa;border:1px dashed #ffc8de;border-radius:16px;padding:8px 10px;font-weight:900;font-size:12px;color:#a45880;animation:kjCustomIn .25s ease-out}
+.kj-custom[hidden]{display:none}
+.kj-custom label{display:flex;align-items:center;gap:6px}
+.kj-custom input{width:72px;background:#fff;border:1px solid #ffc8de;border-radius:12px;padding:6px 8px;font-weight:800;color:#753455;font-size:13px;text-align:center}
+.kj-custom input:focus{outline:2px solid #f476a8;outline-offset:1px}
+.kj-custom small{flex-basis:100%;font-weight:700;color:#c07a9c;font-size:11px}
+@keyframes kjCustomIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .kj-chips{display:flex;flex-wrap:wrap;gap:6px}
 .kj-chip{background:#fff6fa;border:1px solid #ffd0e2;color:#a45880;font-weight:800;font-size:12px;padding:7px 12px;border-radius:99px;transition:transform .15s ease,background-color .15s ease}
 .kj-chip:hover{transform:translateY(-2px);background:#ffe9f2}

@@ -524,6 +524,12 @@
                     <span>📦 Paket</span>
                     <select id="kj-pack" aria-label="Pilih paket kanji"></select>
                 </label>
+                <div class="kj-custom" id="kj-custom" hidden>
+                    <label>dari no. <input type="number" id="kj-from" inputmode="numeric" min="1" aria-label="Mulai dari nomor kanji"></label>
+                    <label>sampai <input type="number" id="kj-to" inputmode="numeric" min="1" aria-label="Sampai nomor kanji"></label>
+                    <button type="button" id="kj-apply" class="kj-chip">✨ Pakai</button>
+                    <small id="kj-custom-hint"></small>
+                </div>
                 <div class="kj-chips">
                     <button type="button" id="kj-only-unknown" class="kj-chip" aria-pressed="false">🥺 Yang belum hafal aja</button>
                     <button type="button" id="kj-shuffle" class="kj-chip">🔀 Acak</button>
