@@ -92,16 +92,19 @@ body.kj-seen .kj-new-badge{display:none}
 .kj-stamp.show{animation:kjStamp .9s ease forwards}
 @keyframes kjStamp{0%{opacity:0;transform:scale(2) rotate(-25deg)}30%{opacity:1;transform:scale(.95) rotate(-12deg)}45%{transform:scale(1.05) rotate(-12deg)}80%{opacity:1}100%{opacity:0;transform:scale(1) rotate(-12deg)}}
 
-.kj-actions{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:26px;flex-wrap:wrap}
-.kj-btn{font:900 14px Nunito,sans-serif;padding:12px 18px;border-radius:18px;transition:transform .15s ease;box-shadow:0 7px 20px #b85a811a}
+.kj-actions{max-width:420px;margin:26px auto 0;display:flex;flex-direction:column;gap:12px;padding:0 2px}
+.kj-navrow{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px}
+.kj-answer{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kj-btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:58px;width:100%;font:900 16px Nunito,sans-serif;padding:0 16px;border-radius:20px;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 8px 20px #b85a811a;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+.kj-btn-emo{font-size:20px;line-height:1}
 .kj-btn:hover{transform:translateY(-2px)}
-.kj-btn:active{transform:scale(.94)}
-.kj-btn.nope{background:#fff;color:#a45880;border:1px solid #ffd0e2}
-.kj-btn.yes{background:linear-gradient(135deg,#f476a8,#e75b94);color:#fff;border:1px solid #e75b94}
-.kj-nav{width:44px;height:44px;border-radius:16px;background:#fff;border:1px solid #f1dbe6;color:#a45880;font-size:26px;line-height:1;font-weight:700;display:grid;place-items:center;transition:transform .15s}
+.kj-btn:active{transform:scale(.96);box-shadow:0 3px 10px #b85a811a}
+.kj-btn.nope{background:#fff;color:#a45880;border:1.5px solid #ffd0e2}
+.kj-btn.yes{background:linear-gradient(135deg,#f476a8,#e75b94);color:#fff;border:1.5px solid #e75b94;box-shadow:0 10px 24px #e75b9440}
+.kj-nav{width:52px;height:52px;border-radius:18px;background:#fff;border:1.5px solid #f1dbe6;color:#a45880;font-size:28px;line-height:1;font-weight:700;display:grid;place-items:center;padding-bottom:3px;transition:transform .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
 .kj-nav:hover{transform:translateY(-2px)}
 .kj-nav:active{transform:scale(.92)}
-.kj-counter{min-width:80px;text-align:center;font:900 13px Nunito,sans-serif;color:#8a5a74;background:#fff;padding:8px 12px;border-radius:14px;border:1px solid #fbe3ee}
+.kj-counter{height:52px;display:grid;place-items:center;text-align:center;font:900 15px Nunito,sans-serif;color:#8a5a74;background:#fff;border-radius:18px;border:1.5px solid #fbe3ee;letter-spacing:.5px}
 .kj-tip{text-align:center;font-size:11px;font-weight:700;color:#b892a6;margin-top:12px}
 
 .kj-empty{max-width:420px;margin:18px auto 0;text-align:center;background:#fff;border:1px solid #ffd4e7;border-radius:28px;padding:28px 22px;box-shadow:0 20px 50px #b1487815}
@@ -114,8 +117,8 @@ body.kj-seen .kj-new-badge{display:none}
   header .flex.bg-sakura-50 button{padding:8px 10px!important;font-size:12px!important}
   .kj-toolbar{border-radius:18px}
   .kj-deco{display:none}
-  .kj-btn{padding:11px 14px;font-size:13px}
-  .kj-actions{gap:6px}
+  .kj-actions{gap:10px}
+  .kj-answer{gap:10px}
 }
 @media(prefers-reduced-motion:reduce){
   .kj-new-badge,.kj-deco,.kj-hint .paw,#mode-kanji{animation:none!important}
