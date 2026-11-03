@@ -134,7 +134,7 @@
         #card-counter {min-width:98px;text-align:center;}
         #mode-flashcard button, #mode-memory button {box-shadow:0 7px 20px #b85a811a!important;}
         #mode-flashcard button:hover, #mode-memory button:hover {transform:translateY(-2px)}
-        #tab-flashcard, #tab-memory {border-radius:13px!important;}
+        #tab-flashcard, #tab-memory, #tab-kanji {border-radius:13px!important;}
         .bg-sakura-500 {background-color:#e75b94!important;}
         .bg-sakura-50 {background-color:#fff2f8!important;}
         .text-sakura-500 {color:#d85790!important;}
@@ -158,6 +158,7 @@
 
     </style>
     <link rel="stylesheet" href="assets/usagi-show.css">
+    <link rel="stylesheet" href="assets/kanji-flash.css">
 </head>
 <body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -181,6 +182,11 @@
                 <button id="tab-memory" onclick="switchMode('memory')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600">
                     <i class="fa-solid fa-gamepad"></i>
                     <span>Memory Match</span>
+                </button>
+                <button id="tab-kanji" onclick="switchMode('kanji')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600">
+                    <span class="font-jp font-bold" aria-hidden="true">漢</span>
+                    <span>Kanji</span>
+                    <span class="kj-new-badge" aria-hidden="true">new♡</span>
                 </button>
             </div>
         </div>
@@ -377,7 +383,7 @@
         </section>
 
         <!-- Controls & Filter Bar -->
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div id="hyougen-controls" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-wrap items-center justify-between gap-4">
             <!-- Category Selector -->
             <div class="flex items-center space-x-2 w-full md:w-auto">
                 <label for="category-select" class="text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap">Kategori:</label>
@@ -503,6 +509,88 @@
             <!-- Memory Card Grid -->
             <div id="memory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
                 <!-- Cards will be dynamically injected here -->
+            </div>
+        </section>
+
+        <!-- MODE 3: KANJI FLASHCARDS -->
+        <section id="mode-kanji" class="hidden" aria-label="Flashcard Kanji">
+            <div class="section-heading">
+                <h3>Kanji-chan's Deck <span class="font-jp">漢字</span> 🍡</h3>
+                <p>Depan kanji, belakang cara baca &amp; artinya. Tap kartunya ya, sayang~ 💕</p>
+            </div>
+
+            <div class="kj-toolbar">
+                <label class="kj-select">
+                    <span>📦 Paket</span>
+                    <select id="kj-pack" aria-label="Pilih paket kanji"></select>
+                </label>
+                <div class="kj-chips">
+                    <button type="button" id="kj-only-unknown" class="kj-chip" aria-pressed="false">🥺 Yang belum hafal aja</button>
+                    <button type="button" id="kj-shuffle" class="kj-chip">🔀 Acak</button>
+                    <button type="button" id="kj-reset" class="kj-chip ghost" title="Hapus tanda hafal di paket ini">🧹 Ulang paket</button>
+                </div>
+            </div>
+
+            <div class="kj-stats">
+                <div class="kj-ring" id="kj-ring" style="--p:0">
+                    <span id="kj-ring-pct">0%</span>
+                </div>
+                <div class="kj-stat-text">
+                    <b id="kj-known-label">0 / 0 hafal</b>
+                    <small id="kj-cheer">Ayo mulai, pasti bisa! 🌷</small>
+                </div>
+                <div class="kj-combo" id="kj-combo" aria-live="polite"></div>
+            </div>
+
+            <div class="kj-stage">
+                <span class="kj-deco d1" aria-hidden="true">🌸</span>
+                <span class="kj-deco d2" aria-hidden="true">🍓</span>
+                <span class="kj-deco d3" aria-hidden="true">✨</span>
+                <div class="kj-stack" aria-hidden="true"><i></i><i></i></div>
+                <div class="kj-card" id="kj-card" role="button" tabindex="0" aria-label="Kartu kanji, tekan untuk membalik">
+                    <div class="kj-inner" id="kj-inner">
+                        <div class="kj-face kj-front">
+                            <div class="kj-top">
+                                <span class="kj-num" id="kj-num">#1</span>
+                                <span class="kj-known-tag" id="kj-known-tag">💮 hafal</span>
+                            </div>
+                            <div class="kj-kanji font-jp" id="kj-kanji">魚</div>
+                            <div class="kj-hint"><span class="paw">🐾</span> tap buat lihat jawabannya</div>
+                            <span class="kj-sticker" id="kj-sticker" aria-hidden="true">🐰</span>
+                        </div>
+                        <div class="kj-face kj-back">
+                            <span class="kj-peek" aria-hidden="true">🐰</span>
+                            <div class="kj-top">
+                                <span class="kj-num" id="kj-num-b">#1</span>
+                                <button type="button" class="kj-speak" id="kj-speak" title="Dengarkan">🔊</button>
+                            </div>
+                            <div class="kj-back-body">
+                                <small>よみかた</small>
+                                <div class="kj-reading font-jp" id="kj-reading">さかな</div>
+                                <div class="kj-divider" aria-hidden="true">♡ ・ ♡ ・ ♡</div>
+                                <small>arti</small>
+                                <div class="kj-meaning" id="kj-meaning">Ikan</div>
+                            </div>
+                            <div class="kj-mini-kanji font-jp" id="kj-mini-kanji">魚</div>
+                        </div>
+                    </div>
+                    <div class="kj-stamp" id="kj-stamp" aria-hidden="true">はなまる<br>💮</div>
+                </div>
+            </div>
+
+            <div class="kj-actions">
+                <button type="button" class="kj-nav" id="kj-prev" aria-label="Kartu sebelumnya">‹</button>
+                <button type="button" class="kj-btn nope" id="kj-nope">🥺 Belum</button>
+                <span class="kj-counter" id="kj-counter">1 / 50</span>
+                <button type="button" class="kj-btn yes" id="kj-yes">💗 Hafal!</button>
+                <button type="button" class="kj-nav" id="kj-next" aria-label="Kartu berikutnya">›</button>
+            </div>
+            <p class="kj-tip">💡 Geser kartu ke kiri/kanan, atau pakai Spasi &amp; panah di keyboard</p>
+
+            <div class="kj-empty" id="kj-empty" hidden>
+                <div>🏆🐰🎀</div>
+                <b>Semua kanji di paket ini udah kamu hafal!</b>
+                <p>Kamu keren bangeet~ Coba paket lain yuk, atau ulang paket ini 💗</p>
             </div>
         </section>
 
@@ -679,25 +767,20 @@
         // Switch between Flashcard and Memory modes
         function switchMode(mode) {
             currentMode = mode;
-            const fcBtn = document.getElementById('tab-flashcard');
-            const memBtn = document.getElementById('tab-memory');
-            const fcSec = document.getElementById('mode-flashcard');
-            const memSec = document.getElementById('mode-memory');
-
-            if (mode === 'flashcard') {
-                fcBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm";
-                memBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600";
-                fcSec.classList.remove('hidden');
-                memSec.classList.add('hidden');
+            const ON = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm";
+            const OFF = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600";
+            ['flashcard', 'memory', 'kanji'].forEach(m => {
+                document.getElementById('tab-' + m).className = m === mode ? ON : OFF;
+                document.getElementById('mode-' + m).classList.toggle('hidden', m !== mode);
+            });
+            document.getElementById('hyougen-controls').classList.toggle('hidden', mode === 'kanji');
+            if (mode !== 'memory') {
                 clearInterval(memoryTimer);
                 isTimerRunning = false;
             } else {
-                memBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm";
-                fcBtn.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600";
-                memSec.classList.remove('hidden');
-                fcSec.classList.add('hidden');
                 initMemoryGame();
             }
+            if (mode === 'kanji' && window.KanjiDeck) window.KanjiDeck.show();
         }
 
         // Handle Category Filtering
@@ -1276,6 +1359,7 @@
                 return r;
             };
         }
+        window.cuteSay = say; window.cuteHappy = happy; window.cutePopAt = popAt;
         wrap('showVictoryModal', () => { happy(); say('KAMU HEBAT BANGET!! 🏆💗 Love you~', 4000); });
 
         // Effects toggle
@@ -1295,5 +1379,7 @@
     })();
     </script>
     <script src="assets/usagi-show.js" defer></script>
+    <script src="assets/kanji-data.js" defer></script>
+    <script src="assets/kanji-flash.js" defer></script>
 </body>
 </html>

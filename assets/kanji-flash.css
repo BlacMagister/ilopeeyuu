@@ -1,0 +1,117 @@
+/* ============ Kanji Flashcards ♡ ============ */
+#tab-kanji{position:relative}
+.kj-new-badge{position:absolute;top:-8px;right:-6px;background:#ffcf73;color:#7a4a00;font:900 9px/1 Nunito,sans-serif;padding:3px 6px;border-radius:99px;box-shadow:0 2px 6px #e0a23a55;animation:kjBadge 2.4s ease-in-out infinite;margin:0!important}
+@keyframes kjBadge{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-6deg) scale(1.08)}}
+body.kj-seen .kj-new-badge{display:none}
+
+#mode-kanji{animation:kjSectionIn .35s ease-out}
+@keyframes kjSectionIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.kj-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:#fff;border:1px solid #ffe3ee;border-radius:22px;padding:12px 14px;box-shadow:0 10px 30px #af598012;max-width:640px;margin:0 auto 14px}
+.kj-select{display:flex;align-items:center;gap:8px;font-weight:900;font-size:12px;color:#a45880}
+.kj-select select{background:#fff6fa;border:1px solid #ffc8de;border-radius:14px;padding:8px 12px;font-weight:800;color:#753455;cursor:pointer;font-size:13px}
+.kj-select select:focus{outline:2px solid #f476a8;outline-offset:1px}
+.kj-chips{display:flex;flex-wrap:wrap;gap:6px}
+.kj-chip{background:#fff6fa;border:1px solid #ffd0e2;color:#a45880;font-weight:800;font-size:12px;padding:7px 12px;border-radius:99px;transition:transform .15s ease,background-color .15s ease}
+.kj-chip:hover{transform:translateY(-2px);background:#ffe9f2}
+.kj-chip:active{transform:scale(.95)}
+.kj-chip[aria-pressed="true"]{background:#e75b94;color:#fff;border-color:#e75b94}
+.kj-chip.ghost{background:transparent}
+
+.kj-stats{display:flex;align-items:center;gap:12px;max-width:640px;margin:0 auto 6px;padding:0 6px}
+.kj-ring{--p:0;width:52px;height:52px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(#e75b94 calc(var(--p)*1%),#ffe0ed 0);transition:--p .4s ease}
+.kj-ring span{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;font:900 11px Nunito,sans-serif;color:#c63e79}
+.kj-stat-text{display:flex;flex-direction:column;line-height:1.3}
+.kj-stat-text b{color:#713954;font-size:14px}
+.kj-stat-text small{color:#aa8197;font-size:12px;font-weight:700}
+.kj-combo{margin-left:auto;font:900 13px Nunito,sans-serif;color:#e75b94;opacity:0;transform:scale(.6);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.kj-combo.show{opacity:1;transform:none}
+
+.kj-stage{position:relative;max-width:420px;margin:18px auto 0;height:min(380px,92vw)}
+.kj-stack i{position:absolute;inset:0;border-radius:32px;background:#fff;border:1px solid #ffe0ec;box-shadow:0 10px 30px #af598012}
+.kj-stack i:first-child{transform:rotate(-4deg) translate(-6px,6px);background:#fff3f8}
+.kj-stack i:last-child{transform:rotate(3deg) translate(6px,4px);background:#fdf3ff}
+.kj-deco{position:absolute;z-index:3;font-size:26px;pointer-events:none;animation:kjFloat 3.6s ease-in-out infinite}
+.kj-deco.d1{left:-18px;top:18px}
+.kj-deco.d2{right:-16px;top:46%;animation-delay:.9s}
+.kj-deco.d3{left:10%;bottom:-14px;animation-delay:1.8s;font-size:20px}
+@keyframes kjFloat{50%{transform:translateY(-9px) rotate(12deg)}}
+
+.kj-card{position:absolute;inset:0;z-index:2;perspective:1100px;cursor:pointer;outline:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent;will-change:transform}
+.kj-card:focus-visible .kj-face{box-shadow:0 0 0 4px #f9a8ca,0 24px 58px #a5527b25}
+.kj-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.3,1.35,.5,1)}
+.kj-card.flipped .kj-inner{transform:rotateY(180deg)}
+.kj-inner.no-anim{transition:none}
+.kj-face{position:absolute;inset:0;border-radius:32px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid #fff;box-shadow:0 24px 58px #a5527b25,0 3px 9px #bb6a9520;display:flex;flex-direction:column;align-items:center;padding:20px;overflow:hidden}
+.kj-front{background:radial-gradient(circle at 85% 12%,#ffe1ee,transparent 45%),radial-gradient(circle at 10% 95%,#fdeaff,transparent 40%),linear-gradient(160deg,#fff,#fff7fb)}
+.kj-front::after{content:'';position:absolute;inset:12px;border:2px dashed #ffd3e5;border-radius:24px;pointer-events:none}
+.kj-back{transform:rotateY(180deg);background:radial-gradient(circle at 15% 10%,#fff,transparent 40%),linear-gradient(160deg,#ffeaf3,#ffd9ea 60%,#fbe0ff)}
+.kj-top{position:relative;z-index:1;width:100%;display:flex;justify-content:space-between;align-items:center}
+.kj-num{background:#fff;border:1px solid #ffd0e2;color:#b74e81;font:900 11px Nunito,sans-serif;padding:5px 10px;border-radius:99px}
+.kj-known-tag{font:900 11px Nunito,sans-serif;color:#3c683f;background:#e2efe2;padding:5px 10px;border-radius:99px;opacity:0;transform:scale(.7);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.kj-known-tag.on{opacity:1;transform:none}
+.kj-kanji{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;color:#693553;line-height:1.15;font-size:var(--kjs,7rem);overflow-wrap:anywhere;word-break:keep-all;padding:0 8px;text-shadow:0 4px 0 #ffe0ed}
+.kj-hint{position:relative;z-index:1;font:800 12px Nunito,sans-serif;color:#c4789d;display:flex;align-items:center;gap:6px}
+.kj-hint .paw{display:inline-block;animation:kjPaw 1.4s ease-in-out infinite}
+@keyframes kjPaw{50%{transform:translateY(-4px) rotate(-12deg)}}
+.kj-sticker{position:absolute;right:22px;bottom:44px;font-size:30px;transform:rotate(12deg);filter:drop-shadow(0 4px 6px #d68bad40)}
+
+.kj-peek{position:absolute;top:-6px;left:50%;font-size:38px;transform:translateX(-50%);transition:transform .45s cubic-bezier(.3,1.6,.5,1) .15s}
+.kj-card:not(.flipped) .kj-peek{transform:translate(-50%,-60px)}
+.kj-back-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;width:100%}
+.kj-back-body small{font:900 10px Nunito,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#c4789d}
+.kj-reading{font-size:clamp(1.6rem,7vw,2.5rem);font-weight:900;color:#c63e79;line-height:1.25;overflow-wrap:anywhere}
+.kj-divider{color:#f39cc2;font-size:12px;letter-spacing:.2em;margin:8px 0}
+.kj-meaning{font:900 clamp(1.15rem,4.8vw,1.6rem)/1.3 Nunito,sans-serif;color:#5d2a47;max-width:92%}
+.kj-mini-kanji{font-size:14px;font-weight:700;color:#b6809c;background:#fff9;padding:4px 12px;border-radius:99px}
+.kj-speak{background:#fff;border:1px solid #ffd0e2;border-radius:50%;width:38px;height:38px;font-size:16px;display:grid;place-items:center;transition:transform .15s}
+.kj-speak:hover{transform:scale(1.1) rotate(-8deg)}
+.kj-speak:active{transform:scale(.9)}
+
+/* card change animations — transform/opacity only (ringan) */
+.kj-card.out-l{animation:kjOutL .2s ease-in forwards}
+.kj-card.out-r{animation:kjOutR .2s ease-in forwards}
+.kj-card.in-l{animation:kjInL .32s cubic-bezier(.25,1.4,.5,1)}
+.kj-card.in-r{animation:kjInR .32s cubic-bezier(.25,1.4,.5,1)}
+@keyframes kjOutL{to{transform:translateX(-60%) rotate(-10deg);opacity:0}}
+@keyframes kjOutR{to{transform:translateX(60%) rotate(10deg);opacity:0}}
+@keyframes kjInL{from{transform:translateX(40%) scale(.92) rotate(4deg);opacity:0}}
+@keyframes kjInR{from{transform:translateX(-40%) scale(.92) rotate(-4deg);opacity:0}}
+.kj-card.dragging{transition:none}
+.kj-card.wiggle .kj-inner{animation:kjWiggle .4s ease}
+@keyframes kjWiggle{25%{translate:-6px 0}50%{translate:6px 0}75%{translate:-3px 0}}
+
+.kj-stamp{position:absolute;z-index:5;top:16px;right:14px;font:900 15px/1.1 "Noto Serif JP",serif;color:#e75b94;border:3px solid #e75b94;border-radius:50%;width:86px;height:86px;display:grid;place-items:center;text-align:center;background:#fff;opacity:0;transform:scale(2) rotate(-25deg);pointer-events:none}
+.kj-stamp.show{animation:kjStamp .9s ease forwards}
+@keyframes kjStamp{0%{opacity:0;transform:scale(2) rotate(-25deg)}30%{opacity:1;transform:scale(.95) rotate(-12deg)}45%{transform:scale(1.05) rotate(-12deg)}80%{opacity:1}100%{opacity:0;transform:scale(1) rotate(-12deg)}}
+
+.kj-actions{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:26px;flex-wrap:wrap}
+.kj-btn{font:900 14px Nunito,sans-serif;padding:12px 18px;border-radius:18px;transition:transform .15s ease;box-shadow:0 7px 20px #b85a811a}
+.kj-btn:hover{transform:translateY(-2px)}
+.kj-btn:active{transform:scale(.94)}
+.kj-btn.nope{background:#fff;color:#a45880;border:1px solid #ffd0e2}
+.kj-btn.yes{background:linear-gradient(135deg,#f476a8,#e75b94);color:#fff;border:1px solid #e75b94}
+.kj-nav{width:44px;height:44px;border-radius:16px;background:#fff;border:1px solid #f1dbe6;color:#a45880;font-size:26px;line-height:1;font-weight:700;display:grid;place-items:center;transition:transform .15s}
+.kj-nav:hover{transform:translateY(-2px)}
+.kj-nav:active{transform:scale(.92)}
+.kj-counter{min-width:80px;text-align:center;font:900 13px Nunito,sans-serif;color:#8a5a74;background:#fff;padding:8px 12px;border-radius:14px;border:1px solid #fbe3ee}
+.kj-tip{text-align:center;font-size:11px;font-weight:700;color:#b892a6;margin-top:12px}
+
+.kj-empty{max-width:420px;margin:18px auto 0;text-align:center;background:#fff;border:1px solid #ffd4e7;border-radius:28px;padding:28px 22px;box-shadow:0 20px 50px #b1487815}
+.kj-empty div{font-size:42px;margin-bottom:8px}
+.kj-empty b{color:#713954;font-size:16px;display:block}
+.kj-empty p{color:#aa8197;font-size:13px;margin-top:6px}
+#mode-kanji.is-empty .kj-stage,#mode-kanji.is-empty .kj-actions,#mode-kanji.is-empty .kj-tip{display:none}
+
+@media(max-width:720px){
+  header .flex.bg-sakura-50 button{padding:8px 10px!important;font-size:12px!important}
+  .kj-toolbar{border-radius:18px}
+  .kj-deco{display:none}
+  .kj-btn{padding:11px 14px;font-size:13px}
+  .kj-actions{gap:6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .kj-new-badge,.kj-deco,.kj-hint .paw,#mode-kanji{animation:none!important}
+  .kj-card.out-l,.kj-card.out-r,.kj-card.in-l,.kj-card.in-r{animation-duration:.01s!important}
+  .kj-inner{transition-duration:.2s}
+}
