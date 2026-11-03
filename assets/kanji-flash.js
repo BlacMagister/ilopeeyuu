@@ -5,7 +5,7 @@
 
     const $ = id => document.getElementById(id);
     const els = {
-        section: $('mode-kanji'), pack: $('kj-pack'), customBox: $('kj-custom'), from: $('kj-from'), to: $('kj-to'), apply: $('kj-apply'), customHint: $('kj-custom-hint'), onlyUnknown: $('kj-only-unknown'), shuffle: $('kj-shuffle'), reset: $('kj-reset'),
+        section: $('mode-kanji'), pack: $('kj-pack'), customBox: $('kj-custom'), from: $('kj-from'), to: $('kj-to'), apply: $('kj-apply'), customHint: $('kj-custom-hint'), customBtn: $('kj-custom-btn'), customClose: $('kj-custom-close'), onlyUnknown: $('kj-only-unknown'), shuffle: $('kj-shuffle'), reset: $('kj-reset'),
         ring: $('kj-ring'), ringPct: $('kj-ring-pct'), knownLabel: $('kj-known-label'), cheer: $('kj-cheer'), combo: $('kj-combo'),
         card: $('kj-card'), inner: $('kj-inner'), num: $('kj-num'), numB: $('kj-num-b'), knownTag: $('kj-known-tag'),
         kanji: $('kj-kanji'), sticker: $('kj-sticker'), reading: $('kj-reading'), meaning: $('kj-meaning'), mini: $('kj-mini-kanji'),
@@ -59,20 +59,44 @@
         if (packIdx === -2) return [custom[0] - 1, custom[1]];
         return packs[packIdx];
     }
-    const customLabel = () => `✏️ Custom (no. ${custom[0]}–${custom[1]})`;
+    const customLabel = () => `✏️ No. ${custom[0]}–${custom[1]}`;
+    // Tombol Custom: pink + tulisan rentang kalau mode custom aktif
     function syncCustomUI() {
         const on = packIdx === -2;
-        els.customBox.hidden = !on;
+        els.customBtn.classList.toggle('active', on);
+        els.customBtn.textContent = on ? customLabel() : '✏️ Custom';
+        let opt = els.pack.querySelector('option[value="-2"]');
+        if (on) {
+            if (!opt) { opt = document.createElement('option'); opt.value = '-2'; opt.hidden = true; els.pack.appendChild(opt); }
+            opt.textContent = customLabel();
+            els.pack.value = '-2';
+        } else if (opt) opt.remove();
+    }
+    function updateHint() {
+        const a = parseInt(els.from.value, 10), b = parseInt(els.to.value, 10);
+        if (!(a >= 1) || !(b >= 1)) { els.customHint.textContent = `Isi nomor 1–${N} ya~ 🌷`; return; }
+        let x = clampNo(a), y = clampNo(b);
+        if (x > y) [x, y] = [y, x];
+        els.customHint.textContent = `💗 ${y - x + 1} kanji dipilih (no. ${x}–${y}) · tersedia no. 1–${N}`;
+    }
+    function openCustom() {
+        const [a, b] = packRange();
         els.from.max = els.to.max = N;
-        els.from.value = custom[0]; els.to.value = custom[1];
-        els.customHint.textContent = `${custom[1] - custom[0] + 1} kanji dipilih · tersedia no. 1–${N}`;
+        els.from.value = a + 1; els.to.value = b;
+        updateHint();
+        els.customBox.hidden = false;
+        els.customBtn.setAttribute('aria-expanded', 'true');
+        setTimeout(() => { els.from.focus(); els.from.select(); }, 30);
+    }
+    function closeCustom() {
+        els.customBox.hidden = true;
+        els.customBtn.setAttribute('aria-expanded', 'false');
     }
     function packIndices() { const [a, b] = packRange(); return Array.from({ length: b - a }, (_, k) => a + k); }
 
     function buildPackOptions() {
         const opts = packs.map(([a, b], i) => `<option value="${i}">${PACK_ICONS[i % PACK_ICONS.length]} Paket ${i + 1} (no. ${a + 1}–${b})</option>`);
         opts.push(`<option value="-1">💝 Semua kanji (${DATA.length})</option>`);
-        opts.push(`<option value="-2">${customLabel()}</option>`);
         els.pack.innerHTML = opts.join('');
         els.pack.value = String(packIdx);
         syncCustomUI();
@@ -294,30 +318,34 @@
     els.pack.addEventListener('change', () => {
         packIdx = parseInt(els.pack.value, 10);
         try { localStorage.setItem('kj-pack', String(packIdx)); } catch (_) {}
-        syncCustomUI();
+        syncCustomUI(); closeCustom();
         combo = 0; showCombo();
         rebuildOrder(false); setFlip(false, true); render();
-        if (packIdx === -2) say(`Atur sendiri dari no. berapa sampai berapa ya~ (1–${N}) ✏️`, 2400);
-        else say(`${els.pack.options[els.pack.selectedIndex].text.split(' (')[0]} siap! Ganbatte~ 💪`, 2000);
+        say(`${els.pack.options[els.pack.selectedIndex].text.split(' (')[0]} siap! Ganbatte~ 💪`, 2000);
     });
     function applyCustom() {
         let a = clampNo(els.from.value), b = clampNo(els.to.value);
         if (a > b) [a, b] = [b, a];
         custom = [a, b];
-        try { localStorage.setItem('kj-custom', JSON.stringify(custom)); } catch (_) {}
-        const opt = els.pack.querySelector('option[value="-2"]');
-        if (opt) opt.textContent = customLabel();
-        syncCustomUI();
+        packIdx = -2;
+        try { localStorage.setItem('kj-custom', JSON.stringify(custom)); localStorage.setItem('kj-pack', '-2'); } catch (_) {}
+        syncCustomUI(); closeCustom();
         combo = 0; showCombo();
         rebuildOrder(false); setFlip(false, true); render();
-        popAt(els.apply, 6, ['✏️', '✨', '💗']);
+        popAt(els.customBtn, 6, ['✏️', '✨', '💗']);
         say(`Kanji no. ${a}–${b} siap! (${b - a + 1} kartu) Ganbatte~ 💪`, 2200);
     }
     els.apply.addEventListener('click', applyCustom);
-    [els.from, els.to].forEach(inp => inp.addEventListener('keydown', e => {
-        e.stopPropagation();
-        if (e.key === 'Enter') { e.preventDefault(); applyCustom(); }
-    }));
+    els.customBtn.addEventListener('click', () => { if (els.customBox.hidden) openCustom(); else closeCustom(); });
+    els.customClose.addEventListener('click', () => { closeCustom(); els.customBtn.focus(); });
+    [els.from, els.to].forEach(inp => {
+        inp.addEventListener('input', updateHint);
+        inp.addEventListener('keydown', e => {
+            e.stopPropagation();
+            if (e.key === 'Enter') { e.preventDefault(); applyCustom(); }
+            else if (e.key === 'Escape') { e.preventDefault(); closeCustom(); els.customBtn.focus(); }
+        });
+    });
     els.onlyUnknown.addEventListener('click', () => {
         onlyUnknown = !onlyUnknown;
         els.onlyUnknown.setAttribute('aria-pressed', String(onlyUnknown));
