@@ -5,7 +5,7 @@
 
     const $ = id => document.getElementById(id);
     const els = {
-        section: $('mode-kanji'), pack: $('kj-pack'), onlyUnknown: $('kj-only-unknown'), shuffle: $('kj-shuffle'), reset: $('kj-reset'),
+        section: $('mode-kanji'), pack: $('kj-pack'), customBox: $('kj-custom'), from: $('kj-from'), to: $('kj-to'), apply: $('kj-apply'), customHint: $('kj-custom-hint'), onlyUnknown: $('kj-only-unknown'), shuffle: $('kj-shuffle'), reset: $('kj-reset'),
         ring: $('kj-ring'), ringPct: $('kj-ring-pct'), knownLabel: $('kj-known-label'), cheer: $('kj-cheer'), combo: $('kj-combo'),
         card: $('kj-card'), inner: $('kj-inner'), num: $('kj-num'), numB: $('kj-num-b'), knownTag: $('kj-known-tag'),
         kanji: $('kj-kanji'), sticker: $('kj-sticker'), reading: $('kj-reading'), meaning: $('kj-meaning'), mini: $('kj-mini-kanji'),
@@ -41,19 +41,41 @@
     try { known = new Set(JSON.parse(localStorage.getItem('kj-known') || '[]')); } catch (_) { known = new Set(); }
     const saveKnown = () => { try { localStorage.setItem('kj-known', JSON.stringify([...known])); } catch (_) {} };
 
+    const N = DATA.length;
+    const clampNo = v => Math.min(N, Math.max(1, parseInt(v, 10) || 1));
+    let custom = [1, Math.min(N, SIZE)];
+    try {
+        const c = JSON.parse(localStorage.getItem('kj-custom') || 'null');
+        if (Array.isArray(c) && c.length === 2) { const a = clampNo(c[0]), b = clampNo(c[1]); custom = [Math.min(a, b), Math.max(a, b)]; }
+    } catch (_) {}
+
     let packIdx = parseInt(localStorage.getItem('kj-pack') || '0', 10);
-    if (!(packIdx >= -1 && packIdx < packs.length)) packIdx = 0;
+    if (!(packIdx >= -2 && packIdx < packs.length)) packIdx = 0;
     let onlyUnknown = false;
     let order = [], pos = 0, flipped = false, busy = false, combo = 0;
 
-    function packRange() { return packIdx === -1 ? [0, DATA.length] : packs[packIdx]; }
+    function packRange() {
+        if (packIdx === -1) return [0, N];
+        if (packIdx === -2) return [custom[0] - 1, custom[1]];
+        return packs[packIdx];
+    }
+    const customLabel = () => `✏️ Custom (no. ${custom[0]}–${custom[1]})`;
+    function syncCustomUI() {
+        const on = packIdx === -2;
+        els.customBox.hidden = !on;
+        els.from.max = els.to.max = N;
+        els.from.value = custom[0]; els.to.value = custom[1];
+        els.customHint.textContent = `${custom[1] - custom[0] + 1} kanji dipilih · tersedia no. 1–${N}`;
+    }
     function packIndices() { const [a, b] = packRange(); return Array.from({ length: b - a }, (_, k) => a + k); }
 
     function buildPackOptions() {
         const opts = packs.map(([a, b], i) => `<option value="${i}">${PACK_ICONS[i % PACK_ICONS.length]} Paket ${i + 1} (no. ${a + 1}–${b})</option>`);
         opts.push(`<option value="-1">💝 Semua kanji (${DATA.length})</option>`);
+        opts.push(`<option value="-2">${customLabel()}</option>`);
         els.pack.innerHTML = opts.join('');
         els.pack.value = String(packIdx);
+        syncCustomUI();
     }
 
     function rebuildOrder(keepShuffle) {
@@ -272,10 +294,30 @@
     els.pack.addEventListener('change', () => {
         packIdx = parseInt(els.pack.value, 10);
         try { localStorage.setItem('kj-pack', String(packIdx)); } catch (_) {}
+        syncCustomUI();
         combo = 0; showCombo();
         rebuildOrder(false); setFlip(false, true); render();
-        say(`${els.pack.options[els.pack.selectedIndex].text.split(' (')[0]} siap! Ganbatte~ 💪`, 2000);
+        if (packIdx === -2) say(`Atur sendiri dari no. berapa sampai berapa ya~ (1–${N}) ✏️`, 2400);
+        else say(`${els.pack.options[els.pack.selectedIndex].text.split(' (')[0]} siap! Ganbatte~ 💪`, 2000);
     });
+    function applyCustom() {
+        let a = clampNo(els.from.value), b = clampNo(els.to.value);
+        if (a > b) [a, b] = [b, a];
+        custom = [a, b];
+        try { localStorage.setItem('kj-custom', JSON.stringify(custom)); } catch (_) {}
+        const opt = els.pack.querySelector('option[value="-2"]');
+        if (opt) opt.textContent = customLabel();
+        syncCustomUI();
+        combo = 0; showCombo();
+        rebuildOrder(false); setFlip(false, true); render();
+        popAt(els.apply, 6, ['✏️', '✨', '💗']);
+        say(`Kanji no. ${a}–${b} siap! (${b - a + 1} kartu) Ganbatte~ 💪`, 2200);
+    }
+    els.apply.addEventListener('click', applyCustom);
+    [els.from, els.to].forEach(inp => inp.addEventListener('keydown', e => {
+        e.stopPropagation();
+        if (e.key === 'Enter') { e.preventDefault(); applyCustom(); }
+    }));
     els.onlyUnknown.addEventListener('click', () => {
         onlyUnknown = !onlyUnknown;
         els.onlyUnknown.setAttribute('aria-pressed', String(onlyUnknown));
