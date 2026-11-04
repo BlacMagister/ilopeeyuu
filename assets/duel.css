@@ -212,3 +212,7 @@
   .du-row{flex-direction:column;align-items:stretch}.du-row .du-btn{max-width:none}
 }
 @media(prefers-reduced-motion:reduce){.du-wrap *{animation:none!important}}
+
+/* Kanji di PvP: font Gothic (sans) yang jelas & tegas, bukan Mincho/serif */
+.duel-root .font-jp,.duel-root .du-prompt.kanji div{font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo",sans-serif;font-weight:700;font-synthesis:none;letter-spacing:.02em;-webkit-font-smoothing:antialiased}
+.duel-root .du-prompt.kanji div{line-height:1.2}
