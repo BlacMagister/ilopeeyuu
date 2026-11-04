@@ -104,28 +104,18 @@
         #fc-meaning {color:#733f5b!important;}
         #fc-furigana {color:#c45a8a!important;}
         #card-counter {min-width:98px;text-align:center;}
-        #mode-flashcard button, #mode-memory button {box-shadow:0 7px 20px #b85a811a!important;}
-        #mode-flashcard button:hover, #mode-memory button:hover {transform:translateY(-2px)}
+        #mode-flashcard button {box-shadow:0 7px 20px #b85a811a!important;}
+        #mode-flashcard button:hover {transform:translateY(-2px)}
         #tab-flashcard, #tab-memory, #tab-kanji {border-radius:13px!important;}
         .bg-sakura-500 {background-color:#e75b94!important;}
         .bg-sakura-50 {background-color:#fff2f8!important;}
         .text-sakura-500 {color:#d85790!important;}
-        #mode-memory .grid>div {box-shadow:0 10px 30px #af598015!important;border-color:#ffe3ee!important;border-radius:22px!important;}
-        #memory-grid {gap:12px!important;}
-        #memory-grid>div {height:132px!important;transition:transform .25s ease;}
-        #memory-grid>div:hover {transform:translateY(-3px);}
-        #memory-grid .transform-style-3d {box-shadow:0 8px 24px #b9558123!important;}
-        #memory-grid .backface-hidden {border-radius:20px!important;}
-        #memory-grid .backface-hidden:first-child {background:radial-gradient(circle at 76% 15%,#ffd3e6,transparent 45%),linear-gradient(145deg,#f5a2c5,#dc659a)!important;border:1px solid #ffcee0!important;}
-        #memory-grid .backface-hidden:last-child {background:#fffafd!important;}
-        .animate-matched {box-shadow:0 0 0 3px #eeb1d4,0 12px 34px #d56d9b55!important;}
-        #victory-modal>div {border:1px solid #ffd4e7!important;box-shadow:0 30px 90px #65314b40!important;background:linear-gradient(160deg,#fff,#fff2f8)!important;}
         footer {background:transparent!important;border-color:#f8d5e4!important;color:#b68da2!important;}
         .petal {position:fixed;top:-32px;z-index:2;pointer-events:none;opacity:.45;animation:petalFall linear forwards;}
         @keyframes petalFall {to {transform:translate3d(var(--drift),110vh,0) rotate(440deg);opacity:0;}}
         .confetti {position:fixed;width:9px;height:13px;top:-20px;z-index:60;pointer-events:none;animation:confettiDown 3.4s ease-in forwards;}
         @keyframes confettiDown {to {transform:translate3d(var(--dx),110vh,0) rotate(700deg);opacity:0;}}
-        @media(max-width:720px) {.hero-art{right:2%;top:8%;font-size:65px;opacity:.45}.hero{border-radius:25px}.hero h2{padding-right:35px}header .max-w-6xl{justify-content:center}header .max-w-6xl>div:first-child{width:100%;justify-content:center}header .max-w-6xl>div:first-child>div{text-align:left}main{padding-top:18px!important}#memory-grid>div{height:116px!important}#memory-grid .text-lg{font-size:.9rem!important}#memory-grid .text-sm{font-size:.76rem!important}.hero-stickers{gap:6px}}
+        @media(max-width:720px) {.hero-art{right:2%;top:8%;font-size:65px;opacity:.45}.hero{border-radius:25px}.hero h2{padding-right:35px}header .max-w-6xl{justify-content:center}header .max-w-6xl>div:first-child{width:100%;justify-content:center}header .max-w-6xl>div:first-child>div{text-align:left}main{padding-top:18px!important}.hero-stickers{gap:6px}}
         @media(prefers-reduced-motion:reduce){.hero-art,.petal,.confetti{animation:none!important}*{scroll-behavior:auto!important}}
 
     </style>
@@ -135,6 +125,7 @@
     <link rel="stylesheet" href="assets/duel.css">
     <link rel="stylesheet" href="assets/tailwind.css">
     <link rel="stylesheet" href="assets/fixes.css">
+    <link rel="stylesheet" href="assets/memory.css">
     <link rel="stylesheet" href="assets/vault.css">
     <link rel="stylesheet" href="assets/love.css">
 </head>
@@ -489,31 +480,42 @@
         </section>
 
         <!-- MODE 2: MEMORY MATCHING GAME -->
-        <section id="mode-memory" class="hidden space-y-6">
-            <div class="section-heading"><h3>Match the cuties! 🧸</h3><p>Temukan pasangan kata Jepang dan artinya. Kamu pasti bisa! 💕</p></div>
-            <!-- Stats Dashboard -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-gray-400 block font-medium">Langkah</span>
-                    <span id="mem-moves" class="text-xl font-bold text-gray-800">0</span>
+        <section id="mode-memory" class="hidden mm" aria-label="Memory Match">
+            <div class="section-heading"><h3>Memory Match 🧸</h3><p>Buka dua kartu, cari pasangan kata Jepang dan artinya. Pelan-pelan aja, sayang 💕</p></div>
+
+            <div class="mm-panel">
+                <div class="mm-levels" role="radiogroup" aria-label="Tingkat kesulitan">
+                    <button type="button" class="mm-level" role="radio" data-pairs="4">🌱 Mudah<small>4 pasang</small></button>
+                    <button type="button" class="mm-level" role="radio" data-pairs="6">🌸 Sedang<small>6 pasang</small></button>
+                    <button type="button" class="mm-level" role="radio" data-pairs="8">🔥 Sulit<small>8 pasang</small></button>
                 </div>
-                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-gray-400 block font-medium">Cocok</span>
-                    <span id="mem-matches" class="text-xl font-bold text-sakura-500">0 / 6</span>
+
+                <div class="mm-stats">
+                    <div class="mm-stat"><span>Langkah</span><b id="mem-moves">0</b></div>
+                    <div class="mm-stat"><span>Waktu</span><b id="mem-timer">00:00</b></div>
+                    <div class="mm-stat"><span>Rekor</span><b id="mem-best">–</b></div>
                 </div>
-                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-gray-400 block font-medium">Waktu</span>
-                    <span id="mem-timer" class="text-xl font-bold text-gray-800">00:00</span>
+
+                <div class="mm-progress">
+                    <div class="mm-bar" aria-hidden="true"><i id="mem-bar"></i></div>
+                    <span id="mem-matches">0 / 6</span>
                 </div>
-                <button onclick="initMemoryGame()" class="bg-sakura-500 hover:bg-sakura-600 text-white p-3 rounded-2xl font-semibold shadow-md transition active:scale-95 flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Reset</span>
-                </button>
+
+                <div class="mm-actions">
+                    <button type="button" id="mem-peek" class="mm-btn ghost" onclick="peekMemoryCards()">👀 Intip sebentar</button>
+                    <button type="button" class="mm-btn" onclick="initMemoryGame()"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Acak ulang</button>
+                </div>
             </div>
 
-            <!-- Memory Card Grid -->
-            <div id="memory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
-                <!-- Cards will be dynamically injected here -->
+            <div class="mm-board">
+                <div id="mem-combo" class="mm-combo" aria-live="polite"></div>
+                <!-- Cards are injected by initMemoryGame() -->
+                <div id="memory-grid" class="mm-grid"></div>
+            </div>
+
+            <div class="mm-found">
+                <h4>📒 Pasangan yang sudah ketemu</h4>
+                <ul id="mem-found"><li class="mm-empty">Belum ada. Ayo buka kartu pertama!</li></ul>
             </div>
         </section>
 
@@ -625,20 +627,21 @@
     </main>
 
     <!-- Victory Modal for Memory Game -->
-    <div id="victory-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl transform scale-95 transition-transform duration-300 border-4 border-sakura-200">
-            <div class="text-5xl mb-3">🐰🎀🌸</div>
-            <h2 class="text-2xl font-bold text-gray-800 font-jp mb-1">おめでとうございます!</h2>
-            <p class="text-sm text-gray-500 mb-4">Yeay, sayang! Semua pasangan berhasil kamu temukan. Proud of you! 💗</p>
-            
-            <div class="bg-sakura-50 p-4 rounded-2xl space-y-2 mb-6 text-sm text-gray-700">
-                <div class="flex justify-between"><span>Total Langkah:</span> <strong id="modal-moves" class="text-sakura-600">0</strong></div>
-                <div class="flex justify-between"><span>Total Waktu:</span> <strong id="modal-time" class="text-sakura-600">00:00</strong></div>
+    <div id="victory-modal" class="mm-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mm-win-title">
+        <div class="mm-modal-card">
+            <div class="mm-stars" id="modal-stars" aria-label="Bintang"></div>
+            <h2 id="mm-win-title" class="font-jp">おめでとう!</h2>
+            <p id="modal-msg">Semua pasangan berhasil kamu temukan. Proud of you! 💗</p>
+            <div id="modal-record" class="mm-record" hidden>🏆 Rekor baru!</div>
+            <div class="mm-modal-stats">
+                <div><span>Langkah</span><b id="modal-moves">0</b></div>
+                <div><span>Waktu</span><b id="modal-time">00:00</b></div>
+                <div><span>Level</span><b id="modal-level">Sedang</b></div>
             </div>
-
-            <button onclick="initMemoryGame(); hideVictoryModal();" class="w-full bg-sakura-500 hover:bg-sakura-600 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95">
-                Main lagi, yuk! ♡ <i class="fa-solid fa-arrow-right ml-1"></i>
-            </button>
+            <div class="mm-modal-btns">
+                <button type="button" class="mm-btn ghost" onclick="hideVictoryModal()">Tutup</button>
+                <button type="button" class="mm-btn" id="modal-again" onclick="initMemoryGame(); hideVictoryModal();">Main lagi ♡</button>
+            </div>
         </div>
     </div>
 
@@ -973,6 +976,51 @@
         /* -------------------------------------------------------------
            MEMORY GAME MODE LOGIC
         ------------------------------------------------------------- */
+        const MEM_LEVELS = { 4: 'Mudah', 6: 'Sedang', 8: 'Sulit' };
+        let memPairs = 6;
+        let memCombo = 0;
+        let memPeekUsed = false;
+        let memLocked = false;
+        try { const saved = +localStorage.getItem('mm-level'); if (MEM_LEVELS[saved]) memPairs = saved; } catch (_) {}
+
+        const memEsc = (t) => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const memFmt = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+        function memShuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+            return arr;
+        }
+        function memGetBest(pairs) {
+            try { return JSON.parse(localStorage.getItem('mm-best-' + pairs)) || null; } catch (_) { return null; }
+        }
+        function memRenderBest() {
+            const best = memGetBest(memPairs);
+            document.getElementById('mem-best').textContent = best ? `${best.moves} · ${memFmt(best.time)}` : '–';
+        }
+        function memSetLevel(pairs) {
+            if (!MEM_LEVELS[pairs]) return;
+            memPairs = pairs;
+            try { localStorage.setItem('mm-level', String(pairs)); } catch (_) {}
+            initMemoryGame();
+        }
+        document.querySelectorAll('.mm-level').forEach(btn => btn.addEventListener('click', () => memSetLevel(+btn.dataset.pairs)));
+
+        function memUpdateProgress() {
+            const total = memoryCards.length / 2 || memPairs;
+            document.getElementById('mem-matches').textContent = `${matchedPairs} / ${total}`;
+            document.getElementById('mem-bar').style.width = (matchedPairs / total * 100) + '%';
+        }
+        function memShowCombo(text) {
+            const el = document.getElementById('mem-combo');
+            el.textContent = text;
+            el.classList.remove('show'); void el.offsetWidth;
+            if (text) el.classList.add('show');
+        }
+        function memCardLabel(card, idx) {
+            if (card.isMatched) return `Kartu ${idx + 1}, cocok: ${card.content}`;
+            if (card.isFlipped) return `Kartu ${idx + 1}: ${card.content}`;
+            return `Kartu ${idx + 1}, tertutup`;
+        }
+
         function initMemoryGame() {
             gameEpoch++;
             const grid = document.getElementById('memory-grid');
@@ -981,78 +1029,64 @@
             matchedPairs = 0;
             memoryMoves = 0;
             secondsElapsed = 0;
+            memCombo = 0;
+            memPeekUsed = false;
+            memLocked = false;
 
-            document.getElementById('mem-moves').innerText = '0';
-            document.getElementById('mem-timer').innerText = '00:00';
+            document.getElementById('mem-moves').textContent = '0';
+            document.getElementById('mem-timer').textContent = '00:00';
+            document.getElementById('mem-peek').disabled = false;
+            document.getElementById('mem-found').innerHTML = '<li class="mm-empty">Belum ada. Ayo buka kartu pertama!</li>';
+            memShowCombo('');
+            document.querySelectorAll('.mm-level').forEach(btn => {
+                const on = +btn.dataset.pairs === memPairs;
+                btn.classList.toggle('is-active', on);
+                btn.setAttribute('aria-checked', String(on));
+            });
+            memRenderBest();
 
             clearInterval(memoryTimer);
             isTimerRunning = false;
 
-            // Pick 6 random items from filtered pool
-            let pool = [...filteredData];
-            if (pool.length < 6) {
-                pool = [...hyougenData]; // Fallback if current category has less than 6 items
-            }
-            
-            // Shuffle pool
-            pool.sort(() => 0.5 - Math.random());
-            const selectedItems = pool.slice(0, 6);
+            // Pick random items from the selected category (fall back to everything if it's too small)
+            let pool = filteredData.length >= memPairs ? [...filteredData] : [...hyougenData];
+            const selectedItems = memShuffle(pool).slice(0, memPairs);
 
-            document.getElementById('mem-matches').innerText = `0 / ${selectedItems.length}`;
-
-            // Create cards (1 JP, 1 ID for each item)
             memoryCards = [];
             selectedItems.forEach(item => {
-                memoryCards.push({
-                    pairId: item.id,
-                    type: 'jp',
-                    content: item.jp,
-                    furigana: item.furigana,
-                    romaji: item.romaji,
-                    isFlipped: false,
-                    isMatched: false
-                });
-                memoryCards.push({
-                    pairId: item.id,
-                    type: 'idn',
-                    content: item.idn,
-                    isFlipped: false,
-                    isMatched: false
-                });
+                memoryCards.push({ pairId: item.id, type: 'jp', content: item.jp, furigana: item.furigana, romaji: item.romaji, meaning: item.idn, isFlipped: false, isMatched: false });
+                memoryCards.push({ pairId: item.id, type: 'idn', content: item.idn, isFlipped: false, isMatched: false });
             });
+            memShuffle(memoryCards);
+            memUpdateProgress();
 
-            // Shuffle cards in grid
-            memoryCards.sort(() => 0.5 - Math.random());
-
-            // Build DOM
             const showFurigana = document.getElementById('toggle-furigana').checked;
             const showRomaji = document.getElementById('toggle-romaji').checked;
+            grid.dataset.count = String(memoryCards.length);
 
             memoryCards.forEach((card, idx) => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'h-36 perspective-1000 cursor-pointer';
+                const cardEl = document.createElement('button');
+                cardEl.type = 'button';
+                cardEl.className = 'mm-card is-dealing';
+                cardEl.addEventListener('animationend', e => { if (e.animationName === 'mmDeal') cardEl.classList.remove('is-dealing'); });
+                cardEl.style.setProperty('--d', (idx * 30) + 'ms');
+                cardEl.setAttribute('aria-label', memCardLabel(card, idx));
                 cardEl.onclick = () => flipMemoryCard(idx);
-
+                const isJp = card.type === 'jp';
+                const long = isJp ? card.content.length > 7 : card.content.length > 22;
                 cardEl.innerHTML = `
-                    <div id="mem-card-inner-${idx}" class="relative w-full h-full transform-style-3d shadow-md rounded-2xl bg-white transition-transform duration-500">
-                        <!-- Front (Cover) -->
-                        <div class="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-gradient-to-br from-sakura-400 to-sakura-600 flex flex-col justify-center items-center text-white border-2 border-sakura-300 shadow-inner">
-                            <span class="text-3xl font-bold opacity-30">🌸</span>
+                    <div id="mem-card-inner-${idx}" class="mm-inner">
+                        <div class="mm-face mm-cover" aria-hidden="true"><span class="mm-flower">🌸</span><span class="mm-num">${idx + 1}</span></div>
+                        <div class="mm-face mm-front ${isJp ? 'is-jp' : 'is-idn'}${long ? ' is-long' : ''}" aria-hidden="true">
+                            <span class="mm-tag">${isJp ? '日本語' : 'Arti'}</span>
+                            ${isJp ? `
+                                <span class="mem-furigana mm-furi font-jp" style="display:${showFurigana ? 'block' : 'none'}">${memEsc(card.furigana)}</span>
+                                <span class="mm-jp font-jp">${memEsc(card.content)}</span>
+                                <span class="mem-romaji mm-romaji" style="display:${showRomaji ? 'block' : 'none'}">${memEsc(card.romaji)}</span>
+                            ` : `<span class="mm-idn">${memEsc(card.content)}</span>`}
+                            <span class="mm-check">✓</span>
                         </div>
-                        
-                        <!-- Back (Content) -->
-                        <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-2xl p-3 flex flex-col justify-center items-center text-center bg-white border-2 ${card.type === 'jp' ? 'border-sakura-300' : 'border-matcha-500/40'}">
-                            ${card.type === 'jp' ? `
-                                <div class="mem-furigana text-xs text-sakura-500 font-jp" style="display: ${showFurigana ? 'block' : 'none'}">${card.furigana}</div>
-                                <div class="text-lg md:text-xl font-bold font-jp text-gray-800">${card.content}</div>
-                                <div class="mem-romaji text-xs text-gray-400 italic" style="display: ${showRomaji ? 'block' : 'none'}">${card.romaji}</div>
-                            ` : `
-                                <div class="text-xs text-matcha-600 font-bold mb-1 uppercase tracking-wider">Arti</div>
-                                <div class="text-sm font-semibold text-gray-800 leading-tight">${card.content}</div>
-                            `}
-                        </div>
-                    </div>
-                `;
+                    </div>`;
                 grid.appendChild(cardEl);
             });
         }
@@ -1062,83 +1096,128 @@
             isTimerRunning = true;
             memoryTimer = setInterval(() => {
                 secondsElapsed++;
-                const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
-                const secs = (secondsElapsed % 60).toString().padStart(2, '0');
-                document.getElementById('mem-timer').innerText = `${mins}:${secs}`;
+                document.getElementById('mem-timer').textContent = memFmt(secondsElapsed);
             }, 1000);
+        }
+
+        function memSetFace(index, open) {
+            const inner = document.getElementById(`mem-card-inner-${index}`);
+            if (!inner) return;
+            inner.classList.toggle('rotate-y-180', open);
+            inner.parentElement.setAttribute('aria-label', memCardLabel(memoryCards[index], index));
         }
 
         function flipMemoryCard(index) {
             const card = memoryCards[index];
-            if (card.isFlipped || card.isMatched || flippedMemoryCards.length >= 2) return;
+            if (!card || memLocked || card.isFlipped || card.isMatched || flippedMemoryCards.length >= 2) return;
             startTimer();
-
-            // Flip visual
             card.isFlipped = true;
-            const inner = document.getElementById(`mem-card-inner-${index}`);
-            inner.classList.add('rotate-y-180');
-
+            memSetFace(index, true);
             flippedMemoryCards.push({ index, card });
 
             if (flippedMemoryCards.length === 2) {
                 memoryMoves++;
-                document.getElementById('mem-moves').innerText = memoryMoves;
+                document.getElementById('mem-moves').textContent = memoryMoves;
                 checkMemoryMatch();
             }
         }
 
+        // Show every unmatched card for a moment (once per game)
+        function peekMemoryCards() {
+            if (memPeekUsed || memLocked || flippedMemoryCards.length) return;
+            memPeekUsed = true;
+            memLocked = true;
+            document.getElementById('mem-peek').disabled = true;
+            startTimer();
+            const epoch = gameEpoch;
+            const hidden = memoryCards.map((c, i) => i).filter(i => !memoryCards[i].isMatched);
+            hidden.forEach(i => document.getElementById(`mem-card-inner-${i}`).classList.add('rotate-y-180'));
+            document.getElementById('memory-grid').classList.add('is-peeking');
+            setTimeout(() => {
+                if (epoch !== gameEpoch) return;
+                hidden.forEach(i => document.getElementById(`mem-card-inner-${i}`).classList.remove('rotate-y-180'));
+                document.getElementById('memory-grid').classList.remove('is-peeking');
+                memLocked = false;
+            }, 1600);
+        }
+
+        function memAddFound(card1, card2) {
+            const jp = card1.type === 'jp' ? card1 : card2;
+            const list = document.getElementById('mem-found');
+            list.querySelector('.mm-empty')?.remove();
+            const li = document.createElement('li');
+            li.innerHTML = `<b class="font-jp">${memEsc(jp.content)}</b><small>${memEsc(jp.romaji)}</small><span>${memEsc(jp.meaning)}</span>`;
+            list.prepend(li);
+        }
+
         function checkMemoryMatch() {
             const [card1, card2] = flippedMemoryCards;
-            
             const epoch = gameEpoch;
             if (card1.card.pairId === card2.card.pairId) {
-                // Match Found!
                 card1.card.isMatched = true;
                 card2.card.isMatched = true;
                 matchedPairs++;
-                
-                document.getElementById('mem-matches').innerText = `${matchedPairs} / ${memoryCards.length / 2}`;
+                memCombo++;
+                memUpdateProgress();
+                memAddFound(card1.card, card2.card);
+                if (memCombo >= 2) memShowCombo(`Combo x${memCombo} 🔥`);
 
-                // Add success visual effect
                 setTimeout(() => {
                     if (epoch !== gameEpoch) return;
-                    document.getElementById(`mem-card-inner-${card1.index}`).classList.add('animate-matched');
-                    document.getElementById(`mem-card-inner-${card2.index}`).classList.add('animate-matched');
+                    [card1, card2].forEach(c => {
+                        const el = document.getElementById(`mem-card-inner-${c.index}`);
+                        el.parentElement.classList.add('is-matched');
+                        el.parentElement.setAttribute('aria-label', memCardLabel(c.card, c.index));
+                    });
                 }, 300);
 
                 flippedMemoryCards = [];
 
-                // Check Victory Condition
                 if (matchedPairs === memoryCards.length / 2) {
                     clearInterval(memoryTimer);
                     isTimerRunning = false;
-                    setTimeout(() => { if (epoch === gameEpoch) showVictoryModal(); }, 600);
+                    setTimeout(() => { if (epoch === gameEpoch) showVictoryModal(); }, 700);
                 }
             } else {
-                // Not a match -> Flip back
+                memCombo = 0;
+                memShowCombo('');
                 setTimeout(() => {
                     if (epoch !== gameEpoch) return;
                     card1.card.isFlipped = false;
                     card2.card.isFlipped = false;
-                    document.getElementById(`mem-card-inner-${card1.index}`).classList.remove('rotate-y-180');
-                    document.getElementById(`mem-card-inner-${card2.index}`).classList.remove('rotate-y-180');
+                    memSetFace(card1.index, false);
+                    memSetFace(card2.index, false);
                     flippedMemoryCards = [];
-                }, 1000);
+                }, 950);
             }
         }
 
         function showVictoryModal() {
-            const modal = document.getElementById('victory-modal');
-            document.getElementById('modal-moves').innerText = memoryMoves;
-            document.getElementById('modal-time').innerText = document.getElementById('mem-timer').innerText;
+            const pairs = memoryCards.length / 2;
+            const stars = memoryMoves <= Math.ceil(pairs * 1.5) ? 3 : memoryMoves <= pairs * 2 + 2 ? 2 : 1;
+            const best = memGetBest(pairs);
+            const isRecord = !best || memoryMoves < best.moves || (memoryMoves === best.moves && secondsElapsed < best.time);
+            if (isRecord) {
+                try { localStorage.setItem('mm-best-' + pairs, JSON.stringify({ moves: memoryMoves, time: secondsElapsed })); } catch (_) {}
+                memRenderBest();
+            }
+            document.getElementById('modal-stars').innerHTML = [1, 2, 3].map(n => `<span class="${n <= stars ? 'on' : ''}" style="--i:${n}">★</span>`).join('');
+            document.getElementById('modal-stars').setAttribute('aria-label', `${stars} dari 3 bintang`);
+            document.getElementById('modal-msg').textContent = [
+                'Semua pasangan ketemu! Pelan-pelan tapi pasti, proud of you 💗',
+                'Keren! Ingatanmu makin tajam, sayang ✨',
+                'SEMPURNA! Hampir tanpa salah, kamu jenius 🏆💗'
+            ][stars - 1];
+            document.getElementById('modal-record').hidden = !isRecord;
+            document.getElementById('modal-moves').textContent = memoryMoves;
+            document.getElementById('modal-time').textContent = memFmt(secondsElapsed);
+            document.getElementById('modal-level').textContent = MEM_LEVELS[pairs] || '–';
 
-            modal.classList.remove('hidden');
+            const modal = document.getElementById('victory-modal');
+            modal.hidden = false;
             showerConfetti();
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.querySelector('div').classList.remove('scale-95');
-                modal.querySelector('div').classList.add('scale-100');
-            }, 10);
+            requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('show')));
+            setTimeout(() => document.getElementById('modal-again').focus({ preventScroll: true }), 50);
         }
 
         function showerConfetti() {
@@ -1159,13 +1238,11 @@
 
         function hideVictoryModal() {
             const modal = document.getElementById('victory-modal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('div').classList.remove('scale-100');
-            modal.querySelector('div').classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            modal.classList.remove('show');
+            setTimeout(() => { if (!modal.classList.contains('show')) modal.hidden = true; }, 250);
         }
+        document.getElementById('victory-modal').addEventListener('click', e => { if (e.target.id === 'victory-modal') hideVictoryModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('victory-modal').hidden) hideVictoryModal(); });
     </script>
     <!-- ============ Cute motion layer ♡ ============ -->
     <style>
