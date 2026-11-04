@@ -85,6 +85,7 @@
   function logout(expired) {
     token = ''; localStorage.removeItem(TK);
     cache.forEach(u => URL.revokeObjectURL(u)); cache.clear(); items = [];
+    moments.splice(0).forEach(m => URL.revokeObjectURL(m.url)); renderMoments();
     closeVault(); if (expired) toast('Sesi berakhir, silakan masuk lagi');
   }
 
@@ -104,14 +105,210 @@
   document.body.appendChild(vt);
   const grid = $('.vt-grid', vt), jobs = $('.vt-jobs', vt), sum = $('.vt-sum', vt);
 
+  /* ---------- player + Studio Momen (speed, loop, resume, snapshot, clip maker) ---------- */
+  const fmtT = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = t - m * 60; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1); };
   const player = document.createElement('div'); player.className = 'vt-player'; player.hidden = true;
-  player.innerHTML = '<video controls playsinline></video><div class="bar"><button type="button" class="vt-btn pri" data-p="dl">⬇ Unduh</button><button type="button" class="vt-btn" data-p="x">Tutup</button></div>';
+  player.setAttribute('role', 'dialog'); player.setAttribute('aria-modal', 'true'); player.setAttribute('aria-label', 'Pemutar video');
+  player.innerHTML = `<div class="vp-wrap"><video controls playsinline></video><div class="vp-flash"></div><div class="vp-rec" hidden><i></i><span>Merekam klip…</span></div></div>
+    <div class="vp-studio">
+      <div class="vp-row">
+        <div class="vp-speed" role="group" aria-label="Kecepatan">${[0.5, 1, 1.5, 2].map(r => `<button type="button" data-r="${r}"${r === 1 ? ' class="on"' : ''}>${r}×</button>`).join('')}</div>
+        <button type="button" class="vt-btn" data-p="loop" aria-pressed="false" title="Ulangi (L)">🔁 Ulang</button>
+        <button type="button" class="vt-btn" data-p="snap" title="Ambil foto (S)">📸 Foto</button>
+        <button type="button" class="vt-btn" data-p="clip" aria-expanded="false" title="Buat klip pendek">✂️ Klip</button>
+        <button type="button" class="vt-btn pri" data-p="dl">⬇ Unduh</button>
+        <button type="button" class="vt-btn" data-p="x">Tutup</button>
+      </div>
+      <div class="vp-clip" hidden>
+        <div class="vp-tl" title="Ketuk untuk lompat"><b class="vp-sel"></b><i class="vp-head"></i></div>
+        <div class="vp-row">
+          <button type="button" class="vt-btn" data-p="in" title="Tandai mulai ([)">⟦ Mulai <span class="t-in">0:00.0</span></button>
+          <button type="button" class="vt-btn" data-p="out" title="Tandai selesai (])">Selesai <span class="t-out">0:00.0</span> ⟧</button>
+          <span class="vp-len"></span>
+          <button type="button" class="vt-btn pri" data-p="make">🎬 Buat klip</button>
+        </div>
+        <div class="vp-hint">Putar ke bagian favoritmu, tandai mulai &amp; selesai (maks. 60 detik), lalu buat klip lengkap dengan suara — siap dibagikan.</div>
+      </div>
+      <div class="vp-moments" hidden><div class="vp-mh">Momen <small>ketuk untuk simpan / bagikan</small></div><div class="vp-strip"></div></div>
+      <div class="vp-keys">Pintasan: <kbd>Spasi</kbd> putar · <kbd>←</kbd><kbd>→</kbd> 5 dtk · <kbd>,</kbd><kbd>.</kbd> per frame · <kbd>S</kbd> foto · <kbd>[</kbd><kbd>]</kbd> mulai/selesai · <kbd>L</kbd> ulang</div>
+    </div>`;
   document.body.appendChild(player);
-  const pv = $('video', player); let playing = null;
-  function closePlayer() { pv.pause(); pv.removeAttribute('src'); pv.load(); player.hidden = true; playing = null; }
+  const pv = $('video', player), clipBox = $('.vp-clip', player), strip = $('.vp-strip', player), tl = $('.vp-tl', player);
+  let playing = null, clipIn = 0, clipOut = 0, recording = null, lastSave = 0;
+  const moments = []; // { blob, url, name }
+  const MAX_CLIP = 60;
+  const baseName = it => it.name.replace(/\.[a-z0-9]{2,4}$/i, '');
+
+  function closePlayer() {
+    if (recording) recording.abort();
+    if (playing && pv.currentTime) savePos();
+    pv.pause(); pv.removeAttribute('src'); pv.load(); player.hidden = true; playing = null;
+  }
+  const posKey = () => 'vt_pos_' + playing.id;
+  function savePos() {
+    if (!playing) return;
+    const d = pv.duration || 0, t = pv.currentTime;
+    if (t > 3 && d && t < d - 3) localStorage.setItem(posKey(), String(t)); else localStorage.removeItem(posKey());
+  }
+  pv.addEventListener('timeupdate', () => {
+    if (!recording && Date.now() - lastSave > 2000) { lastSave = Date.now(); savePos(); }
+    drawTimeline();
+  });
+  pv.addEventListener('ended', () => { if (playing) localStorage.removeItem(posKey()); });
+  pv.addEventListener('loadedmetadata', () => {
+    clipIn = 0; clipOut = Math.min(pv.duration || 0, 10); updClip();
+    const t = playing && Number(localStorage.getItem(posKey()));
+    if (t > 3 && t < pv.duration - 3) { pv.currentTime = t; toast('Lanjut dari ' + fmtT(t).replace(/\.\d$/, '')); }
+  });
+
+  function setRate(r) {
+    pv.playbackRate = r;
+    player.querySelectorAll('[data-r]').forEach(b => b.classList.toggle('on', Number(b.dataset.r) === r));
+  }
+  function setLoop(on) {
+    pv.loop = on; const b = $('[data-p="loop"]', player); b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on);
+  }
+
+  /* timeline for the clip range */
+  function drawTimeline() {
+    const d = pv.duration; if (!d || clipBox.hidden) return;
+    $('.vp-head', tl).style.left = (pv.currentTime / d * 100) + '%';
+  }
+  function updClip() {
+    const d = pv.duration || 0;
+    if (clipOut < clipIn) [clipIn, clipOut] = [clipOut, clipIn];
+    $('.t-in', player).textContent = fmtT(clipIn); $('.t-out', player).textContent = fmtT(clipOut);
+    const len = clipOut - clipIn, ok = len >= 0.5 && len <= MAX_CLIP;
+    const lenEl = $('.vp-len', player);
+    lenEl.textContent = len > MAX_CLIP ? `${len.toFixed(1)} dtk — terlalu panjang` : `${len.toFixed(1)} dtk`;
+    lenEl.classList.toggle('bad', !ok);
+    $('[data-p="make"]', player).disabled = !ok || !!recording;
+    if (d) { const sel = $('.vp-sel', tl); sel.style.left = (clipIn / d * 100) + '%'; sel.style.width = ((clipOut - clipIn) / d * 100) + '%'; }
+    drawTimeline();
+  }
+  tl.addEventListener('click', e => {
+    if (!pv.duration || recording) return;
+    const r = tl.getBoundingClientRect(); pv.currentTime = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * pv.duration;
+  });
+
+  /* snapshot: current frame → PNG with a small stamp, kept in the Momen strip */
+  function frameCanvas() {
+    const c = document.createElement('canvas'); c.width = pv.videoWidth; c.height = pv.videoHeight;
+    c.getContext('2d').drawImage(pv, 0, 0, c.width, c.height); return c;
+  }
+  function snapshot() {
+    if (!playing || !pv.videoWidth) return;
+    const c = frameCanvas(), g = c.getContext('2d'), t = pv.currentTime;
+    const fs = Math.round(c.height / 38), label = `▶ Motion Vault · ${fmtT(t)}`;
+    g.font = `700 ${fs}px "DM Sans", system-ui, sans-serif`;
+    const w = g.measureText(label).width + fs * 1.4, h = fs * 1.9, x = c.width - w - fs, y = c.height - h - fs;
+    g.fillStyle = 'rgba(13,12,15,.55)'; g.beginPath(); g.roundRect ? g.roundRect(x, y, w, h, h / 2) : g.rect(x, y, w, h); g.fill();
+    g.fillStyle = '#fff'; g.textBaseline = 'middle'; g.fillText(label, x + fs * .7, y + h / 2);
+    const fl = $('.vp-flash', player); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+    c.toBlob(blob => blob && addMoment(blob, `${baseName(playing)} - foto ${fmtT(t).replace(':', '.')}.png`, 'Foto disimpan di Momen'), 'image/png');
+  }
+  function addMoment(blob, name, msg) {
+    const m = { blob, name, url: URL.createObjectURL(blob), video: blob.type.startsWith('video') };
+    moments.unshift(m); renderMoments(); toast(msg);
+  }
+  function renderMoments() {
+    $('.vp-moments', player).hidden = !moments.length;
+    strip.innerHTML = moments.map((m, i) => `<button type="button" class="vp-m${m.video ? ' vid' : ''}" data-m="${i}" title="${esc(m.name)}">${m.video ? `<video src="${m.url}#t=0.1" muted playsinline preload="metadata"></video><span>🎬</span>` : `<img src="${m.url}" alt="">`}</button>`).join('');
+  }
+  async function shareOrSave(m) {
+    const file = new File([m.blob], m.name, { type: m.blob.type });
+    if (matchMedia('(pointer:coarse)').matches && navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: m.name }); return; } catch (e) { if (e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a'); a.href = m.url; a.download = m.name; document.body.appendChild(a); a.click(); a.remove();
+  }
+  strip.addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (b) shareOrSave(moments[b.dataset.m]); });
+
+  /* clip maker: re-records the chosen range (picture + sound) in real time */
+  let audio = null; // { ctx, dest } — the element can only be routed into Web Audio once
+  function audioTrack() {
+    try {
+      if (!audio) {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = ctx.createMediaElementSource(pv), dest = ctx.createMediaStreamDestination();
+        src.connect(ctx.destination); src.connect(dest); audio = { ctx, dest };
+      }
+      audio.ctx.resume?.();
+      return audio.dest.stream.getAudioTracks()[0];
+    } catch { return null; }
+  }
+  const pickMime = () => ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+    .find(t => window.MediaRecorder?.isTypeSupported?.(t));
+  async function makeClip() {
+    if (recording || !playing) return;
+    const mime = pickMime(), c = document.createElement('canvas');
+    if (!mime || !c.captureStream) return toast('Browser ini belum bisa membuat klip — coba Chrome atau Safari terbaru');
+    const it = playing, a = clipIn, b = clipOut;
+    c.width = pv.videoWidth; c.height = pv.videoHeight;
+    const g = c.getContext('2d'), stream = c.captureStream(30), at = audioTrack();
+    if (at) stream.addTrack(at);
+    const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 5e6 });
+    const parts = []; let aborted = false, raf = 0;
+    rec.ondataavailable = e => e.data.size && parts.push(e.data);
+    const wasLoop = pv.loop, wasRate = pv.playbackRate;
+    const cleanup = () => {
+      cancelAnimationFrame(raf); pv.removeEventListener('timeupdate', tick); pv.removeEventListener('ended', stop);
+      stream.getVideoTracks().forEach(t => t.stop());
+      pv.controls = true; setLoop(wasLoop); setRate(wasRate);
+      $('.vp-rec', player).hidden = true; player.classList.remove('recording'); recording = null; updClip();
+    };
+    const stop = () => { if (rec.state !== 'inactive') rec.stop(); pv.pause(); };
+    const tick = () => { if (pv.currentTime >= b) stop(); };
+    const draw = () => { g.drawImage(pv, 0, 0, c.width, c.height); raf = requestAnimationFrame(draw); };
+    rec.onstop = () => {
+      cleanup();
+      if (aborted || !parts.length) return;
+      const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+      addMoment(new Blob(parts, { type: mime.split(';')[0] }), `${baseName(it)} - klip ${fmtT(a).replace(':', '.')}-${fmtT(b).replace(':', '.')}.${ext}`, 'Klip jadi! Ada di Momen 🎬');
+    };
+    recording = { abort() { aborted = true; stop(); } };
+    pv.controls = false; setLoop(false); setRate(1);
+    $('.vp-rec', player).hidden = false; player.classList.add('recording'); updClip();
+    pv.pause(); pv.currentTime = a;
+    await new Promise(r => pv.addEventListener('seeked', r, { once: true }));
+    if (aborted) return cleanup();
+    g.drawImage(pv, 0, 0, c.width, c.height); draw();
+    pv.addEventListener('timeupdate', tick); pv.addEventListener('ended', stop);
+    rec.start(250);
+    pv.play().catch(() => recording?.abort());
+  }
+
+  function step(dt) { if (!pv.duration || recording) return; pv.pause(); pv.currentTime = Math.min(pv.duration, Math.max(0, pv.currentTime + dt)); }
+
   player.addEventListener('click', e => {
+    const r = e.target.closest('[data-r]'); if (r && !recording) return setRate(Number(r.dataset.r));
     const a = e.target.closest('[data-p]')?.dataset.p;
-    if (a === 'x' || e.target === player) closePlayer(); else if (a === 'dl' && playing) download(playing);
+    if (a === 'x' || e.target === player) closePlayer();
+    else if (a === 'dl' && playing) download(playing);
+    else if (recording) return;
+    else if (a === 'loop') setLoop(!pv.loop);
+    else if (a === 'snap') snapshot();
+    else if (a === 'clip') { clipBox.hidden = !clipBox.hidden; $('[data-p="clip"]', player).setAttribute('aria-expanded', String(!clipBox.hidden)); updClip(); }
+    else if (a === 'in') { clipIn = pv.currentTime; if (clipOut <= clipIn) clipOut = Math.min(pv.duration, clipIn + 10); updClip(); }
+    else if (a === 'out') { clipOut = pv.currentTime; updClip(); }
+    else if (a === 'make') makeClip();
+  });
+  addEventListener('keydown', e => {
+    if (player.hidden || !lg.hidden || e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    const k = e.key, ks = k.toLowerCase();
+    if (k === 'Escape') return;
+    if (recording) { if (k === ' ') e.preventDefault(); return; }
+    if (k === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); pv.paused ? pv.play() : pv.pause(); }
+    else if (k === 'ArrowLeft' && e.target !== pv) { e.preventDefault(); step(-5); }
+    else if (k === 'ArrowRight' && e.target !== pv) { e.preventDefault(); step(5); }
+    else if (k === ',') step(-1 / 30);
+    else if (k === '.') step(1 / 30);
+    else if (ks === 's') snapshot();
+    else if (ks === 'l') setLoop(!pv.loop);
+    else if (k === '[' || k === ']') {
+      if (clipBox.hidden) { clipBox.hidden = false; $('[data-p="clip"]', player).setAttribute('aria-expanded', 'true'); }
+      $(`[data-p="${k === '[' ? 'in' : 'out'}"]`, player).click();
+    }
   });
 
   async function openVault() {
@@ -202,7 +399,7 @@
     } catch (e) { toast(e.message || 'Gagal mengunduh'); }
   }
   async function play(it) {
-    try { const url = await load(it); playing = it; pv.src = url; player.hidden = false; pv.play().catch(() => {}); renderGrid(); }
+    try { const url = await load(it); playing = it; setRate(1); pv.src = url; player.hidden = false; pv.play().catch(() => {}); renderGrid(); }
     catch (e) { toast(e.message || 'Gagal memutar'); }
   }
 
