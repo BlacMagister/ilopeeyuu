@@ -135,6 +135,7 @@
     <link rel="stylesheet" href="assets/duel.css">
     <link rel="stylesheet" href="assets/tailwind.css">
     <link rel="stylesheet" href="assets/fixes.css">
+    <link rel="stylesheet" href="assets/vault.css">
 </head>
 <body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -157,6 +158,7 @@
                 <button id="tab-kanji" type="button" onclick="switchMode('kanji')" class="nav-tab"><span class="ni font-jp" aria-hidden="true">漢</span><span>Kanji</span></button>
                 <button id="tab-duel" type="button" onclick="switchMode('duel')" class="nav-tab nav-duel"><span class="ni" aria-hidden="true">⚔️</span><span>Duel</span><span class="nav-live" aria-hidden="true">live</span></button>
             </nav>
+            <button type="button" id="menu-btn" class="menu-btn" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><span></span><span></span><span></span></button>
         </div>
     </header>
 
@@ -1427,5 +1429,6 @@
     <script src="assets/kanji-data.js" defer></script>
     <script src="assets/kanji-flash.js" defer></script>
     <script src="assets/duel.js" defer></script>
+    <script src="assets/vault.js" defer></script>
 </body>
 </html>

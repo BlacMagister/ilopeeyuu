@@ -65,4 +65,5 @@
   $('vs-cc').addEventListener('click', e => { const on = stage.classList.toggle('nocc'); e.currentTarget.setAttribute('aria-pressed', String(!on)); });
   $('vs-fs').addEventListener('click', () => { const f = $('vs-frame'); document.fullscreenElement ? document.exitFullscreen() : f.requestFullscreen?.(); });
   render(0, false);
+  window.UsagiShow = { stage, audio, restart() { audio.pause(); audio.currentTime = 0; lastT = 0; render(0, false); play(); } };
 })();
