@@ -730,13 +730,123 @@
     'Kamu tuh rumah 🏡', 'Kamu bikin aku percaya cinta itu nyata 💞', 'Karena tiap hari aku jatuh cinta lagi sama kamu, terus, terus 💘',
   ];
   const OPEN_WHEN = [
-    ['sedih', '🥺', 'Buka kalau lagi sedih', 'Sayang… gapapa kok sedih. Kamu gak harus kuat terus. Tarik napas pelan-pelan, peluk bantal, dan bayangin itu aku. Apa pun yang terjadi hari ini, aku tetap di pihakmu. Besok mataharinya terbit lagi, dan aku masih sayang kamu sama banyaknya. 🫂💗'],
-    ['kangen', '💭', 'Buka kalau lagi kangen', 'Kangen ya? Sama, aku juga. Coba pencet Tombol Kangen di Beranda sebanyak-banyaknya — tiap pencetan sampai ke aku. Jarak itu cuma angka, hatiku tetap nempel di kamu. Sebentar lagi kita ketemu, janji. 🥺💞'],
-    ['tidur', '🌙', 'Buka kalau gak bisa tidur', 'Belum ngantuk? Matiin layar sebentar ya. Bayangin kita lagi rebahan sambil dengerin hujan, aku elus-elus kepalamu sampai kamu ketiduran. Oyasumi, sayang. おやすみ。Mimpiin aku ya 😴🌙'],
-    ['capek', '📚', 'Buka kalau capek belajar', 'Hei, kamu udah hebat banget hari ini. Gapapa istirahat 10 menit, minum air, makan camilan. Kanji-kanji itu gak bakal kabur kok. Aku bangga sama setiap langkah kecilmu. Ganbatte ne! がんばってね 🍵✨'],
-    ['marah', '😤', 'Buka kalau lagi marah sama aku', 'Maaf ya kalau aku bikin kesel… Kamu boleh marah, tapi jangan lama-lama ya 🥹 Aku mau dengerin dan memperbaiki. Ini kupon pelukan permintaan maaf: berlaku sekarang juga. Aku sayang kamu, bahkan pas kamu lagi cemberut (justru makin gemes). 🙏💗'],
-    ['senang', '🎉', 'Buka kalau lagi bahagia', 'Yeay! Aku ikut seneng banget! Ceritain semuanya ke aku ya, detail sekecil apa pun. Senyummu hari ini simpan baik-baik — itu pemandangan favoritku. 🌈😊'],
+    ['sedih', '🥺', 'Buka kalau lagi sedih', [
+      'Sayang… gapapa kok sedih. Kamu gak harus kuat terus. Tarik napas pelan-pelan, peluk bantal, dan bayangin itu aku. Besok mataharinya terbit lagi, dan aku masih sayang kamu sama banyaknya. 🫂💗',
+      'Laporan resmi dari Kementerian Pacar: hari ini kamu boleh nangis, boleh rebahan, boleh makan mie 2 bungkus. Semua sudah disetujui. Yang gak boleh cuma satu: ngerasa sendirian. Karena aku di sini. 📜🫡',
+      'Sini, sini. Kepalanya taruh di pundakku dulu (pundak virtual, tapi empuk kok). Ceritain pelan-pelan, aku dengerin sampai habis tanpa motong. Janji. 🤍',
+      'Fakta ilmiah: air mata itu cara hati buang sampah. Jadi nangis aja, nanti hatinya bersih lagi dan aku yang nempatin lagi. Hehe modus 🤭💧',
+      'Kalau hari ini berat, ingat ya: kamu udah lewatin 100% hari-hari buruk sebelumnya. Rekor kamu sempurna! Aku bangga banget sama kamu. 🏆💗',
+      'Aku kirim 1 truk pelukan, 3 karung cium, dan 1 kotak cokelat imajiner. Kurirnya aku sendiri. Tanda tangan di sini ya 👉 ✍️ 🚚💝',
+      'Gapapa gak baik-baik aja. Kamu tetap cantik pas mata sembab, tetap lucu pas ingus meler (iya, serius). Aku sayang semua versi kamu. 🥹🌷',
+      'Coba lihat ke luar jendela. Langit yang sama juga lagi aku lihat. Jadi secara teknis, kita lagi bareng sekarang. Senyum dikit dong? Dikiiit aja 🌤️',
+    ]],
+    ['kangen', '💭', 'Buka kalau lagi kangen', [
+      'Kangen ya? Sama, aku juga. Coba pencet Tombol Kangen di Beranda sebanyak-banyaknya — tiap pencetan sampai ke aku. Jarak itu cuma angka, hatiku tetap nempel di kamu. 🥺💞',
+      'Peringatan: tingkat kangen kamu sudah melewati batas aman. Segera lakukan tindakan darurat: chat aku sekarang, kirim foto selfie, dan bilang "aku kangen". Wajib. Gak pake malu. 🚨📱',
+      'Tau gak, aku tuh juga lagi kangen tapi pura-pura cool. Sekarang ketahuan deh. Ya udah, kita kangen-kangenan aja bareng 😳💕',
+      'Rumus kangen: (jarak × waktu) ÷ sabar = ketemu sebentar lagi. Aku udah ngitung, hasilnya positif. Tunggu aku ya 🧮💗',
+      'Bayangin aku lagi nongol di depan pintu sambil bawa jajan kesukaanmu dan bilang "kejutaaan!". Nah, itu bakal kejadian beneran. Cuma belum sekarang aja 🚪🎁',
+      'Kalau kangennya bisa dijual, kita berdua udah jadi miliarder. Sayangnya gak bisa, jadi kita tabung aja buat dipakai pas ketemu nanti 💰🥰',
+      'Cium layar HP-mu sekarang. Udah? Nah, aku juga barusan. Jadi kita resmi ciuman jarak jauh. Romantis tapi agak berminyak layarnya 😆💋',
+    ]],
+    ['tidur', '🌙', 'Buka kalau gak bisa tidur', [
+      'Belum ngantuk? Matiin layar sebentar ya. Bayangin kita lagi rebahan sambil dengerin hujan, aku elus-elus kepalamu sampai kamu ketiduran. Oyasumi, sayang. おやすみ 😴🌙',
+      'Ayo hitung domba bareng: 🐑 1… 🐑 2… 🐑 3… eh domba ke-4 bawa tulisan "aku sayang kamu". Domba ke-5 juga. Semua dombanya ternyata dari aku 🐑💌',
+      'Tips tidur ala aku: tarik napas 4 detik, tahan 7 detik, buang 8 detik. Kalau masih belum tidur, ulangi sambil mikirin aku. Kalau malah makin melek… ya maaf, aku emang semenarik itu 😌',
+      'HP-nya taruh. Iya, sekarang. Aku tau kamu lagi scroll gak jelas. Matanya istirahat, besok cantiknya mau dipakai lagi 👀📵',
+      'Dongeng singkat: Pada suatu hari ada seseorang yang paling lucu sedunia. Dia gak bisa tidur. Lalu pacarnya nulis surat ini. Dia tersenyum, menguap, dan tidur nyenyak. Tamat. Sekarang giliran kamu 📖💤',
+      'Selimutnya ditarik sampai dagu, guling dipeluk erat (anggap aja itu aku, tapi jangan bilang guling ya nanti dia GR). Selamat bobo, cintaku 🛏️🧸',
+    ]],
+    ['capek', '📚', 'Buka kalau capek belajar', [
+      'Hei, kamu udah hebat banget hari ini. Gapapa istirahat 10 menit, minum air, makan camilan. Kanji-kanji itu gak bakal kabur kok. Ganbatte ne! がんばってね 🍵✨',
+      'Kanji 休 artinya istirahat — gambarnya orang (亻) nyender di pohon (木). Tuh, bahkan kanji aja nyuruh kamu istirahat. Masa kamu bantah kanji? 🌳😴',
+      'Otakmu itu kayak HP: kalau baterainya 5% ya di-charge dulu. Charger-nya: cemilan, air putih, dan 1 chat dari aku. Udah aku kirim lewat surat ini 🔋📱',
+      'Fun fact: tiap kamu belajar 1 kata Jepang, aku makin bangga 1 level. Sekarang aku udah level dewa bangganya. Kamu keren pol! 🇯🇵🏅',
+      'Peraturan baru: setiap 25 menit belajar = 5 menit boleh mikirin aku. Kalau lebih dari 5 menit… ya gapapa sih, aku seneng 🍅⏱️',
+      'Kalau capek, ingat tujuannya: nanti kita jalan-jalan ke Jepang dan kamu yang jadi translator. Aku cuma tukang bawain tas & fotoin kamu. Deal? ✈️🗾',
+      'Sugoi! すごい! Kamu udah sejauh ini. Jangan bandingin sama orang lain, bandingin sama kamu yang kemarin. Dan kamu yang hari ini jauh lebih jago 📈💗',
+    ]],
+    ['marah', '😤', 'Buka kalau lagi marah sama aku', [
+      'Maaf ya kalau aku bikin kesel… Kamu boleh marah, tapi jangan lama-lama ya 🥹 Ini kupon pelukan permintaan maaf: berlaku sekarang juga. Aku sayang kamu, bahkan pas kamu cemberut (justru makin gemes). 🙏💗',
+      'Surat ini ditulis sambil berlutut (secara imajiner). Isinya: maaf, maaf, maaf, maaf, maaf. Kalau kurang, bilang aja, aku tambahin sampai satu halaman 🧎‍♂️📝',
+      'Oke, aku salah. Pasti aku salah. Bahkan kalau belum tau salahnya apa, aku udah minta maaf duluan. Pacar yang proaktif ya kan? 😅🙏',
+      'Muka cemberutmu sekarang: 😠. Muka aku sekarang: 🥺👉👈. Siapa yang menang? Ya kamu sih, kamu selalu menang. Maafin ya?',
+      'Penawaran damai: 1 boba large + 1 pelukan 5 menit + kamu boleh cubit aku 3 kali. Gimana? Bisa nego, asal ujungnya baikan 🧋🤝',
+      'Aku gak suka bikin kamu sedih atau kesel. Kalau mau ngomel, ngomel aja, aku dengerin. Habis itu kita baikan dan beli jajan bareng ya 💬🍡',
+    ]],
+    ['senang', '🎉', 'Buka kalau lagi bahagia', [
+      'Yeay! Aku ikut seneng banget! Ceritain semuanya ke aku ya, detail sekecil apa pun. Senyummu hari ini simpan baik-baik — itu pemandangan favoritku. 🌈😊',
+      'WOOHOO! 🎊 Kirim aku screenshot senyummu sekarang juga, mau aku jadiin wallpaper. Ini perintah resmi! 📸',
+      'Kamu bahagia = aku bahagia. Itu udah hukum alam, kayak gravitasi. Jangan dibantah, Newton aja setuju 🍎😆',
+      'Ayo joget dulu 10 detik! Gak ada yang lihat kok (kecuali aku dalam bayangan). Kiri, kanan, putar… nah gitu! 💃🕺',
+      'Catat tanggal hari ini ya, biar kalau nanti lagi sedih kamu bisa ingat: "oh iya, pernah sebahagia itu". Dan pasti bakal ada lagi, lebih banyak 🗓️✨',
+      'Senang itu menular. Makanya habis baca ini, kabarin aku ya biar aku ketularan juga 🦠💗 (virus yang baik kok)',
+    ]],
+    ['bosan', '🥱', 'Buka kalau lagi bosan', [
+      'Misi rahasia buat kamu: cari 5 benda warna pink di sekitarmu, foto, kirim ke aku. Hadiahnya? Rahasia (tapi bentuknya cium) 🕵️‍♀️💗',
+      'Daripada bosan, coba main game di tab Main. Kalau skornya tinggi, aku kasih gelar "Pacar Paling Jago Sedunia". Kalau skornya rendah… gelarnya tetap sama sih 😆🎮',
+      'Tantangan: kirim aku chat cuma pakai emoji, aku tebak maksudnya. Kalau aku salah, aku traktir. Kalau benar, kamu traktir. Kalau seri, kita berdua jajan 🤔🍢',
+      'Bosan itu tanda otakmu minta hal baru. Coba belajar 3 kanji baru, terus pamerin ke aku. Aku bakal pura-pura gak ngerti biar kamu bisa jelasin panjang lebar 🤓',
+      'Ide random: rekam voice note nyanyi lagu favoritmu, kirim ke aku. Gak usah bagus, yang penting suara kamu. Aku dengerin berkali-kali 🎤🎶',
+      'Tulis 3 hal yang kamu suka dari diri sendiri. Gak bisa? Sini aku bantu: 1) lucu, 2) pinter, 3) pacarnya ganteng. Sama-sama 😎',
+    ]],
+    ['lapar', '🍜', 'Buka kalau lagi laper', [
+      'LAPAR?! Kode merah! Segera makan sekarang juga. Pacar yang laper bisa berubah jadi monster lucu, dan aku gak sanggup lawan 👹🍙',
+      'Rekomendasi menu dari chef aku: mie instan + telur + cinta secukupnya. Rasanya 10/10, dijamin bikin kangen (sama aku) 🍳🍜',
+      'Jangan lupa makan ya. Kamu boleh diet dari apa aja, kecuali dari perhatianku. Itu gak ada kalorinya kok 🥗💗',
+      'Kalau aku di sana, aku udah pesenin makanan kesukaanmu dan suapin kamu. "Aaa~" Tapi karena lagi jauh, kamu suapin sendiri dulu ya, bayangin aku yang suapin 🥄😋',
+      'Pertanyaan penting: kamu laper beneran atau laper pengen ngemil? Jawabannya gak penting, yang penting makan. Terus kirim foto makanannya ke aku 📸🍰',
+      'Itadakimasu! いただきます! Ucapin itu sebelum makan, biar makanannya makin enak dan kamu makin jago bahasa Jepang. Dua burung satu batu 🍱',
+    ]],
+    ['overthinking', '🌀', 'Buka kalau lagi overthinking', [
+      'Stop dulu. Otakmu lagi bikin film horor dari hal kecil ya? Aku sutradaranya bilang: CUT! Ceritanya gak gitu kok. Semuanya bakal baik-baik aja 🎬✋',
+      'Tarik napas. Tanya ke diri sendiri: "ini masalah 5 tahun lagi masih penting gak?" Kalau enggak, kasih waktu 5 menit aja buat dipikirin. Sisanya buat mikirin aku 🧠💭',
+      'Kalau kamu overthinking soal aku: tenang, aku masih sayang, masih setia, masih ganteng (oke yang ini subjektif). Gak ada yang berubah 💗🔒',
+      'Pikiranmu itu kayak tab browser yang kebuka 47. Ayo tutup satu-satu. Yang tab "aku sayang kamu" jangan ditutup ya, itu penting 🗂️😆',
+      'Coba tulis semua yang ganggu pikiranmu di kertas, terus lipat jadi pesawat dan terbangin. Kalau gak ada kertas, ceritain ke aku aja. Aku tempat sampah curhat terbaik 🛩️',
+      'Kamu gak harus punya jawaban buat semuanya sekarang. Pelan-pelan aja. Kita pikirin bareng. Dua kepala lebih baik dari satu, apalagi kalau salah satunya kepala kamu yang pinter 🤝',
+    ]],
+    ['insecure', '🪞', 'Buka kalau lagi insecure', [
+      'Coba lihat cermin. Itu orang yang aku pilih dari 8 miliar manusia di bumi. Seleraku bagus banget kan? Jadi jangan ragu sama dirimu 🌍💗',
+      'Kamu tau gak kenapa bintang bersinar? Karena gak peduli lagi sama lampu jalan di sebelahnya. Jadilah bintang. Kamu udah bersinar kok di mataku ✨⭐',
+      'Daftar kekurangan kamu menurut aku: 1) terlalu lucu, 2) terlalu bikin kangen, 3) … udah, itu aja. Parah kan? 📝😌',
+      'Orang lain mungkin punya kelebihan yang beda, tapi gak ada yang punya senyum kamu, ketawa kamu, cara kamu ngomel. Itu limited edition, cuma 1 di dunia 🦄',
+      'Kalau kamu gak bisa lihat betapa berharganya kamu, pinjem mataku sebentar. Dari sini kamu kelihatan luar biasa 👀💖',
+      'Hari ini tugasmu satu: bilang "aku cukup" ke diri sendiri 3 kali. Kalau malu, bisik aja. Aku bakal teriakin buat kamu: KAMU LEBIH DARI CUKUP! 📣',
+    ]],
+    ['pagi', '☀️', 'Buka kalau baru bangun', [
+      'Ohayou, sayang! おはよう! Selamat pagi buat orang yang pertama aku pikirin tiap bangun tidur ☀️😊',
+      'Bangun, bangun! Matahari udah nunggu, tapi aku lebih nunggu. Minum air putih dulu ya, terus senyum. Wajib senyum. 🌅💧',
+      'Muka bantal kamu pasti lucu banget sekarang. Sayang aku gak bisa lihat. Selfie dong? Gak usah dandan, aku suka yang natural 📸🥰',
+      'Ramalan cuaca hari ini: 100% kemungkinan ada orang yang sayang kamu. Bawa payung cinta ya, soalnya bakal hujan perhatian dari aku ☂️💗',
+      'Hari baru, kesempatan baru buat jadi luar biasa. Tapi kalau hari ini cuma mau jadi biasa aja, juga gapapa. Kamu tetap favoritku 🌻',
+      'Checklist pagi: ☐ bangun ☐ cuci muka ☐ sarapan ☐ ingat aku sayang kamu. Yang terakhir udah aku centang duluan ✅',
+    ]],
+    ['hujan', '🌧️', 'Buka kalau lagi hujan', [
+      'Hujan-hujan gini enaknya peluk-pelukan sambil minum cokelat panas. Kamu bikin cokelatnya, aku bawa pelukannya. Pembagian tugas yang adil ☕🫂',
+      'Tiap tetes hujan yang jatuh itu satu "aku sayang kamu" dari aku. Coba hitung. Gak bakal habis kan? Sama kayak sayangku 🌧️💙',
+      'Jangan hujan-hujanan ya, nanti masuk angin. Kalau udah terlanjur basah, cepat mandi air hangat. Ini bukan saran, ini perintah pacar 😤☔',
+      'Suara hujan + selimut + lagu galau = kombinasi mematikan. Tapi tenang, kamu gak perlu galau, pacarmu ada dan masih sayang 🎧🌂',
+      'Kalau nanti kita jalan dan hujan, aku rela payungnya buat kamu semua. Aku basah gapapa, yang penting kamu kering dan aku kelihatan keren ala drama Korea 😎🌦️',
+    ]],
+    ['ulangtahun', '🎂', 'Buka kalau hari ulang tahunmu', [
+      'Selamat ulang tahun, sayangku! 🎉 Satu tahun lagi kamu makin cantik, makin pinter, dan makin bikin aku jatuh cinta. Semoga semua doamu terkabul, termasuk yang tentang aku 😉🎂',
+      'Otanjoubi omedetou! お誕生日おめでとう! Hari ini kamu ratu. Semua permintaanmu (yang wajar) bakal aku turutin. Mulai dari mana, Yang Mulia? 👑',
+      'Umurmu nambah, tapi tenang, imutnya gak berkurang sama sekali. Aku udah cek pakai kalkulator 🧮🥰',
+      'Make a wish dulu, tiup lilinnya… fuuuh! 🕯️ Nah, salah satu wish-mu udah terkabul dari dulu: punya pacar kayak aku. Hehe 😝',
+      'Terima kasih udah lahir ke dunia. Serius. Dunia jadi tempat yang jauh lebih seru sejak ada kamu 🌍🎁',
+    ]],
+    ['jenuh', '🫠', 'Buka kalau lagi pengen nyerah', [
+      'Jangan nyerah ya. Kalau capek, istirahat. Kalau mau nangis, nangis. Tapi habis itu bangun lagi, karena kamu lebih kuat dari yang kamu kira, dan aku selalu di belakangmu 💪💗',
+      'Ingat gak kenapa kamu mulai? Pegang alasan itu erat-erat. Kalau lupa, aku bantu ingetin, sampai kamu muak dengernya 😆📌',
+      'Bambu butuh 5 tahun buat numbuhin akar sebelum tumbuh tinggi banget dalam 6 minggu. Kamu lagi di fase akar. Sabar ya, nanti meledak tingginya 🎋',
+      'Nanakorobi yaoki — 七転び八起き — jatuh 7 kali, bangun 8 kali. Kamu boleh jatuh, asal bangunnya sama aku 🤝🇯🇵',
+      'Kamu udah jauh banget dari titik awal. Lihat ke belakang sebentar, terus kasih tepuk tangan buat dirimu sendiri 👏👏 Aku juga tepuk tangan dari sini!',
+    ]],
   ];
+  const OW_SIGS = ['— dari aku, yang sayang kamu selalu 💗', '— pacarmu yang paling ganteng (gak terima protes) 😎', '— dari aku, kurir surat cinta pribadimu 📮', '— tertanda, fans nomor 1 kamu 📣', '— dari aku, yang lagi senyum-senyum sendiri nulis ini 🤭', '— peluk jauh, dari aku 🫂', '— yang selalu milih kamu, tiap hari 💞'];
+  const OW_PS = ['P.S. Kamu lucu.', 'P.S. Jangan lupa minum air putih 💧', 'P.S. Aku kangen (lagi).', 'P.S. Surat ini sudah dicium sebelum dikirim 💋', 'P.S. Kalau baca ini sambil senyum, berarti berhasil 😁', 'P.S. Daisuki dayo! 大好きだよ', 'P.S. Coba buka lagi nanti, isinya bisa beda lho 👀', 'P.S. Ini rahasia kita berdua ya 🤫'];
+  const OW_BTN = ['Peluk dulu, terus tutup 🫂', 'Simpan di hati 💗', 'Cium dulu baru tutup 😚', 'Makasih sayang 🥰', 'Hehe oke 🙈', 'Aku juga sayang kamu 💞'];
   const COUPONS = [
     ['peluk', '🫂', 'Pelukan 1 menit', 'Gak boleh dilepas sebelum 60 detik'], ['boba', '🧋', 'Traktir boba', 'Topping bebas, ukuran large'],
     ['maaf', '🕊️', 'Langsung dimaafkan', 'Berlaku untuk 1 kesalahan kecil'], ['jalan', '🎡', 'Jalan-jalan bebas', 'Kamu yang pilih tempatnya'],
@@ -757,6 +867,7 @@
 
   const getLS = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
   const setLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+  const owSeen = k => { const v = getLS('rr_owv', {})[k]; return Array.isArray(v) ? v : []; };
   const ctr = k => (roomData?.counters?.[k] || 0) + (pendingCount[k] || 0);
   const pendingCount = { peluk: 0, cium: 0 }; let countTimer = 0;
   function flushCounts() {
@@ -814,7 +925,8 @@
           </div><p class="lv-hug-say" aria-live="polite"></p></div>
       </div>
       <h3 class="lv-h">💌 Surat "Buka kalau…"</h3>
-      <div class="lv-env">${OPEN_WHEN.map(([k, e, title]) => `<button type="button" class="lv-envelope${getLS('rr_ow', []).includes(k) ? ' read' : ''}" data-l="ow" data-k="${k}"><span class="flap"></span><span class="em">${e}</span><b>${title}</b></button>`).join('')}</div>
+      <p class="lv-env-hint">Tiap amplop isinya banyak & ganti-ganti tiap dibuka — buka lagi kapan aja ya 😉</p>
+      <div class="lv-env">${OPEN_WHEN.map(([k, e, title, msgs]) => { const n = owSeen(k).length; return `<button type="button" class="lv-envelope${n ? ' read' : ''}" data-l="ow" data-k="${k}" data-rd="${n}/${msgs.length}"><span class="flap"></span><span class="em">${e}</span><b>${title}</b></button>`; }).join('')}</div>
       <h3 class="lv-h">🎟️ Kupon cinta <small>tukarkan kapan aja, nanti aku tepati 🤞</small></h3>
       <div class="lv-coupons">${COUPONS.map(([id, e, title, desc]) => { const u = used(id); return `<div class="lv-coupon${u ? ' used' : ''}" data-cid="${id}">
           <span class="em">${e}</span><div class="tx"><b>${title}</b><small>${desc}</small>${u ? `<em>ditukar ${new Date(u * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</em>` : ''}</div>
@@ -842,15 +954,24 @@
     b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bumpCount('peluk', b, ['🫂', '💗']); } });
   }
 
-  function openLetter(k) {
+  function openLetter(k, prev) {
     const l = OPEN_WHEN.find(x => x[0] === k); if (!l) return;
-    const read = getLS('rr_ow', []); if (!read.includes(k)) { read.push(k); setLS('rr_ow', read); }
+    const msgs = l[3], all = getLS('rr_owv', {}); let seen = owSeen(k).filter(i => i < msgs.length);
+    let pool = msgs.map((_, i) => i).filter(i => !seen.includes(i));
+    if (!pool.length) { seen = []; pool = msgs.map((_, i) => i); }
+    if (pool.length > 1 && prev != null) pool = pool.filter(i => i !== prev);
+    const idx = pickR(Math.random, pool); seen.push(idx); all[k] = seen; setLS('rr_owv', all);
+    const fresh = seen.length === msgs.length ? '<small class="ow-done">🎉 Semua surat di amplop ini udah kamu baca! Buka lagi, urutannya diacak ulang</small>' : '';
     const m = document.createElement('div'); m.className = 'lv-modal';
-    m.innerHTML = `<div class="lv-letter" role="dialog" aria-modal="true" aria-label="${esc(l[2])}"><span class="seal">${l[1]}</span><h3>${esc(l[2])}</h3><p>${esc(l[3])}</p><div class="sig">— dari aku, yang sayang kamu selalu 💗</div><button type="button" class="rr-btn pri">Peluk dulu, terus tutup 🫂</button></div>`;
+    m.innerHTML = `<div class="lv-letter" role="dialog" aria-modal="true" aria-label="${esc(l[2])}"><span class="seal">${l[1]}</span><h3>${esc(l[2])}</h3><small class="ow-no">surat #${idx + 1} dari ${msgs.length} · ${seen.length}/${msgs.length} udah dibaca</small><p>${esc(msgs[idx])}</p><p class="ow-ps">${esc(pickR(Math.random, OW_PS))}</p><div class="sig">${esc(pickR(Math.random, OW_SIGS))}</div>${fresh}<div class="ow-act"><button type="button" class="rr-btn ghost" data-ow="next">💌 Surat lain</button><button type="button" class="rr-btn pri" data-ow="close">${esc(pickR(Math.random, OW_BTN))}</button></div></div>`;
     vt.appendChild(m);
     const close = () => { m.remove(); renderGift(); };
-    m.addEventListener('click', e => { if (e.target === m || e.target.closest('button')) close(); });
-    $('button', m).focus(); burstAt($('.seal', m), ['💗', '✨', '💌'], 10);
+    m.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (b && b.dataset.ow === 'next') { m.remove(); openLetter(k, idx); return; }
+      if (e.target === m || b) close();
+    });
+    $('[data-ow="close"]', m).focus(); burstAt($('.seal', m), ['💗', '✨', '💌'], 10);
   }
 
   /* 🎮 games */
