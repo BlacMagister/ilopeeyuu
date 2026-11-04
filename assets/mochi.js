@@ -89,9 +89,34 @@
     layer.innerHTML = '';
     el('start').hidden = true; el('over').hidden = true; el('pause').hidden = true; el('pausebtn').hidden = false;
     dressUsagi(); hud(); setTarget(null);
+    fit(); scrollToGame();
     lastT = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
   }
-  const speed = () => 34 + G.level * 9;                       // px per second
+
+  /* ---------- fit the whole game (HUD → ground → answers) inside the visible screen ---------- */
+  const headerH = () => { const h = document.querySelector('header'); return h && getComputedStyle(h).position !== 'static' ? h.getBoundingClientRect().height : 0; };
+  const navH = () => { const n = $('nav-tabs'); if (!n || getComputedStyle(n).position !== 'fixed') return 0; return Math.max(0, innerHeight - n.getBoundingClientRect().top); };
+  function fit() {
+    if (!root.offsetParent) return;
+    const vh = window.visualViewport ? visualViewport.height : innerHeight;
+    const hud = root.querySelector('.mo-hud').offsetHeight + 10;
+    const ans = $('mo-answers').offsetHeight + 12;
+    const pauseBtn = 46;
+    const h = Math.round(vh - headerH() - navH() - hud - ans - pauseBtn - 18);
+    field.style.height = Math.max(230, Math.min(520, h)) + 'px';
+  }
+  function scrollToGame() {
+    if (!root.offsetParent) return;
+    const top = root.getBoundingClientRect().top + scrollY - headerH() - 8;
+    scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
+  }
+  let fitT;
+  const refit = () => { clearTimeout(fitT); fitT = setTimeout(fit, 120); };
+  addEventListener('resize', refit);
+  addEventListener('orientationchange', refit);
+  if (window.visualViewport) visualViewport.addEventListener('resize', refit);
+  // fall speed scales with the field height so the time-to-land feels the same on every screen
+  const speed = () => (34 + G.level * 9) * Math.max(0.6, field.clientHeight / 440); // px per second
   const spawnGap = () => Math.max(1.05, 2.9 - G.level * 0.22); // seconds between mochi
   const maxOnField = () => Math.min(4, 1 + Math.ceil(G.level / 2));
   const groundY = () => field.clientHeight - 78;
@@ -254,7 +279,7 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(true); });
 
   window.Mochi = {
-    show() { active = true; dressUsagi(); markSet(); },
+    show() { active = true; dressUsagi(); markSet(); requestAnimationFrame(fit); },
     hide() { active = false; pause(true); },
   };
 })();
