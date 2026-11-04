@@ -64,6 +64,7 @@
     { id: 'dream', ic: '⭐', name: 'Mimpi Bareng', sub: 'Daftar hal yang mau kita lakukan' },
     { id: 'omikuji', ic: '🎋', name: 'Omikuji', sub: 'Ramalan keberuntungan harian ala kuil Jepang' },
     { id: 'play', ic: '🎮', name: 'Main Yuk', sub: 'Game-game gemes buat kita berdua' },
+    { id: 'fun', ic: '🎡', name: 'Seru-seru', sub: 'Mainan kecil buat ngusir bosan & bikin senyum' },
   ];
 
   /* ---------- menu ---------- */
@@ -216,6 +217,7 @@
       <section class="rr-panel" data-panel="omikuji" hidden></section>
       <section class="rr-panel" data-panel="gift" hidden></section>
       <section class="rr-panel" data-panel="play" hidden></section>
+      <section class="rr-panel" data-panel="fun" hidden></section>
     </main>
     <div class="lv-pet"><div class="lv-bubble" hidden aria-live="polite"></div><button type="button" class="lv-pet-b" data-l="pet" aria-label="Usagi-chan">🐰</button></div>
   </div>`;
@@ -457,7 +459,7 @@
   function renderTab() {
     if (tab === 'home') renderHome(); else if (tab === 'notes') renderBoard(); else if (tab === 'mood') renderMood();
     else if (tab === 'dream') renderDreams(); else if (tab === 'omikuji') renderOmikuji();
-    else if (tab === 'gift') renderGift(); else if (tab === 'play') renderPlay();
+    else if (tab === 'gift') renderGift(); else if (tab === 'play') renderPlay(); else if (tab === 'fun') renderFun();
     if (tab !== 'play' && game) endGame(true);
   }
   async function loadRoom() {
@@ -604,6 +606,7 @@
         <div class="rr-card w-note"><h3>Surat terbaru</h3>
           ${latest ? `<div class="mini-note c-${esc(latest.color)}"><span class="stk">${esc(latest.sticker)}</span>${esc(latest.body)}</div>` : `<p>Belum ada surat. Jadi yang pertama nulis yuk ✍️</p>`}
           <button type="button" class="rr-btn ghost sm" data-go="notes">${latest ? 'Lihat semua →' : '✍️ Tulis surat'}</button></div>
+        <div class="rr-card w-fun" data-go="fun" role="button" tabindex="0"><h3>Seru-seru 🎡</h3><div class="wf-ic" aria-hidden="true">🎡🎁🥠🫧</div><p>Roda kencan, kartu gosok, kue keberuntungan & bubble wrap nunggu kamu~</p></div>
         ${items.length ? `<div class="rr-card w-video"><h3>Video spesial</h3><p>${esc(items[0].name)}</p><button type="button" class="rr-btn pri sm" data-playfirst>▶ Putar sekarang</button></div>` : ''}
       </div>`;
   }
@@ -750,7 +753,7 @@
     'Aku rela jadi flashcard, asal kamu bolak-balik tiap hari 🃏', 'Hidupku kayak memory game. Begitu ketemu kamu: MATCH! 🧩', 'Kamu tuh login-nya, aku password-nya. Gak lengkap kalau gak bareng 🔐',
   ];
   const ASK_NO = ['Nggak 🙄', 'yakin? 🥺', 'masa sih?', 'pikir lagi deh', 'ih jahat 😢', 'gak bisa dipencet wlee 😛', 'coba lagi~', 'nope 🙅', 'salah tombol!', 'hehe 🤭'];
-  const PET_LINES = ['Halo cantik! 🐰', 'Dia sayang banget sama kamu loh 🤫', 'Udah makan belum? 🍙', 'Pencet aku lagi dong~ 💗', 'Kamu wangi deh 🌸', 'Jangan lupa senyum ya 😊', 'Psst… cek tab Untukmu 💝', 'Aku disuruh jagain kamu 🛡️', 'Gemes banget sih kamu 🫠', 'Daisuki! 大好き 💕'];
+  const PET_LINES = ['Halo cantik! 🐰', 'Dia sayang banget sama kamu loh 🤫', 'Udah makan belum? 🍙', 'Pencet aku lagi dong~ 💗', 'Kamu wangi deh 🌸', 'Jangan lupa senyum ya 😊', 'Psst… cek tab Untukmu 💝', 'Coba tab Seru-seru deh 🎡', 'Aku disuruh jagain kamu 🛡️', 'Gemes banget sih kamu 🫠', 'Daisuki! 大好き 💕'];
 
   const getLS = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
   const setLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -989,6 +992,135 @@
     return true;
   }
 
+  /* 🎡 Seru-seru: date wheel, scratch card, fortune cookie, talk cards, bubble wrap */
+  const WHEEL = [['🍜', 'Makan ramen / bakso bareng'], ['🎬', 'Nonton film sambil video call'], ['🍦', 'Jajan es krim berdua'], ['📸', 'Photobox pose paling lucu'],
+    ['🌇', 'Jalan sore lihat sunset'], ['🎮', 'Main game bareng'], ['🍳', 'Masak resep baru bareng'], ['📚', 'Belajar kanji bareng 10 menit']];
+  const WHEEL_COL = ['#ffb3cf', '#d7c6ff', '#bfeccf', '#ffd2b8', '#bfe3ff', '#ffe59e', '#ffc4dd', '#cdeee0'];
+  const SCRATCH = [['🫂', 'Pelukan 10 detik', 'tanpa boleh dilepas duluan'], ['🧋', 'Boba gratis', 'aku yang traktir, kamu yang pilih'], ['💆', 'Pijat pundak 5 menit', 'biar capeknya hilang'],
+    ['🎤', 'Aku nyanyiin 1 lagu', 'lagu apa aja yang kamu mau'], ['📞', 'Telepon 30 menit', 'cerita apa aja, aku dengerin'], ['🍫', 'Cokelat kejutan', 'datang di hari yang gak terduga'],
+    ['🌹', 'Satu bunga', 'buat orang paling cantik'], ['👑', 'Kamu bos seharian', 'aku nurut (hampir) semua permintaan'], ['🎬', 'Kamu pilih filmnya', 'aku gak boleh protes'], ['💌', 'Surat tulisan tangan', 'khusus buat kamu']];
+  const FORTUNES = ['Hari ini ada yang senyum-senyum sendiri karena mikirin kamu 🤭', 'Keberuntunganmu: dapat pelukan ekstra minggu ini 🫂', 'Bintang bilang kamu makin gemes hari ini ✨',
+    'Hal manis lagi jalan menuju kamu. Sabar ya 🍓', 'Kamu bakal ketawa keras hari ini. Siap-siap 😆', 'Seseorang bangga banget sama kamu (iya, aku) 🥹',
+    'Semua usahamu bakal kebayar, pelan-pelan tapi pasti 🌱', 'Angka keberuntunganmu: 1, karena kamu satu-satunya 💗', 'Hari ini cocok buat makan enak tanpa rasa bersalah 🍰',
+    'Ada pesan manis yang nunggu kamu di HP 📱', 'Kamu itu jawaban dari doa seseorang 🌙', 'Senyummu hari ini bisa nyembuhin bad mood orang lain 😊'];
+  const TALK = {
+    'Manis 🍓': ['Kapan pertama kali kamu ngerasa suka sama aku?', 'Hal kecil apa dari aku yang bikin kamu senyum?', 'Lagu apa yang paling mirip sama cerita kita?', 'Momen kita yang paling pengen kamu ulang?', 'Panggilan sayang apa yang paling kamu suka?'],
+    'Lucu 🤭': ['Kalau aku jadi hewan, aku hewan apa?', 'Kebiasaan aku yang paling lucu menurutmu apa?', 'Kalau kita tukeran badan sehari, kamu mau ngapain?', 'Makanan apa yang paling cocok buat kencan kita?', 'Kalau kita punya kucing, namanya siapa?'],
+    'Deep 🌙': ['Apa yang bikin kamu ngerasa paling disayang?', 'Hal apa yang pengen kamu ceritain tapi belum sempat?', 'Kamu paling butuh aku pas lagi gimana?', 'Apa satu hal yang pengen kamu pelajari tahun ini?', 'Gimana caraku bisa bikin harimu lebih ringan?'],
+    'Masa depan ✨': ['Negara mana yang pengen kita kunjungi bareng?', 'Rumah impian kita kayak gimana?', 'Tradisi kecil apa yang mau kita bikin berdua?', '5 tahun lagi kamu pengen kita lagi ngapain?', 'Kencan impianmu kayak gimana?'],
+  };
+  const POP_LINES = ['Ada hati di dalamnya! 💗', 'Stres berkurang 10% 😌', 'Plop! Kamu hebat 🫧', 'Bonus: aku sayang kamu 💕', 'Gemes banget sih yang mecahin 🫠'];
+  let wheelRot = 0, wheelBusy = false, talkCat = Object.keys(TALK)[0], talkIdx = -1, cookieLast = -1, scratchLast = -1, audioCtx = null;
+  function renderFun(force) {
+    const p = $('[data-panel="fun"]', vt); if (!p || (p.firstChild && !force)) return;
+    const seg = 360 / WHEEL.length, pops = getLS('rr_pops', 0);
+    p.innerHTML = `<div class="rr-grid2">
+        <div class="rr-card fn-card"><h3>Roda kencan 🎡 <small>bingung mau ngapain? putar aja!</small></h3>
+          <div class="fn-wheel-wrap"><span class="fn-pin" aria-hidden="true"></span>
+            <div class="fn-wheel" style="background:conic-gradient(${WHEEL_COL.map((c, i) => `${c} ${i * seg}deg ${(i + 1) * seg}deg`).join(',')});transform:rotate(${wheelRot}deg)">
+              ${WHEEL.map(([e], i) => `<span style="transform:rotate(${i * seg + seg / 2}deg)"><b>${e}</b></span>`).join('')}</div>
+            <button type="button" class="fn-hub" data-f="spin">PUTAR</button></div>
+          <div class="fn-out" aria-live="polite">Ketuk <b>PUTAR</b> buat pilih kencan kita 💞</div></div>
+        <div class="rr-card fn-card"><h3>Kartu gosok 🎁 <small>gosok pakai jari atau mouse</small></h3>
+          <div class="fn-scratch"><div class="fn-prize"></div><canvas aria-label="Kartu gosok"></canvas></div>
+          <button type="button" class="rr-btn ghost sm" data-f="scratch-new">🔄 Kartu baru</button></div>
+      </div>
+      <div class="rr-grid2">
+        <div class="rr-card fn-card"><h3>Kue keberuntungan 🥠 <small>ketuk kuenya buat dibuka</small></h3>
+          <button type="button" class="fn-cookie" data-f="cookie" aria-label="Buka kue keberuntungan"><span class="l">🥠</span></button>
+          <div class="fn-fortune" aria-live="polite">Ada pesan kecil di dalam kue ini 🤫</div></div>
+        <div class="rr-card fn-card fn-talk"><h3>Kartu ngobrol 💬 <small>bahan obrolan pas telponan</small></h3>
+          <div class="fn-cats" role="group" aria-label="Kategori">${Object.keys(TALK).map(c => `<button type="button" data-f="talk-cat" data-c="${esc(c)}"${c === talkCat ? ' class="on"' : ''}>${esc(c)}</button>`).join('')}</div>
+          <div class="fn-q" aria-live="polite"><small>${esc(talkCat)}</small><p>Pilih kategori, lalu ambil kartu pertama 🃏</p></div>
+          <button type="button" class="rr-btn pri" data-f="talk-next">Ambil kartu →</button></div>
+      </div>
+      <div class="rr-card fn-wrap"><div class="fn-wrap-hd"><div><h3>Bubble wrap anti-galau 🫧</h3><p>Pecahin satu-satu, galaunya ikut pecah 😌</p></div><span class="fn-popn"><b>${pops.toLocaleString('id-ID')}</b> dipecahin</span></div>
+        <div class="fn-bubbles">${Array.from({ length: 24 }, (_, i) => `<button type="button" class="fn-b" data-f="pop" aria-label="Pecahkan gelembung ${i + 1}"></button>`).join('')}</div>
+        <p class="fn-say" aria-live="polite"></p></div>`;
+    setupScratch();
+  }
+  function spinWheel() {
+    if (wheelBusy) return; wheelBusy = true;
+    const seg = 360 / WHEEL.length, i = Math.floor(Math.random() * WHEEL.length), c = i * seg + seg / 2 + (Math.random() - .5) * seg * .6;
+    wheelRot += 360 * 5 + ((360 - c - wheelRot % 360) % 360 + 360) % 360;
+    const w = $('.fn-wheel', vt), out = $('.fn-out', vt), hub = $('.fn-hub', vt);
+    hub.disabled = true; out.textContent = 'Muter… muter… 🌀'; out.classList.remove('pop');
+    w.style.transition = reduced ? 'none' : 'transform 3.6s cubic-bezier(.15,.7,.15,1)'; w.style.transform = `rotate(${wheelRot}deg)`;
+    setTimeout(() => {
+      wheelBusy = false; hub.disabled = false;
+      out.innerHTML = `<small>kencan kita berikutnya:</small><b>${WHEEL[i][0]} ${esc(WHEEL[i][1])}</b>`; void out.offsetWidth; out.classList.add('pop');
+      burstAt(out, ['💗', '✨', WHEEL[i][0]], 12);
+    }, reduced ? 60 : 3700);
+  }
+  function setupScratch() {
+    const box = $('.fn-scratch', vt); if (!box) return;
+    let i; do { i = Math.floor(Math.random() * SCRATCH.length); } while (i === scratchLast && SCRATCH.length > 1); scratchLast = i;
+    const [e, title, desc] = SCRATCH[i];
+    $('.fn-prize', box).innerHTML = `<span>${e}</span><b>${esc(title)}</b><small>${esc(desc)}</small>`;
+    const old = $('canvas', box), cv = old.cloneNode(); old.replaceWith(cv);
+    const W = box.clientWidth || 300, H = box.clientHeight || 160, dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = W * dpr; cv.height = H * dpr;
+    const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+    const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#d9c4e8'); g.addColorStop(.5, '#f4d7e6'); g.addColorStop(1, '#c9d6f0');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffffff55'; for (let k = 0; k < 40; k++) { ctx.beginPath(); ctx.arc(Math.random() * W, Math.random() * H, 1 + Math.random() * 2.5, 0, 7); ctx.fill(); }
+    ctx.fillStyle = '#6a3b5c'; ctx.font = '900 18px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✨ GOSOK DI SINI ✨', W / 2, H / 2 - 8); ctx.font = '700 12px Nunito, sans-serif'; ctx.fillText('ada hadiah buat kamu', W / 2, H / 2 + 16);
+    ctx.globalCompositeOperation = 'destination-out';
+    let down = false, last = null, moves = 0, done = false;
+    const pt = ev => { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+    const draw = ([x, y]) => { ctx.lineWidth = 36; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(...(last || [x, y])); ctx.lineTo(x, y); ctx.stroke(); last = [x, y]; };
+    const check = () => {
+      const d = ctx.getImageData(0, 0, cv.width, cv.height).data; let clear = 0, n = 0;
+      for (let k = 3; k < d.length; k += 4 * 40) { n++; if (d[k] < 40) clear++; }
+      if (!done && clear / n > .5) { done = true; cv.classList.add('gone'); burstAt(box, ['🎁', '💗', '✨', e], 14); toast('🎁 Hadiah: ' + title + ' — tunjukin ke aku ya!'); }
+    };
+    cv.addEventListener('pointerdown', ev => { if (done) return; ev.preventDefault(); down = true; last = null; cv.setPointerCapture?.(ev.pointerId); draw(pt(ev)); });
+    cv.addEventListener('pointermove', ev => { if (!down || done) return; draw(pt(ev)); if (++moves % 8 === 0) check(); });
+    ['pointerup', 'pointercancel'].forEach(t => cv.addEventListener(t, () => { if (down) { down = false; check(); } }));
+  }
+  function crackCookie(b) {
+    const out = $('.fn-fortune', vt); if (b.classList.contains('open')) { b.classList.remove('open'); out.textContent = 'Ketuk lagi buat kue baru 🥠'; return; }
+    let i; do { i = Math.floor(Math.random() * FORTUNES.length); } while (i === cookieLast); cookieLast = i;
+    b.classList.remove('crack'); void b.offsetWidth; b.classList.add('crack', 'open');
+    setTimeout(() => { out.innerHTML = `<span class="slip">${esc(FORTUNES[i])}</span>`; out.classList.remove('pop'); void out.offsetWidth; out.classList.add('pop'); burstAt(b, ['✨', '🥠', '💗'], 8); }, reduced ? 0 : 420);
+  }
+  function nextTalk() {
+    const qs = TALK[talkCat]; let i; do { i = Math.floor(Math.random() * qs.length); } while (i === talkIdx && qs.length > 1); talkIdx = i;
+    const q = $('.fn-q', vt); q.innerHTML = `<small>${esc(talkCat)}</small><p>${esc(qs[i])}</p>`; q.classList.remove('flip'); void q.offsetWidth; q.classList.add('flip');
+  }
+  function popSound() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime;
+      o.type = 'sine'; o.frequency.setValueAtTime(700 + Math.random() * 300, t); o.frequency.exponentialRampToValueAtTime(120, t + .08);
+      g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t + .1); o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + .11);
+    } catch { /* no audio, no problem */ }
+  }
+  function popBubble(b) {
+    if (b.classList.contains('popped')) return;
+    b.classList.add('popped'); popSound();
+    const n = getLS('rr_pops', 0) + 1; setLS('rr_pops', n); $('.fn-popn b', vt).textContent = n.toLocaleString('id-ID');
+    const say = $('.fn-say', vt);
+    if (Math.random() < .18) { b.textContent = '💗'; say.textContent = pickR(Math.random, POP_LINES); burstAt(b, ['💗', '🫧'], 6); }
+    if (!$$('.fn-b:not(.popped)', vt).length) {
+      say.innerHTML = 'Semua udah pecah! Semoga hatimu udah lebih lega ya 🫶 <button type="button" class="rr-btn ghost sm" data-f="refill">🫧 Isi ulang</button>';
+      confetti();
+    }
+  }
+  function funClick(t) {
+    const el = t.closest('[data-f]'); if (!el) return false;
+    const f = el.dataset.f;
+    if (f === 'spin') spinWheel();
+    else if (f === 'scratch-new') setupScratch();
+    else if (f === 'cookie') crackCookie(el);
+    else if (f === 'talk-cat') { talkCat = el.dataset.c; talkIdx = -1; $$('[data-f="talk-cat"]', vt).forEach(b => b.classList.toggle('on', b === el)); nextTalk(); }
+    else if (f === 'talk-next') nextTalk();
+    else if (f === 'pop') popBubble(el);
+    else if (f === 'refill') { $$('.fn-b', vt).forEach(b => { b.classList.remove('popped'); b.textContent = ''; }); $('.fn-say', vt).textContent = 'Gelembung baru siap dipecahin 🫧'; }
+    return true;
+  }
+
   /* ---------- videos ---------- */
   async function refresh() {
     if (!items.length) grid.innerHTML = '<div class="vt-empty"><b>Memuat…</b>sebentar ya 🎞️</div>';
@@ -1033,7 +1165,7 @@
     const ns = t.closest('[data-nstk]');
     if (ns) { noteSticker = ns.dataset.nstk; $$('[data-nstk]', vt).forEach(b => b.classList.toggle('on', b === ns)); $('.rr-paper .stk', vt).textContent = noteSticker; return; }
     const idea = t.closest('[data-idea]'); if (idea) return addDream(idea.dataset.idea, idea.dataset.emo);
-    if (loveClick(t)) return;
+    if (loveClick(t) || funClick(t)) return;
 
     const x = t.closest('[data-x]')?.dataset.x;
     if (x) {
