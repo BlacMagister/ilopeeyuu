@@ -123,3 +123,88 @@
   .lv-field{height:300px}
 }
 @media(prefers-reduced-motion:reduce){.lv-pet-b,.lv-ask-bun{animation:none}}
+
+/* ===== 🎡 Seru-seru tab ===== */
+.rr-panel[data-panel=fun] .rr-grid2+.rr-grid2,.rr-panel[data-panel=fun] .fn-wrap{margin-top:14px}
+.fn-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.fn-card h3{display:flex;flex-direction:column;align-items:center;gap:2px}
+.fn-wheel-wrap{position:relative;width:min(240px,72vw);aspect-ratio:1;margin:4px auto 0}
+.fn-wheel{position:absolute;inset:0;border-radius:50%;border:6px solid var(--solid);box-shadow:0 16px 34px -18px var(--g2),inset 0 0 0 2px #0000000d}
+.fn-wheel span{position:absolute;inset:0;pointer-events:none}
+.fn-wheel b{position:absolute;left:50%;top:8%;transform:translateX(-50%);font-size:clamp(20px,6vw,26px);line-height:1}
+.fn-pin{position:absolute;left:50%;top:-10px;z-index:2;width:0;height:0;transform:translateX(-50%);border:13px solid transparent;border-top:22px solid var(--g1);border-bottom:0;filter:drop-shadow(0 3px 3px #0003)}
+.fn-hub{position:absolute;left:50%;top:50%;z-index:2;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;border:4px solid #fff;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font:900 13px Nunito,sans-serif;letter-spacing:.08em;cursor:pointer;box-shadow:0 8px 18px -6px var(--g2);transition:transform .15s}
+.fn-hub:hover{transform:scale(1.06)}.fn-hub:disabled{cursor:wait;transform:none}
+.fn-out,.fn-fortune{width:100%;min-height:62px;display:grid;place-content:center;gap:2px;background:var(--soft);border:1px solid var(--ln);border-radius:16px;padding:10px 12px;font-weight:800;font-size:14.5px;line-height:1.45;color:var(--ink)}
+.fn-out small{color:var(--mut);font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.fn-out b{font-size:16px}
+.fn-out.pop,.fn-fortune.pop{animation:lgPop .45s}
+.fn-scratch{position:relative;width:100%;max-width:340px;height:170px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#fff7fb,#fff1df);border:2px dashed var(--a);color:#5b2a42}
+.fn-prize{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:2px;padding:12px}
+.fn-prize span{font-size:44px;line-height:1.1}.fn-prize b{font:900 18px Nunito,sans-serif}.fn-prize small{color:#8d6780;font-weight:700;font-size:12.5px}
+.fn-scratch canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none;transition:opacity .5s}
+.fn-scratch canvas.gone{opacity:0;pointer-events:none}
+.fn-cookie{width:112px;height:112px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#fff,#ffe9c9);box-shadow:0 14px 30px -12px #d08a3c,inset 0 -4px 0 #f6d29e;font-size:56px;display:grid;place-items:center;transition:transform .2s}
+.fn-cookie:hover{transform:rotate(-8deg) scale(1.04)}
+.fn-cookie.crack .l{animation:cookieCrack .45s}
+.fn-cookie.open .l{opacity:.55;transform:scale(.85) rotate(-20deg)}
+.fn-cookie .l{display:inline-block;transition:.3s}
+@keyframes cookieCrack{30%{transform:rotate(-18deg) scale(1.15)}60%{transform:rotate(14deg) scale(.95)}}
+.fn-fortune .slip{display:inline-block;background:#fffdf4;color:#5b2a42;border:1px solid #f1dfb5;border-radius:6px;padding:8px 12px;box-shadow:0 6px 14px -10px #0006;transform:rotate(-1deg)}
+.fn-talk{justify-content:flex-start}
+.fn-cats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.fn-cats button{border:1.5px solid var(--ln);background:var(--soft);color:var(--ink);border-radius:99px;padding:6px 12px;font:800 12.5px Nunito,sans-serif;cursor:pointer;transition:.15s}
+.fn-cats button.on{background:linear-gradient(135deg,var(--g1),var(--g2));border-color:transparent;color:#fff}
+.fn-q{width:100%;flex:1;min-height:118px;display:grid;place-content:center;gap:6px;border-radius:20px;padding:16px;background:linear-gradient(160deg,#fffafc,#fbeffa);color:#5b2a42;border:1px solid var(--ln);box-shadow:0 12px 24px -18px #8a2c5a99}
+.fn-q small{color:#b8407e;font-weight:900;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.fn-q p{margin:0!important;color:#5b2a42!important;font:800 16.5px/1.45 Nunito,sans-serif!important}
+.fn-q.flip{animation:talkFlip .45s}@keyframes talkFlip{from{transform:rotateY(80deg);opacity:.2}}
+.fn-wrap-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.fn-popn{background:var(--soft);border:1px solid var(--ln);border-radius:12px;padding:6px 10px;font-weight:800;font-size:13px}.fn-popn b{color:var(--a2)}
+.fn-bubbles{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-top:6px;max-width:560px}
+.fn-b{aspect-ratio:1;border-radius:50%;border:0;cursor:pointer;font-size:18px;background:radial-gradient(circle at 32% 28%,#fff 0 14%,#ffffffb0 16%,color-mix(in srgb,var(--a) 35%,#fff) 70%);box-shadow:inset 0 -3px 6px #0000000f,0 4px 10px -6px var(--g2);transition:transform .12s}
+.fn-b:hover{transform:scale(1.07)}.fn-b:active{transform:scale(.9)}
+.fn-b.popped{background:var(--soft);box-shadow:inset 0 2px 5px #0000001a;transform:scale(.88);cursor:default}
+.fn-say{min-height:22px;margin-top:10px!important;font-weight:800;color:var(--a2)!important;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.w-fun{cursor:pointer;text-align:center}.wf-ic{font-size:30px;letter-spacing:6px;margin:6px 0 8px}
+@media(max-width:560px){.fn-bubbles{grid-template-columns:repeat(6,1fr)}}
+
+/* ===== polish: readable on every theme, tidy alignment ===== */
+.vt{--mut:#8d6780;--soft:#ffffffa6;--solid:#fff;--g1:#e75b94;--g2:#b8407e}
+.vt[data-theme=lavender]{--g1:#8a63f0;--g2:#6844cf}
+.vt[data-theme=matcha]{--g1:#3c9a62;--g2:#2a774a}
+.vt[data-theme=peach]{--g1:#e9703f;--g2:#c3542b}
+.vt[data-theme=night]{--soft:#ffffff14;--solid:#2a2250;--g1:#d9548f;--g2:#7c55d6}
+/* buttons, active tab and banners use a deeper gradient so white text stays readable */
+.rr-btn.pri,.rr-tabs button.on,.vt .vt-btn.pri,.lv-machine .base{background:linear-gradient(135deg,var(--g1),var(--g2))}
+.rr-hero,.lv-days{background:linear-gradient(120deg,var(--g1),var(--g2))}
+.rr-hero h3,.rr-hero p,.lv-days-n,.lv-days-tx p{text-shadow:0 1px 2px #0000002e}
+/* replace hard-coded white surfaces so the night theme never shows light text on white */
+.rr-btn.ghost,.rr-moods button,.w-stats button,.rr-stks button,.lv-score span,.lv-gombal,.rr-cal .dc,.vt .vt-btn,.rr-prog .bar,.lv-meter{background:var(--soft)}
+.rr-moods button.on,.rr-moods button:hover,.rr-cal .has{background:var(--solid)}
+.rr-tabs button:hover:not(.on){background:var(--soft)}
+.lv-field{background:linear-gradient(var(--soft),var(--soft))}
+.vt[data-theme=night] .lv-days .rr-btn.ghost{background:#ffffff26}
+.vt[data-theme=night] .rr-card,.vt[data-theme=night] .rr-nav{box-shadow:0 18px 40px -26px #000}
+.vt[data-theme=night] .rr-sky i{opacity:.2}
+.vt[data-theme=night] .omi-mini{color:#ff8fa6}
+.vt[data-theme=night] .rr-dream .ck{color:#fff}
+/* headings: subtitles always sit on their own line, never squeezed beside the title */
+.rr-card h3 small{display:block;margin:2px 0 0;line-height:1.35}
+.rr-top{gap:12px;align-items:flex-start}.rr-top>div{min-width:0}.rr-title{line-height:1.2}.rr-sub{display:block;margin-top:2px}.rr-icon{flex:none}
+/* home widgets: equal-height cards with their buttons lined up at the bottom */
+.rr-widgets{align-items:stretch}
+.rr-widgets>.rr-card{display:flex;flex-direction:column;min-width:0}
+.rr-widgets>.rr-card>.rr-btn:last-child{margin-top:auto;align-self:flex-start}
+.w-kangen,.w-omi,.w-days,.w-fun{align-items:center;justify-content:center}
+.w-kangen .kangen-btn{margin:4px 0 8px}
+.w-stats .st{margin-top:auto}
+.rr-moods.mini{margin-top:auto}
+.rr-card{min-width:0;overflow-wrap:anywhere}
+/* keyboard focus is visible everywhere */
+.vt button:focus-visible,.vt [role=button]:focus-visible,.vt .rr-input:focus-visible{outline:3px solid var(--a2);outline-offset:2px}
+@media(max-width:820px){
+  .rr-nav{background:var(--solid);box-shadow:0 14px 34px -14px #5b1e3f66}
+  .rr-top{position:sticky;top:0;z-index:4;margin:-12px -12px 14px;padding:12px;background:linear-gradient(var(--bg1) 70%,transparent)}
+  .rr-title{font-size:22px}
+  .rr-hero{padding:20px}
+}
