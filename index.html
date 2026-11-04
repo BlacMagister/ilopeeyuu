@@ -134,6 +134,7 @@
     <link rel="stylesheet" href="assets/premium.css">
     <link rel="stylesheet" href="assets/duel.css">
     <link rel="stylesheet" href="assets/tailwind.css">
+    <link rel="stylesheet" href="assets/fixes.css">
 </head>
 <body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -775,7 +776,10 @@
         let gameEpoch = 0;
 
         // Initialization
-        window.onload = function() {
+        // Start on DOMContentLoaded (not window.onload) so a slow font/audio request
+        // can't keep the page half-initialised.
+        function initApp() {
+            if (initApp.done) return; initApp.done = true;
             filterData();
             updateFlashcard();
             setupKeyboardNav();
@@ -788,7 +792,9 @@
             });
             const wanted = new URLSearchParams(location.search).get('room') ? 'duel' : location.hash.slice(1);
             switchMode(wanted || 'home');
-        };
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
+        else setTimeout(initApp, 0);
         window.addEventListener('hashchange', () => { const m = location.hash.slice(1) || 'home'; if (m !== currentMode) switchMode(m); });
 
         // Switch between Flashcard and Memory modes
@@ -1248,7 +1254,8 @@
         const toggle = document.getElementById('cute-toggle');
         const rand = (a, b) => Math.random() * (b - a) + a;
         const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-        let effectsOn = localStorage.getItem('cute-effects') !== 'off';
+        let effectsOn = true;
+        try { effectsOn = localStorage.getItem('cute-effects') !== 'off'; } catch (_) {}
 
         const sweet = [
             'Semangat belajarnya, sayang! 💗', 'Kamu pinter banget sih~ (｡♥‿♥｡)', 'Ganbatte ne! がんばってね ✨',
@@ -1406,7 +1413,7 @@
             toggle.textContent = effectsOn ? '✨ efek: on' : '💤 efek: off';
             toggle.setAttribute('aria-pressed', String(effectsOn));
         }
-        toggle.addEventListener('click', () => { effectsOn = !effectsOn; localStorage.setItem('cute-effects', effectsOn ? 'on' : 'off'); applyToggle(); });
+        toggle.addEventListener('click', () => { effectsOn = !effectsOn; try { localStorage.setItem('cute-effects', effectsOn ? 'on' : 'off'); } catch (_) {} applyToggle(); });
         applyToggle();
 
         // Greeting + occasional sweet nothings

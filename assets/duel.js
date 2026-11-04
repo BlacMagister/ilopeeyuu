@@ -72,6 +72,7 @@
             if (e.status === 403 || e.status === 404) { leaveLocal(e.status === 404 ? 'Room sudah ditutup 🥺' : 'Kamu sudah tidak ada di room ini'); inflight = false; return; }
             failures++;
             setConn(false);
+            if (!state && failures >= 3) { inflight = false; renderStuck(); return; }
         } finally { inflight = false; }
         schedule(interval());
     }
@@ -113,12 +114,32 @@
 
     /* ---------------- Rendering ---------------- */
     function render() {
-        if (!session || !state) return renderEntry();
-        const st = state.room.status;
-        if (st === 'lobby') return renderLobby();
-        if (st === 'countdown') return renderCountdown();
-        if (st === 'question' || st === 'reveal') return renderQuestion();
-        if (st === 'finished') return renderFinish();
+        try {
+            if (!session || !state) return renderEntry();
+            const st = state.room.status;
+            if (st === 'lobby') return renderLobby();
+            if (st === 'countdown') return renderCountdown();
+            if ((st === 'question' || st === 'reveal') && state.question) return renderQuestion();
+            if (st === 'finished') return renderFinish();
+            renderLoading('Memuat soal…');
+        } catch (err) {
+            console.error('duel render', err);
+            renderStuck('Tampilan gagal dimuat. Coba muat ulang ya 🙏');
+        }
+    }
+    function renderLoading(msg) {
+        root.innerHTML = `<div class="du-wrap"><div class="du-loading"><span class="du-dots"><i></i><i></i><i></i></span> ${esc(msg || 'Menyambung ke room…')}</div></div>`;
+    }
+    // Shown when the room can't be reached, so the page is never stuck empty / loading forever
+    function renderStuck(msg) {
+        root.innerHTML = `<div class="du-wrap"><div class="du-panel du-stuck">
+            <div style="font-size:42px">📡</div>
+            <b>${esc(msg || 'Koneksi ke room terputus')}</b>
+            <p>Cek internet kamu, lalu coba lagi. Kalau room-nya sudah tidak ada, keluar dan buat/gabung room baru.</p>
+            <div class="du-row">
+                <button type="button" class="du-btn primary" data-act="retry">🔄 Coba lagi</button>
+                <button type="button" class="du-btn ghost" data-act="forget">Keluar dari room</button>
+            </div></div></div>`;
     }
 
     function shell(inner, cls = '') {
@@ -343,6 +364,7 @@
 
     // Light updates between full renders (no flicker)
     function patch() {
+        if (!state || !state.room) return;
         const st = state.room.status;
         if (st === 'question' || st === 'reveal') {
             const b = root.querySelector('#du-board'); if (b) b.innerHTML = scoreboard(true);
@@ -463,6 +485,12 @@
         if (!b || b.disabled) return;
         const a = b.dataset.act;
         if (a === 'create' || a === 'join') return enter(a);
+        if (a === 'retry') { failures = 0; renderLoading(); return poll(); }
+        if (a === 'forget') {
+            const s = session; leaveLocal('');
+            if (s) { try { await api('leave', { code: s.code, pid: s.pid, token: s.token }); } catch (_) {} }
+            return;
+        }
         if (a === 'leave') {
             if (!confirm('Keluar dari room ini?')) return;
             const s = session; leaveLocal('');
@@ -530,7 +558,7 @@
         show() {
             if (visible) return;
             visible = true;
-            if (session) { if (state) render(); else root.innerHTML = '<div class="du-wrap"><div class="du-loading"><span class="du-dots"><i></i><i></i><i></i></span> Menyambung ke room…</div></div>'; poll(); }
+            if (session) { if (state) render(); else renderLoading(); failures = 0; poll(); }
             else renderEntry();
         },
         hide() { visible = false; clearTimeout(pollTimer); cancelAnimationFrame(raf); raf = 0; },
