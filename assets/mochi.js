@@ -77,7 +77,7 @@
     setId = b.dataset.set; try { localStorage.setItem('mochi-set', setId); } catch (_) {} markSet();
   });
   markSet();
-  const dressUsagi = () => { if (window.UsagiPet) el('usagi').innerHTML = UsagiPet.svg(UsagiPet.wearClasses()); };
+  const dressUsagi = () => { if (window.UsagiPet) el('usagi').innerHTML = UsagiPet.dress ? UsagiPet.dress() : UsagiPet.svg(UsagiPet.wearClasses()); };
   dressUsagi();
 
   /* ---------- game state ---------- */
