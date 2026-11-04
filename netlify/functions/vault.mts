@@ -2,6 +2,9 @@ import type { Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { existsSync, readFileSync, statSync, openSync, readSync, closeSync } from "node:fs";
 import { join } from "node:path";
+import { desc, eq, gte, sql } from "drizzle-orm";
+import { db } from "../../db/index.js";
+import { loveNotes, moodLog, bucketItems, vaultCounters } from "../../db/schema.js";
 
 /*
  * Private video vault behind the header menu login.
@@ -130,6 +133,10 @@ export default async (req: Request) => {
     return json({ items, chunk: CHUNK });
   }
 
+  /* ---------- Ruang Rahasia: notes, mood, bucket list, kangen counter ---------- */
+  const room = await roomRoutes(action, req, url);
+  if (room) return room;
+
   if (action === "init" && req.method === "POST") {
     const body = await req.json().catch(() => ({}));
     const size = Number(body.size);
@@ -209,5 +216,89 @@ export default async (req: Request) => {
 
   return fail("Tidak ditemukan", 404);
 };
+
+const clip = (v: unknown, n: number) => String(v ?? "").replace(/[\u0000-\u0008\u000b-\u001f]/g, "").trim().slice(0, n);
+const pick = <T extends string>(v: unknown, list: readonly T[], d: T): T => (list.includes(v as T) ? (v as T) : d);
+const NOTE_COLORS = ["pink", "lilac", "mint", "peach", "sky"] as const;
+const MOODS = ["bahagia", "kangen", "santai", "capek", "sedih", "semangat"] as const;
+const numId = (url: URL) => {
+  const n = Number(url.searchParams.get("id"));
+  return Number.isInteger(n) && n > 0 ? n : null;
+};
+const ROOM_ACTIONS = new Set(["room", "notes", "notes/pin", "mood", "bucket", "bucket/toggle", "kangen"]);
+const sticker = (v: unknown, d: string) => clip(v, 8) || d;
+
+async function roomRoutes(action: string, req: Request, url: URL): Promise<Response | null> {
+  if (!ROOM_ACTIONS.has(action)) return null;
+  const m = req.method;
+  const body = m === "POST" || m === "PUT" ? await req.json().catch(() => ({})) : {};
+
+  if (action === "room" && m === "GET") {
+    const since = new Date(Date.now() - 62 * 864e5).toISOString().slice(0, 10);
+    const [notes, moods, bucket, counters] = await Promise.all([
+      db.select().from(loveNotes).orderBy(desc(loveNotes.pinned), desc(loveNotes.createdAt)).limit(200),
+      db.select().from(moodLog).where(gte(moodLog.day, since)).orderBy(desc(moodLog.day)),
+      db.select().from(bucketItems).orderBy(bucketItems.done, desc(bucketItems.createdAt)).limit(200),
+      db.select().from(vaultCounters),
+    ]);
+    return json({ notes, moods, bucket, counters: Object.fromEntries(counters.map((c) => [c.key, c.value])) });
+  }
+
+  if (action === "notes" && m === "POST") {
+    const text = clip(body.body, 600);
+    if (!text) return fail("Suratnya masih kosong");
+    const [note] = await db.insert(loveNotes).values({
+      body: text, color: pick(body.color, NOTE_COLORS, "pink"), sticker: sticker(body.sticker, "💌"),
+    }).returning();
+    return json({ note });
+  }
+  if (action === "notes/pin" && m === "POST") {
+    const id = numId(url); if (!id) return fail("ID tidak valid");
+    const [note] = await db.update(loveNotes).set({ pinned: sql`not ${loveNotes.pinned}` }).where(eq(loveNotes.id, id)).returning();
+    return note ? json({ note }) : fail("Surat tidak ditemukan", 404);
+  }
+  if (action === "notes" && m === "DELETE") {
+    const id = numId(url); if (!id) return fail("ID tidak valid");
+    await db.delete(loveNotes).where(eq(loveNotes.id, id));
+    return json({ ok: true });
+  }
+
+  if (action === "mood" && m === "PUT") {
+    const day = String(body.day || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return fail("Tanggal tidak valid");
+    const mood = pick(body.mood, MOODS, "bahagia"), note = clip(body.note, 140);
+    const [row] = await db.insert(moodLog).values({ day, mood, note })
+      .onConflictDoUpdate({ target: moodLog.day, set: { mood, note, updatedAt: new Date() } }).returning();
+    return json({ mood: row });
+  }
+
+  if (action === "bucket" && m === "POST") {
+    const text = clip(body.text, 120);
+    if (!text) return fail("Tulis mimpinya dulu ya");
+    const [item] = await db.insert(bucketItems).values({ text, emoji: sticker(body.emoji, "✨") }).returning();
+    return json({ item });
+  }
+  if (action === "bucket/toggle" && m === "POST") {
+    const id = numId(url); if (!id) return fail("ID tidak valid");
+    const [item] = await db.update(bucketItems)
+      .set({ done: sql`not ${bucketItems.done}`, doneAt: sql`case when ${bucketItems.done} then null else now() end` })
+      .where(eq(bucketItems.id, id)).returning();
+    return item ? json({ item }) : fail("Tidak ditemukan", 404);
+  }
+  if (action === "bucket" && m === "DELETE") {
+    const id = numId(url); if (!id) return fail("ID tidak valid");
+    await db.delete(bucketItems).where(eq(bucketItems.id, id));
+    return json({ ok: true });
+  }
+
+  if (action === "kangen" && m === "POST") {
+    const n = Math.min(50, Math.max(1, Math.floor(Number(body.n) || 1)));
+    const [row] = await db.insert(vaultCounters).values({ key: "kangen", value: n })
+      .onConflictDoUpdate({ target: vaultCounters.key, set: { value: sql`${vaultCounters.value} + ${n}` } }).returning();
+    return json({ value: row.value });
+  }
+
+  return null;
+}
 
 export const config: Config = { path: "/api/vault/*" };

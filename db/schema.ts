@@ -46,3 +46,39 @@ export const duelAnswers = pgTable(
   },
   (t) => [uniqueIndex("duel_answers_once_idx").on(t.roomCode, t.playerId, t.qIndex)]
 );
+
+/* ---------- Private "Ruang Rahasia" (after the ☰ login) ---------- */
+
+/** Little love letters / sticky notes written inside the private space. */
+export const loveNotes = pgTable("love_notes", {
+  id: serial().primaryKey(),
+  body: text().notNull(),
+  color: text().notNull().default("pink"),
+  sticker: text().notNull().default("💌"),
+  pinned: boolean().notNull().default(false),
+  createdAt: timestamp("created_at", { precision: 3, withTimezone: true }).notNull().defaultNow(),
+});
+
+/** One mood check-in per day (YYYY-MM-DD in the visitor's local time). */
+export const moodLog = pgTable("mood_log", {
+  day: text().primaryKey(),
+  mood: text().notNull(),
+  note: text().notNull().default(""),
+  updatedAt: timestamp("updated_at", { precision: 3, withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Shared bucket list ("mimpi bareng"). */
+export const bucketItems = pgTable("bucket_items", {
+  id: serial().primaryKey(),
+  text: text().notNull(),
+  emoji: text().notNull().default("✨"),
+  done: boolean().notNull().default(false),
+  doneAt: timestamp("done_at", { precision: 3, withTimezone: true }),
+  createdAt: timestamp("created_at", { precision: 3, withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Simple named counters, e.g. how many times the "kangen" button was pressed. */
+export const vaultCounters = pgTable("vault_counters", {
+  key: text().primaryKey(),
+  value: integer().notNull().default(0),
+});
