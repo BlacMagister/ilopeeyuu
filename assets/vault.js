@@ -449,7 +449,7 @@
     const info = TABS.find(x => x.id === tab);
     $('.rr-title', vt).textContent = info.ic + ' ' + info.name;
     $('.rr-sub', vt).textContent = info.sub;
-    $$('[data-tab]', vt).forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); });
+    $$('[data-tab]', vt).forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); if (on && b.closest('.rr-tabs') && matchMedia('(max-width:820px)').matches) b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }); });
     $$('.rr-panel', vt).forEach(p => { p.hidden = p.dataset.panel !== tab; });
     $('.rr-main', vt).scrollTop = 0; vt.scrollTop = 0;
     renderTab();
@@ -800,7 +800,7 @@
       <div class="rr-grid2">
         <div class="rr-card lv-jar-card"><h3>Toples alasan aku sayang kamu <small>${opened.length}/${REASONS.length} dibuka</small></h3>
           <p>Ketuk toplesnya, ambil satu gulungan kertas 🫙</p>
-          <button type="button" class="lv-jar" data-l="jar" aria-label="Ambil alasan"><span class="lid"></span><span class="glass">${Array.from({ length: 14 }, (_, i) => `<i style="--i:${i}">${['💗', '📜', '💌', '🌸', '💖'][i % 5]}</i>`).join('')}</span><span class="tag">love jar</span></button>
+          <button type="button" class="lv-jar" data-l="jar" aria-label="Ambil alasan"><span class="lid"></span><span class="glass">${Array.from({ length: 14 }, (_, i) => { const r = Math.floor(i / 5), c = i % 5; return `<i style="--i:${i};left:${4 + c * 17 + (r % 2) * 8}%;bottom:${3 + r * 19}%;transform:rotate(${(i * 41) % 60 - 30}deg)">${['💗', '📜', '💌', '🌸', '💖'][i % 5]}</i>`; }).join('')}</span><span class="tag">love jar</span></button>
           <div class="lv-reason" aria-live="polite">${lastReason != null ? `<small>Alasan #${lastReason + 1}</small>${esc(REASONS[lastReason])}` : '<small>belum ada yang diambil</small>Ayo ambil yang pertama! 🥰'}</div></div>
         <div class="rr-card lv-hug"><h3>Peluk & cium virtual</h3><p>Tahan tombol peluk sampai penuh, atau ketuk cium sepuasnya 😚</p>
           <div class="lv-hug-row">
@@ -866,7 +866,7 @@
           <form class="lv-calc-f"><input class="rr-input" maxlength="20" placeholder="Nama kamu" aria-label="Nama kamu"><span>💞</span><input class="rr-input" maxlength="20" placeholder="Nama aku" aria-label="Nama aku"><button class="rr-btn pri wide">Hitung kecocokan</button></form>
           <div class="lv-calc-out" aria-live="polite"></div></div>
         <div class="rr-card lv-gacha"><h3>Gacha gombal 🎰 <small>siap-siap salting</small></h3>
-          <button type="button" class="lv-machine" data-l="gacha" aria-label="Putar gacha"><span class="dome">${['💗', '💛', '💜', '💙', '💚', '🧡'].map((c, i) => `<i style="--i:${i}">${c}</i>`).join('')}</span><span class="base">PUTAR</span></button>
+          <button type="button" class="lv-machine" data-l="gacha" aria-label="Putar gacha"><span class="dome">${['💗', '💛', '💜', '💙', '💚', '🧡'].map((c, i) => { const [x, y] = [[14, 12], [39, 9], [64, 12], [26, 33], [52, 33], [39, 54]][i]; return `<i style="--i:${i};left:${x}%;bottom:${y}%">${c}</i>`; }).join('')}</span><span class="base">PUTAR</span></button>
           <div class="lv-gombal" aria-live="polite">Putar mesinnya buat dapet gombalan 😳</div></div>
       </div>
       <div class="rr-card lv-catch"><div class="lv-catch-hd"><div><h3>Tangkap hatiku! 💗</h3><p>Ketuk hati yang jatuh dalam 20 detik. 💖 = +3, 💔 = −2</p></div>
