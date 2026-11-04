@@ -51,7 +51,7 @@ function sanitizeSettings(raw: any): Settings {
   let from = clamp(parseInt(raw?.from, 10) || 1, 1, N);
   let to = clamp(parseInt(raw?.to, 10) || N, 1, N);
   if (from > to) [from, to] = [to, from];
-  const count = clamp(parseInt(raw?.count, 10) || 10, 3, 30);
+  const count = clamp(parseInt(raw?.count, 10) || 10, 3, 50);
   const seconds = clamp(parseInt(raw?.seconds, 10) || 15, 5, 30);
   const kind = ["meaning", "reading", "reverse", "mix"].includes(raw?.kind) ? raw.kind : "meaning";
   return { from, to, count, seconds, kind };

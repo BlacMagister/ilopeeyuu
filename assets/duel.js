@@ -233,7 +233,7 @@
                             <div class="du-seg" data-seg="kind">${Object.entries(KIND_LABEL).map(([k, l]) => `<button type="button" class="${s.kind === k ? 'on' : ''}" data-val="${k}">${l}</button>`).join('')}</div>
                         </label>
                         <label class="du-field"><span>Jumlah soal</span>
-                            <div class="du-seg" data-seg="count">${[5, 10, 15, 20].map(n => `<button type="button" class="${s.count === n ? 'on' : ''}" data-val="${n}">${n}</button>`).join('')}</div>
+                            <div class="du-seg" data-seg="count">${[5, 10, 20, 30, 50].map(n => `<button type="button" class="${s.count === n ? 'on' : ''}" data-val="${n}">${n}</button>`).join('')}</div>
                         </label>
                         <label class="du-field"><span>Waktu / soal</span>
                             <div class="du-seg" data-seg="seconds">${[10, 15, 20].map(n => `<button type="button" class="${s.seconds === n ? 'on' : ''}" data-val="${n}">${n}s</button>`).join('')}</div>

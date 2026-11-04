@@ -4,45 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sakura Study Club ♡ — Japanese Learning Game</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Noto Serif JP & Inter -->
+    <!-- Fonts (non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,800;1,9..144,600;1,9..144,800&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,800&family=Noto+Serif+JP:wght@700;900&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="assets/icons.css">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sakura: {
-                            50: '#fff6fa',
-                            100: '#ffe5f0',
-                            200: '#ffc8de',
-                            300: '#ff9bc3',
-                            400: '#f476a8',
-                            500: '#e75b94',
-                            600: '#c63e79',
-                        },
-                        matcha: {
-                            50: '#f3f8f3',
-                            100: '#e2efe2',
-                            500: '#4e8252',
-                            600: '#3c683f',
-                        },
-                        matchaDark: '#2a472c',
-                        jpPaper: '#fbf9f5'
-                    },
-                    fontFamily: {
-                        sans: ['Nunito', 'DM Sans', 'sans-serif'],
-                        jp: ['"Noto Serif JP"', 'serif'],
-                    }
-                }
-            }
-        }
+        // Lite mode for phones / low-end devices: fewer effects, no costly blur
+        (function () {
+            var n = navigator, coarse = matchMedia('(pointer: coarse)').matches;
+            if (coarse || (n.deviceMemory && n.deviceMemory <= 4) || (n.hardwareConcurrency && n.hardwareConcurrency <= 4)) document.documentElement.classList.add('lite');
+        })();
     </script>
 
     <style>
@@ -161,6 +133,7 @@
     <link rel="stylesheet" href="assets/kanji-flash.css">
     <link rel="stylesheet" href="assets/premium.css">
     <link rel="stylesheet" href="assets/duel.css">
+    <link rel="stylesheet" href="assets/tailwind.css">
 </head>
 <body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -1161,7 +1134,8 @@
 
         function showerConfetti() {
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            for (let i = 0; i < 55; i++) {
+            const nConf = document.documentElement.classList.contains('lite') ? 22 : 55;
+            for (let i = 0; i < nConf; i++) {
                 const el = document.createElement('span');
                 el.className = 'confetti';
                 el.style.left = Math.random() * 100 + 'vw';
@@ -1353,7 +1327,7 @@
             layer.appendChild(b);
             setTimeout(() => b.remove(), dur * 1000 + 200);
         }
-        setInterval(balloon, 2600);
+        setInterval(balloon, document.documentElement.classList.contains('lite') ? 7000 : 2600);
 
         // A little friend strolls across the bottom every now and then
         const walkers = [['🐱','nyan~'],['🐰','pyon pyon'],['🐥','piyo piyo'],['🐶','wan wan!'],['🐹','mochi mochi'],['🐧','penguin lewat~']];
