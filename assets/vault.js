@@ -1,4 +1,6 @@
-/* Header ☰ menu → login → private motion-video vault (Netlify Blobs via /api/vault) */
+/* Header ☰ menu → login → private motion-video vault (/api/vault).
+   Motion videos generated for this site are added to the vault automatically on the server
+   (vault-motions/), so there is nothing to upload or record here — just watch and download. */
 (() => {
   const API = '/api/vault/';
   const TK = 'sk_session';
@@ -9,6 +11,7 @@
   let token = localStorage.getItem(TK) || '';
   let items = [], chunkSize = 3 * 1024 * 1024;
   const cache = new Map(); // id -> object URL of the assembled video
+  const thumbs = new Map(); // id -> object URL of a poster image
 
   async function api(path, opts = {}) {
     const res = await fetch(API + path, { ...opts, headers: { ...(opts.headers || {}), ...(token ? { authorization: 'Bearer ' + token } : {}) } });
@@ -86,26 +89,20 @@
   }
 
   /* ---------- vault ---------- */
-  const canRec = !!(navigator.mediaDevices?.getDisplayMedia && window.MediaRecorder && HTMLMediaElement.prototype.captureStream);
   const vt = document.createElement('div'); vt.className = 'vt'; vt.hidden = true;
   vt.setAttribute('role', 'dialog'); vt.setAttribute('aria-modal', 'true'); vt.setAttribute('aria-label', 'Koleksi video');
   vt.innerHTML = `<div class="vt-in">
     <div class="vt-top">
-      <div class="vt-brand"><div class="vt-logo">▶</div><div><h2>Motion Vault</h2><small>Simpanan video motion pribadi</small></div></div>
-      <button type="button" class="vt-btn pri" data-v="up">⬆<span class="lb"> Unggah video</span></button>
-      <button type="button" class="vt-btn rec" data-v="rec" ${canRec ? '' : 'disabled title="Rekam hanya tersedia di Chrome/Edge desktop"'}><span class="lb">Rekam motion Beranda</span></button>
+      <div class="vt-brand"><div class="vt-logo">▶</div><div><h2>Motion Vault</h2><small>Video motion yang dibuat di sini, otomatis tersimpan</small></div></div>
       <button type="button" class="vt-btn icon" data-v="out" title="Keluar" aria-label="Keluar">↩︎</button>
       <button type="button" class="vt-btn icon" data-v="close" title="Tutup" aria-label="Tutup">✕</button>
     </div>
-    <div class="vt-drop" data-v="up" role="button" tabindex="0">Tarik &amp; lepas file video ke sini, atau <b>pilih dari perangkat</b><br><small>MP4, WebM, MOV — ukuran berapa pun, otomatis dipecah saat diunggah</small></div>
-    ${canRec ? '' : '<p class="vt-note">Rekam motion Beranda butuh Chrome atau Edge di laptop/PC. Di HP, unggah file videonya saja.</p>'}
-    <input type="file" accept="video/*" multiple hidden>
     <div class="vt-jobs"></div>
     <div class="vt-head"><h3>Koleksi</h3><span class="vt-sum"></span></div>
     <div class="vt-grid"></div>
   </div>`;
   document.body.appendChild(vt);
-  const fileIn = $('input[type=file]', vt), grid = $('.vt-grid', vt), jobs = $('.vt-jobs', vt), sum = $('.vt-sum', vt), drop = $('.vt-drop', vt);
+  const grid = $('.vt-grid', vt), jobs = $('.vt-jobs', vt), sum = $('.vt-sum', vt);
 
   const player = document.createElement('div'); player.className = 'vt-player'; player.hidden = true;
   player.innerHTML = '<video controls playsinline></video><div class="bar"><button type="button" class="vt-btn pri" data-p="dl">⬇ Unduh</button><button type="button" class="vt-btn" data-p="x">Tutup</button></div>';
@@ -134,20 +131,22 @@
   function renderGrid() {
     const total = items.reduce((a, b) => a + b.size, 0);
     sum.textContent = items.length ? `${items.length} video · ${fmtSize(total)}` : '';
-    if (!items.length) { grid.innerHTML = '<div class="vt-empty"><b>Belum ada video</b>Unggah video motion pertamamu, atau rekam motion Beranda langsung dari sini.</div>'; return; }
+    if (!items.length) { grid.innerHTML = '<div class="vt-empty"><b>Belum ada video</b>Video motion yang dibuat untuk web ini akan muncul di sini dengan sendirinya.</div>'; return; }
     grid.innerHTML = items.map(it => `<article class="vt-card" data-id="${it.id}">
-      <button type="button" class="vt-thumb" data-c="play" aria-label="Putar ${esc(it.name)}">${cache.has(it.id) ? `<video src="${cache.get(it.id)}#t=0.5" muted playsinline preload="metadata"></video>` : ''}<span class="vt-play">▶</span></button>
-      <div class="vt-meta"><div class="nm">${esc(it.name)}</div><div class="sub">${fmtSize(it.size)} · ${fmtDate(it.created)}</div></div>
-      <div class="vt-act"><button type="button" class="vt-btn pri" data-c="dl">⬇ Unduh</button><button type="button" class="vt-btn" data-c="ren" title="Ganti nama" aria-label="Ganti nama">✎</button><button type="button" class="vt-btn" data-c="del" title="Hapus" aria-label="Hapus">🗑</button></div>
+      <button type="button" class="vt-thumb" data-c="play" aria-label="Putar ${esc(it.name)}">${cache.has(it.id) ? `<video src="${cache.get(it.id)}#t=0.5" muted playsinline preload="metadata"></video>` : thumbs.get(it.id) ? `<img src="${thumbs.get(it.id)}" alt="" loading="lazy">` : ''}<span class="vt-play">▶</span></button>
+      <div class="vt-meta"><div class="nm">${esc(it.name)}</div>${it.desc ? `<div class="ds">${esc(it.desc)}</div>` : ''}<div class="sub">${fmtSize(it.size)} · ${fmtDate(it.created)}</div></div>
+      <div class="vt-act"><button type="button" class="vt-btn pri" data-c="dl">⬇ Unduh</button>${it.builtin ? '' : '<button type="button" class="vt-btn" data-c="ren" title="Ganti nama" aria-label="Ganti nama">✎</button><button type="button" class="vt-btn" data-c="del" title="Hapus" aria-label="Hapus">🗑</button>'}</div>
     </article>`).join('');
+    items.filter(it => it.hasThumb && !thumbs.has(it.id) && !cache.has(it.id)).forEach(it => {
+      thumbs.set(it.id, '');
+      api('thumb?id=' + it.id).then(r => r.blob()).then(b => { thumbs.set(it.id, URL.createObjectURL(b)); renderGrid(); }).catch(() => thumbs.delete(it.id));
+    });
   }
 
   vt.addEventListener('click', async e => {
     const v = e.target.closest('[data-v]')?.dataset.v;
-    if (v === 'up') fileIn.click();
-    else if (v === 'close') closeVault();
+    if (v === 'close') closeVault();
     else if (v === 'out') logout();
-    else if (v === 'rec') record();
     const c = e.target.closest('[data-c]'); if (!c) return;
     const it = items.find(x => x.id === c.closest('[data-id]').dataset.id); if (!it) return;
     if (c.dataset.c === 'dl') download(it);
@@ -160,11 +159,6 @@
       try { await api('item?id=' + it.id, { method: 'DELETE' }); items = items.filter(x => x !== it); if (cache.has(it.id)) { URL.revokeObjectURL(cache.get(it.id)); cache.delete(it.id); } renderGrid(); toast('Video dihapus'); } catch (err) { toast(err.message); }
     }
   });
-  drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileIn.click(); } });
-  fileIn.addEventListener('change', () => { [...fileIn.files].forEach(f => upload(f)); fileIn.value = ''; });
-  ['dragenter', 'dragover'].forEach(t => vt.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave', 'drop'].forEach(t => vt.addEventListener(t, e => { e.preventDefault(); if (t === 'drop' || e.target === drop) drop.classList.remove('over'); }));
-  vt.addEventListener('drop', e => { [...(e.dataTransfer?.files || [])].filter(f => /^video\//.test(f.type) || /\.(mp4|webm|mov|mkv|m4v)$/i.test(f.name)).forEach(f => upload(f)); });
 
   function job(name) {
     const el = document.createElement('div'); el.className = 'vt-job';
@@ -175,27 +169,6 @@
       fail(msg) { el.classList.add('err'); $('.pct', el).textContent = msg; setTimeout(() => el.remove(), 8000); },
       done() { $('.pct', el).textContent = 'Tersimpan ✓'; $('i', el).style.width = '100%'; setTimeout(() => el.remove(), 2500); },
     };
-  }
-
-  async function upload(file) {
-    const j = job(file.name);
-    try {
-      const init = await (await api('init', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: file.name, size: file.size, type: file.type || 'video/mp4' }) })).json();
-      const size = init.chunk, n = init.chunks; let sent = 0, next = 0;
-      const worker = async () => {
-        while (next < n) {
-          const i = next++;
-          const part = file.slice(i * size, Math.min(file.size, (i + 1) * size));
-          await retry(() => api(`chunk?id=${init.id}&n=${i}`, { method: 'PUT', headers: { 'content-type': 'application/octet-stream' }, body: part }));
-          sent += part.size; j.set(sent / file.size);
-        }
-      };
-      await Promise.all(Array.from({ length: Math.min(3, n) }, worker));
-      const done = await (await retry(() => api('done?id=' + init.id, { method: 'POST' }))).json();
-      cache.set(done.item.id, URL.createObjectURL(file));
-      items.unshift(done.item); renderGrid(); j.done();
-      return done.item;
-    } catch (e) { j.fail(e.message || 'Gagal'); throw e; }
   }
 
   async function fetchVideo(it, onp) {
@@ -231,62 +204,6 @@
   async function play(it) {
     try { const url = await load(it); playing = it; pv.src = url; player.hidden = false; pv.play().catch(() => {}); renderGrid(); }
     catch (e) { toast(e.message || 'Gagal memutar'); }
-  }
-
-  /* ---------- record the Beranda motion (Usagi-chan show) straight into the vault ---------- */
-  let recording = false;
-  async function record() {
-    const show = window.UsagiShow; if (!show || recording) return;
-    const types = ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
-    const mime = types.find(t => MediaRecorder.isTypeSupported(t)) || '';
-    closeVault();
-    if (typeof window.switchMode === 'function') window.switchMode('home');
-    const frame = document.getElementById('vs-frame') || show.stage;
-    let screen;
-    try {
-      screen = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30, displaySurface: 'browser' }, audio: false, preferCurrentTab: true, selfBrowserSurface: 'include', surfaceSwitching: 'exclude' });
-    } catch { openVault(); toast('Rekaman dibatalkan'); return; }
-    recording = true;
-    const [vtrack] = screen.getVideoTracks();
-    frame.scrollIntoView({ block: 'center' });
-    try { if (window.CropTarget && vtrack.cropTo) await vtrack.cropTo(await CropTarget.fromElement(show.stage)); } catch {}
-    const pill = document.createElement('div'); pill.className = 'rc-pill';
-    pill.innerHTML = '<i></i><span>Merekam motion…</span><button type="button">Stop</button>';
-    const count = document.createElement('div'); count.className = 'rc-count';
-    document.body.append(pill, count);
-    show.audio.pause(); show.audio.currentTime = 0;
-    for (const n of [3, 2, 1]) { count.textContent = n; await new Promise(r => setTimeout(r, 800)); }
-    count.remove();
-    await new Promise(r => setTimeout(r, 250));
-
-    const chunks = []; let rec, stopped = false;
-    const finish = () => {
-      if (stopped) return; stopped = true;
-      if (rec && rec.state !== 'inactive') { try { rec.stop(); return; } catch {} }
-      screen.getTracks().forEach(t => t.stop()); pill.remove(); recording = false; show.audio.pause(); openVault();
-    };
-    show.audio.addEventListener('playing', () => {
-      const atracks = show.audio.captureStream().getAudioTracks();
-      rec = new MediaRecorder(new MediaStream([vtrack, ...atracks]), { ...(mime ? { mimeType: mime } : {}), videoBitsPerSecond: 8e6 });
-      rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-      rec.onstop = async () => {
-        screen.getTracks().forEach(t => t.stop()); pill.remove(); recording = false;
-        show.audio.pause();
-        const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
-        const blob = new Blob(chunks, { type });
-        openVault();
-        if (!blob.size) { toast('Rekaman kosong'); return; }
-        const d = new Date(), pad = x => String(x).padStart(2, '0');
-        const name = `Usagi-chan motion ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}.${pad(d.getMinutes())}.${type.includes('mp4') ? 'mp4' : 'webm'}`;
-        try { await upload(new File([blob], name, { type })); toast('Rekaman tersimpan di koleksi'); }
-        catch { toast('Gagal menyimpan — mengunduh langsung'); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); }
-      };
-      rec.start(1000);
-    }, { once: true });
-    show.audio.addEventListener('ended', () => setTimeout(finish, 600), { once: true });
-    vtrack.addEventListener('ended', finish, { once: true });
-    $('button', pill).addEventListener('click', finish);
-    show.restart();
   }
 
   // re-validate a stored session quietly

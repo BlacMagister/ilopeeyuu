@@ -1,0 +1,11 @@
+[functions.vault]
+  # Generated motion videos are bundled with the vault function so they show up
+  # in the private vault automatically (see vault-motions/manifest.json).
+  included_files = ["vault-motions/**"]
+
+# The motion files are only served through the logged-in vault API, never as public static files.
+[[redirects]]
+  from = "/vault-motions/*"
+  to = "/404"
+  status = 404
+  force = true
