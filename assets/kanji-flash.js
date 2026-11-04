@@ -49,7 +49,8 @@
         if (Array.isArray(c) && c.length === 2) { const a = clampNo(c[0]), b = clampNo(c[1]); custom = [Math.min(a, b), Math.max(a, b)]; }
     } catch (_) {}
 
-    let packIdx = parseInt(localStorage.getItem('kj-pack') || '0', 10);
+    let packIdx = 0;
+    try { packIdx = parseInt(localStorage.getItem('kj-pack') || '0', 10); } catch (_) {}
     if (!(packIdx >= -2 && packIdx < packs.length)) packIdx = 0;
     let onlyUnknown = false;
     let order = [], pos = 0, flipped = false, busy = false, combo = 0;

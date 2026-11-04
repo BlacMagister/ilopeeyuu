@@ -1,0 +1,51 @@
+/* Cross-browser rendering fixes (loaded last).
+ * Mainly iPhone/iPad Safari, where 3D flip cards could show up blank. */
+
+/* Flip containers: prefixed preserve-3d + no own background in the faces' plane
+   (Safari can paint the container's background over the faces → empty card). */
+.transform-style-3d,
+.kj-inner {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+#main-card-inner,
+#memory-grid .transform-style-3d {
+    background: transparent !important;
+}
+
+/* Lift every face slightly off the container plane so it never z-fights with it. */
+.backface-hidden {
+    -webkit-transform: translateZ(1px);
+    transform: translateZ(1px);
+}
+.backface-hidden.rotate-y-180 {
+    -webkit-transform: rotateY(180deg) translateZ(1px);
+    transform: rotateY(180deg) translateZ(1px);
+}
+.kj-front {
+    -webkit-transform: translateZ(1px);
+    transform: translateZ(1px);
+}
+.kj-back {
+    -webkit-transform: rotateY(180deg) translateZ(1px);
+    transform: rotateY(180deg) translateZ(1px);
+}
+/* Matched memory cards: pulse with `scale` instead of `transform`, so the card
+   no longer flips back to its cover while the animation runs. */
+@keyframes matchedPulse {
+    0%, 100% { scale: 1; }
+    50% { scale: 1.05; }
+}
+
+/* Duel: friendly error / loading state instead of an empty area */
+.du-stuck {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    padding: 36px 20px;
+}
+.du-stuck p { color: #9c6e86; font-weight: 700; max-width: 360px; }
+.du-stuck .du-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.du-stuck .du-btn { padding: 12px 22px; min-width: 170px; }
