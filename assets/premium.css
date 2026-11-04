@@ -164,3 +164,10 @@ img,svg,video,canvas{max-width:100%}
   .nav-tabs{margin:0 auto}
 }
 .vs-frame:fullscreen,:fullscreen .vs-frame{max-width:none!important}
+
+/* Lite mode (phones / low-end devices): drop expensive blur, keep the look with solid glass */
+html.lite header,html.lite .du-panel,html.lite #hyougen-controls,html.lite .nav-tabs,html.lite .backdrop-blur-md,html.lite .backdrop-blur-sm{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.lite .du-panel{background:rgba(255,255,255,.95)}
+html.lite #hyougen-controls{background:rgba(255,255,255,.95)!important}
+html.lite .nav-tabs{background:rgba(255,255,255,.97)}
+html.lite .hero-friend,html.lite .hero-art{animation:none!important}
