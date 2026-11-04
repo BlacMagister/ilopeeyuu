@@ -82,3 +82,17 @@ export const vaultCounters = pgTable("vault_counters", {
   key: text().primaryKey(),
   value: integer().notNull().default(0),
 });
+
+/* ---------- Per-device progress backup ---------- */
+
+/**
+ * Each browser/device gets its own random id. A snapshot of its saved study
+ * progress (the localStorage keys of the games) is backed up here so it can be
+ * restored if the browser storage is wiped, or moved with the device code.
+ */
+export const deviceProgress = pgTable("device_progress", {
+  deviceId: text("device_id").primaryKey(),
+  data: jsonb().notNull().default({}),
+  updatedAt: timestamp("updated_at", { precision: 3, withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { precision: 3, withTimezone: true }).notNull().defaultNow(),
+});
