@@ -225,7 +225,8 @@ const numId = (url: URL) => {
   const n = Number(url.searchParams.get("id"));
   return Number.isInteger(n) && n > 0 ? n : null;
 };
-const ROOM_ACTIONS = new Set(["room", "notes", "notes/pin", "mood", "bucket", "bucket/toggle", "kangen"]);
+const ROOM_ACTIONS = new Set(["room", "notes", "notes/pin", "mood", "bucket", "bucket/toggle", "kangen", "count", "coupon", "since"]);
+const COUNT_KEYS = ["peluk", "cium"] as const;
 const sticker = (v: unknown, d: string) => clip(v, 8) || d;
 
 async function roomRoutes(action: string, req: Request, url: URL): Promise<Response | null> {
@@ -295,6 +296,32 @@ async function roomRoutes(action: string, req: Request, url: URL): Promise<Respo
     const n = Math.min(50, Math.max(1, Math.floor(Number(body.n) || 1)));
     const [row] = await db.insert(vaultCounters).values({ key: "kangen", value: n })
       .onConflictDoUpdate({ target: vaultCounters.key, set: { value: sql`${vaultCounters.value} + ${n}` } }).returning();
+    return json({ value: row.value });
+  }
+
+  /* "Untukmu" tab: virtual hugs/kisses, love coupons and the day we got together */
+  if (action === "count" && m === "POST") {
+    const key = pick(body.key, COUNT_KEYS, "peluk");
+    const n = Math.min(50, Math.max(1, Math.floor(Number(body.n) || 1)));
+    const [row] = await db.insert(vaultCounters).values({ key, value: n })
+      .onConflictDoUpdate({ target: vaultCounters.key, set: { value: sql`${vaultCounters.value} + ${n}` } }).returning();
+    return json({ key, value: row.value });
+  }
+  if (action === "coupon" && m === "POST") {
+    const id = String(body.id || "");
+    if (!/^[a-z0-9-]{1,30}$/.test(id)) return fail("Kupon tidak valid");
+    const value = body.used ? Math.floor(Date.now() / 1000) : 0; // seconds since epoch when redeemed, 0 = unused
+    const key = "coupon:" + id;
+    const [row] = await db.insert(vaultCounters).values({ key, value })
+      .onConflictDoUpdate({ target: vaultCounters.key, set: { value } }).returning();
+    return json({ key, value: row.value });
+  }
+  if (action === "since" && m === "PUT") {
+    const day = String(body.day || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || Number.isNaN(Date.parse(day))) return fail("Tanggal tidak valid");
+    const value = Number(day.replace(/-/g, ""));
+    const [row] = await db.insert(vaultCounters).values({ key: "since", value })
+      .onConflictDoUpdate({ target: vaultCounters.key, set: { value } }).returning();
     return json({ value: row.value });
   }
 

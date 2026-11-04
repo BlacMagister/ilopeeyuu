@@ -57,11 +57,13 @@
   /* ---------- tabs of the private room ---------- */
   const TABS = [
     { id: 'home', ic: '🏡', name: 'Beranda', sub: 'Selamat datang kembali' },
+    { id: 'gift', ic: '💝', name: 'Untukmu', sub: 'Hadiah-hadiah kecil dari aku, khusus buat kamu' },
     { id: 'video', ic: '🎞️', name: 'Koleksi Video', sub: 'Motion video spesial, siap ditonton & diunduh' },
     { id: 'notes', ic: '💌', name: 'Surat Cinta', sub: 'Tulis pesan manis, tempel di papan' },
     { id: 'mood', ic: '🌈', name: 'Mood Diary', sub: 'Gimana perasaanmu hari ini?' },
     { id: 'dream', ic: '⭐', name: 'Mimpi Bareng', sub: 'Daftar hal yang mau kita lakukan' },
     { id: 'omikuji', ic: '🎋', name: 'Omikuji', sub: 'Ramalan keberuntungan harian ala kuil Jepang' },
+    { id: 'play', ic: '🎮', name: 'Main Yuk', sub: 'Game-game gemes buat kita berdua' },
   ];
 
   /* ---------- menu ---------- */
@@ -212,7 +214,10 @@
       <section class="rr-panel" data-panel="mood" hidden></section>
       <section class="rr-panel" data-panel="dream" hidden></section>
       <section class="rr-panel" data-panel="omikuji" hidden></section>
+      <section class="rr-panel" data-panel="gift" hidden></section>
+      <section class="rr-panel" data-panel="play" hidden></section>
     </main>
+    <div class="lv-pet"><div class="lv-bubble" hidden aria-live="polite"></div><button type="button" class="lv-pet-b" data-l="pet" aria-label="Usagi-chan">🐰</button></div>
   </div>`;
   document.body.appendChild(vt);
   const grid = $('.vt-grid', vt), jobs = $('.vt-jobs', vt), sum = $('.vt-sum', vt);
@@ -438,7 +443,7 @@
     trackVisit(); switchTab(t);
     loadRoom(); refresh();
   }
-  function closeVault() { vt.hidden = true; document.body.classList.remove('vt-open'); closePlayer(); }
+  function closeVault() { if (game) endGame(true); vt.hidden = true; document.body.classList.remove('vt-open'); closePlayer(); }
   function switchTab(t) {
     tab = TABS.some(x => x.id === t) ? t : 'home';
     const info = TABS.find(x => x.id === tab);
@@ -452,6 +457,8 @@
   function renderTab() {
     if (tab === 'home') renderHome(); else if (tab === 'notes') renderBoard(); else if (tab === 'mood') renderMood();
     else if (tab === 'dream') renderDreams(); else if (tab === 'omikuji') renderOmikuji();
+    else if (tab === 'gift') renderGift(); else if (tab === 'play') renderPlay();
+    if (tab !== 'play' && game) endGame(true);
   }
   async function loadRoom() {
     if (roomLoading) return roomLoading;
@@ -581,6 +588,7 @@
         <div class="art" aria-hidden="true"><span class="bunny">🐰</span><span class="h1">💗</span><span class="h2">✨</span><span class="h3">🌸</span></div>
       </div>
       <div class="rr-widgets">
+        ${(() => { const tg = together(); return `<div class="rr-card w-days" data-go="gift" role="button" tabindex="0"><h3>Hari bersama 💞</h3>${tg ? `<div class="wd-n">${tg.days.toLocaleString('id-ID')}</div><p>hari sejak kita jadian${tg.isMonthsary ? ' · 🎉 happy monthsary!' : ` · ${tg.toNext} hari lagi ke ${tg.months + 1} bulan`}</p>` : '<div class="wd-n">?</div><p>Isi tanggal jadian kita di tab Untukmu 💝</p>'}</div>`; })()}
         <div class="rr-card w-kangen"><h3>Tombol Kangen</h3><p>Tekan sebanyak kamu kangen 🥺</p>
           <button type="button" class="kangen-btn" data-x="kangen" aria-label="Kirim kangen">💗</button>
           <div class="kangen-n"><b>${kangen.toLocaleString('id-ID')}</b> kali kangen terkirim</div><div class="kangen-lv">${kangenLevel(kangen)}</div></div>
@@ -703,6 +711,284 @@
     }, reduced ? 50 : 1500);
   }
 
+  /* ---------- 💝 Untukmu + 🎮 Main Yuk: little gifts and games, all from me to you ---------- */
+  const REASONS = [
+    'Senyummu bisa bikin hari burukku jadi baik lagi 🌤️', 'Kamu selalu dengerin ceritaku, sekecil apa pun itu 👂💗', 'Cara kamu ketawa itu lucu banget, sumpah 🤭',
+    'Kamu tetap semangat belajar walaupun capek 📚', 'Kamu bikin aku pengen jadi orang yang lebih baik ✨', 'Pipimu kalau lagi ngambek… gemes 🐹',
+    'Kamu perhatian sama hal-hal kecil 🌷', 'Suaramu tuh obat kangen paling manjur 📞', 'Kamu sabar banget ngadepin aku 🥹',
+    'Kamu cantik, pagi, siang, malem, bangun tidur juga 😳', 'Kamu selalu inget hal-hal penting buat aku 🗓️', 'Kamu partner terbaik buat makan apa aja 🍜',
+    'Kamu bikin hal biasa jadi seru 🎡', 'Pelukanmu itu tempat paling nyaman sedunia 🫂', 'Kamu jujur, dan aku suka itu 🤍',
+    'Kamu punya mimpi besar, dan aku mau nemenin 🗻', 'Kamu lucu kalau lagi serius 🧐', 'Kamu selalu tau cara bikin aku tenang ☁️',
+    'Kamu manis — lebih manis dari boba 🧋', 'Kamu kuat, lebih kuat dari yang kamu kira 💪', 'Tiap chat darimu bikin HP-ku jadi barang favorit 📱',
+    'Kamu bisa jadi diri sendiri di depanku, dan itu berharga 🌸', 'Karena kamu ya kamu. Gak ada duanya 🦄', 'Kamu nerima aku apa adanya 🧸',
+    'Matamu kalau lagi senyum ikut ketawa 👀✨', 'Kamu selalu nyemangatin aku 📣', 'Aku bisa diem berdua kamu tanpa canggung 🌙',
+    'Kamu rajin belajar bahasa Jepang, keren! 🇯🇵', 'Kamu bikin masa depan kerasa seru 🔮', 'Kamu selalu jadi orang pertama yang mau aku kabarin 💌',
+    'Kamu pinter, tapi gak sombong 🎓', 'Kamu baik sama semua orang 🌻', 'Kamu suka hal-hal lucu, sama kayak aku 🐰',
+    'Kamu tuh rumah 🏡', 'Kamu bikin aku percaya cinta itu nyata 💞', 'Karena tiap hari aku jatuh cinta lagi sama kamu, terus, terus 💘',
+  ];
+  const OPEN_WHEN = [
+    ['sedih', '🥺', 'Buka kalau lagi sedih', 'Sayang… gapapa kok sedih. Kamu gak harus kuat terus. Tarik napas pelan-pelan, peluk bantal, dan bayangin itu aku. Apa pun yang terjadi hari ini, aku tetap di pihakmu. Besok mataharinya terbit lagi, dan aku masih sayang kamu sama banyaknya. 🫂💗'],
+    ['kangen', '💭', 'Buka kalau lagi kangen', 'Kangen ya? Sama, aku juga. Coba pencet Tombol Kangen di Beranda sebanyak-banyaknya — tiap pencetan sampai ke aku. Jarak itu cuma angka, hatiku tetap nempel di kamu. Sebentar lagi kita ketemu, janji. 🥺💞'],
+    ['tidur', '🌙', 'Buka kalau gak bisa tidur', 'Belum ngantuk? Matiin layar sebentar ya. Bayangin kita lagi rebahan sambil dengerin hujan, aku elus-elus kepalamu sampai kamu ketiduran. Oyasumi, sayang. おやすみ。Mimpiin aku ya 😴🌙'],
+    ['capek', '📚', 'Buka kalau capek belajar', 'Hei, kamu udah hebat banget hari ini. Gapapa istirahat 10 menit, minum air, makan camilan. Kanji-kanji itu gak bakal kabur kok. Aku bangga sama setiap langkah kecilmu. Ganbatte ne! がんばってね 🍵✨'],
+    ['marah', '😤', 'Buka kalau lagi marah sama aku', 'Maaf ya kalau aku bikin kesel… Kamu boleh marah, tapi jangan lama-lama ya 🥹 Aku mau dengerin dan memperbaiki. Ini kupon pelukan permintaan maaf: berlaku sekarang juga. Aku sayang kamu, bahkan pas kamu lagi cemberut (justru makin gemes). 🙏💗'],
+    ['senang', '🎉', 'Buka kalau lagi bahagia', 'Yeay! Aku ikut seneng banget! Ceritain semuanya ke aku ya, detail sekecil apa pun. Senyummu hari ini simpan baik-baik — itu pemandangan favoritku. 🌈😊'],
+  ];
+  const COUPONS = [
+    ['peluk', '🫂', 'Pelukan 1 menit', 'Gak boleh dilepas sebelum 60 detik'], ['boba', '🧋', 'Traktir boba', 'Topping bebas, ukuran large'],
+    ['maaf', '🕊️', 'Langsung dimaafkan', 'Berlaku untuk 1 kesalahan kecil'], ['jalan', '🎡', 'Jalan-jalan bebas', 'Kamu yang pilih tempatnya'],
+    ['film', '🎬', 'Movie night', 'Kamu pilih film, aku nurut + popcorn'], ['pijat', '💆', 'Pijat pundak', '10 menit, no complain'],
+    ['telpon', '📞', 'Telpon sampai ketiduran', 'Gak ada yang boleh tutup duluan'], ['foto', '📸', 'Photobox bareng', 'Pose lucu wajib'],
+    ['masak', '🍳', 'Aku masakin', 'Menu request (semoga enak 😅)'], ['bebas', '🌟', 'Permintaan bebas', 'Apa aja, 1 kali (yang wajar ya 😆)'],
+  ];
+  const GOMBAL = [
+    'Kamu tau gak bedanya kamu sama jam? Jam muter-muter, kalau kamu muter-muter di pikiranku 🕰️', 'Kamu pinter kanji ya? Pantes aku gak bisa baca perasaan selain sayang 🈴',
+    'Kamu tuh kayak wifi. Deket kamu, aku langsung connect 📶', 'Aku gak butuh omikuji, kamu udah daikichi-ku 🎋', 'Gula itu manis, tapi kamu bikin diabetes hati 🍬',
+    'Kamu capek gak? Dari tadi lari-lari di pikiranku terus 🏃‍♀️', 'Bahasa Jepangnya "aku sayang kamu" itu 大好き. Bahasa hatiku: kamu 💗',
+    'Kalau kamu bintang, aku rela begadang tiap malam ⭐', 'Aku bukan fotografer, tapi aku bisa bayangin kita foto nikahan 📸💍',
+    'Kamu tuh kayak mochi: lembut, manis, bikin nagih 🍡', 'Peta Indonesia luas, tapi alamat hatiku cuma satu: kamu 🗺️', 'Kamu tau kenapa langit biru? Karena merahnya dipake pipimu tiap aku gombalin 😳',
+    'Aku rela jadi flashcard, asal kamu bolak-balik tiap hari 🃏', 'Hidupku kayak memory game. Begitu ketemu kamu: MATCH! 🧩', 'Kamu tuh login-nya, aku password-nya. Gak lengkap kalau gak bareng 🔐',
+  ];
+  const ASK_NO = ['Nggak 🙄', 'yakin? 🥺', 'masa sih?', 'pikir lagi deh', 'ih jahat 😢', 'gak bisa dipencet wlee 😛', 'coba lagi~', 'nope 🙅', 'salah tombol!', 'hehe 🤭'];
+  const PET_LINES = ['Halo cantik! 🐰', 'Dia sayang banget sama kamu loh 🤫', 'Udah makan belum? 🍙', 'Pencet aku lagi dong~ 💗', 'Kamu wangi deh 🌸', 'Jangan lupa senyum ya 😊', 'Psst… cek tab Untukmu 💝', 'Aku disuruh jagain kamu 🛡️', 'Gemes banget sih kamu 🫠', 'Daisuki! 大好き 💕'];
+
+  const getLS = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+  const setLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+  const ctr = k => (roomData?.counters?.[k] || 0) + (pendingCount[k] || 0);
+  const pendingCount = { peluk: 0, cium: 0 }; let countTimer = 0;
+  function flushCounts() {
+    Object.keys(pendingCount).forEach(key => {
+      const n = Math.min(50, pendingCount[key]); if (!n) return;
+      pendingCount[key] -= n;
+      send('count', 'POST', { key, n }).then(j => { if (roomData) roomData.counters[key] = j.value; }).catch(() => { pendingCount[key] += n; });
+    });
+  }
+  function bumpCount(key, el, chars) {
+    pendingCount[key]++; burstAt(el, chars, 10);
+    el.classList.remove('pump'); void el.offsetWidth; el.classList.add('pump');
+    const out = $(`[data-lc="${key}"]`, vt); if (out) out.textContent = ctr(key).toLocaleString('id-ID');
+    clearTimeout(countTimer); countTimer = setTimeout(flushCounts, 700);
+  }
+
+  /* days together */
+  const sinceDate = () => { const v = String(roomData?.counters?.since || ''); return v.length === 8 ? new Date(+v.slice(0, 4), +v.slice(4, 6) - 1, +v.slice(6, 8)) : null; };
+  const midnight = (d = new Date()) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const addMonths = (d, n) => { const y = d.getFullYear(), m = d.getMonth() + n, last = new Date(y, m + 1, 0).getDate(); return new Date(y, m, Math.min(d.getDate(), last)); };
+  function together() {
+    const s = sinceDate(); if (!s) return null;
+    const today = midnight(), days = Math.round((today - s) / 864e5) + 1;
+    let months = 0; while (addMonths(s, months + 1) <= today) months++;
+    const rest = Math.round((today - addMonths(s, months)) / 864e5);
+    const next = addMonths(s, months + 1), toNext = Math.round((next - today) / 864e5);
+    const years = Math.floor(months / 12), nextAnniv = addMonths(s, (years + 1) * 12), toAnniv = Math.round((nextAnniv - today) / 864e5);
+    return { s, days, months, rest, next, toNext, years, toAnniv, isMonthsary: rest === 0 && months > 0 };
+  }
+  const fmtLong = d => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  function renderGift() {
+    const p = $('[data-panel="gift"]', vt); if (!p) return;
+    const t = together(), opened = getLS('rr_reasons', []), lastReason = getLS('rr_reason_last', null);
+    const used = id => roomData?.counters?.['coupon:' + id] || 0;
+    p.innerHTML = `<div class="lv-days rr-card">
+        ${t ? `<div class="lv-days-n"><small>kita udah bareng selama</small><b>${t.days.toLocaleString('id-ID')}</b><span>hari 💞</span></div>
+          <div class="lv-days-tx"><p>${t.isMonthsary ? `🎉 <b>Happy ${t.months}${t.months % 12 === 0 ? ` bulan (${t.months / 12} tahun!)` : ' bulan'}, sayang!</b> Makasih udah bertahan sama aku 🥹` : `Sejak <b>${fmtLong(t.s)}</b> — ${t.years ? `${t.years} tahun ${t.months % 12} bulan` : `${t.months} bulan`} ${t.rest} hari penuh cinta.`}</p>
+            <div class="lv-chips"><span>🗓️ ${t.toNext ? `${t.toNext} hari lagi` : 'hari ini'} ke ${t.months + 1} bulan</span><span>💍 ${t.toAnniv} hari lagi anniversary ke-${t.years + 1}</span><span>⏳ ${(t.days * 24).toLocaleString('id-ID')} jam bareng</span></div>
+            <button type="button" class="rr-btn ghost sm" data-l="since-edit">✏️ Ubah tanggal</button></div>`
+        : `<div class="lv-days-n"><small>hari bersama</small><b>?</b><span>💞</span></div><div class="lv-days-tx"><p><b>Kapan kita jadian?</b> Isi tanggalnya biar aku bisa ngitung tiap hari yang kita lewatin bareng.</p></div>`}
+        <form class="lv-since"${t ? ' hidden' : ''}><input type="date" class="rr-input" max="${dayKey()}" value="${t ? dayKey(t.s) : ''}" aria-label="Tanggal jadian" required><button class="rr-btn pri">💾 Simpan</button></form>
+      </div>
+      <div class="rr-grid2">
+        <div class="rr-card lv-jar-card"><h3>Toples alasan aku sayang kamu <small>${opened.length}/${REASONS.length} dibuka</small></h3>
+          <p>Ketuk toplesnya, ambil satu gulungan kertas 🫙</p>
+          <button type="button" class="lv-jar" data-l="jar" aria-label="Ambil alasan"><span class="lid"></span><span class="glass">${Array.from({ length: 14 }, (_, i) => `<i style="--i:${i}">${['💗', '📜', '💌', '🌸', '💖'][i % 5]}</i>`).join('')}</span><span class="tag">love jar</span></button>
+          <div class="lv-reason" aria-live="polite">${lastReason != null ? `<small>Alasan #${lastReason + 1}</small>${esc(REASONS[lastReason])}` : '<small>belum ada yang diambil</small>Ayo ambil yang pertama! 🥰'}</div></div>
+        <div class="rr-card lv-hug"><h3>Peluk & cium virtual</h3><p>Tahan tombol peluk sampai penuh, atau ketuk cium sepuasnya 😚</p>
+          <div class="lv-hug-row">
+            <div><button type="button" class="lv-hold" data-l="hug" aria-label="Tahan untuk memeluk"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><circle class="fill" cx="50" cy="50" r="45"/></svg><span>🫂</span></button>
+              <div class="lv-ct"><b data-lc="peluk">${ctr('peluk').toLocaleString('id-ID')}</b> pelukan</div></div>
+            <div><button type="button" class="lv-kiss" data-l="kiss" aria-label="Kirim cium">💋</button>
+              <div class="lv-ct"><b data-lc="cium">${ctr('cium').toLocaleString('id-ID')}</b> ciuman</div></div>
+          </div><p class="lv-hug-say" aria-live="polite"></p></div>
+      </div>
+      <h3 class="lv-h">💌 Surat "Buka kalau…"</h3>
+      <div class="lv-env">${OPEN_WHEN.map(([k, e, title]) => `<button type="button" class="lv-envelope${getLS('rr_ow', []).includes(k) ? ' read' : ''}" data-l="ow" data-k="${k}"><span class="flap"></span><span class="em">${e}</span><b>${title}</b></button>`).join('')}</div>
+      <h3 class="lv-h">🎟️ Kupon cinta <small>tukarkan kapan aja, nanti aku tepati 🤞</small></h3>
+      <div class="lv-coupons">${COUPONS.map(([id, e, title, desc]) => { const u = used(id); return `<div class="lv-coupon${u ? ' used' : ''}" data-cid="${id}">
+          <span class="em">${e}</span><div class="tx"><b>${title}</b><small>${desc}</small>${u ? `<em>ditukar ${new Date(u * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</em>` : ''}</div>
+          <button type="button" class="rr-btn ${u ? 'ghost' : 'pri'} sm" data-l="coupon">${u ? '↺' : 'Tukar'}</button>${u ? '<span class="stamp">DITUKAR</span>' : ''}</div>`; }).join('')}</div>`;
+    $('.lv-since', p).addEventListener('submit', async e => {
+      e.preventDefault(); const day = $('.lv-since input', p).value; if (!day) return;
+      try { const j = await send('since', 'PUT', { day }); if (roomData) roomData.counters.since = j.value; renderGift(); confetti(); toast('💞 Tanggal jadian tersimpan'); } catch (err) { toast(err.message); }
+    });
+    setupHug($('[data-l="hug"]', p));
+  }
+
+  function setupHug(b) {
+    let raf = 0, start = 0;
+    const fill = $('.fill', b), C = 2 * Math.PI * 45, HOLD = 1400;
+    fill.style.strokeDasharray = C; fill.style.strokeDashoffset = C;
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; b.classList.remove('holding'); fill.style.strokeDashoffset = C; };
+    const tick = now => {
+      const k = Math.min(1, (now - start) / HOLD); fill.style.strokeDashoffset = C * (1 - k);
+      if (k < 1) { raf = requestAnimationFrame(tick); return; }
+      stop(); bumpCount('peluk', b, ['🫂', '💗', '🤗', '💞']);
+      const sayEl = $('.lv-hug-say', vt); if (sayEl) sayEl.textContent = pickR(Math.random, ['Pelukan diterima! Hangat banget 🥰', 'Nggak mau lepas ah 🫂', 'Peluuuk eraaat~ 💞', 'Rasanya kayak pulang ke rumah 🏡', 'Charging cinta: 100% 🔋']);
+    };
+    b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture?.(e.pointerId); b.classList.add('holding'); start = performance.now(); raf = requestAnimationFrame(tick); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, () => { if (raf) { stop(); const s = $('.lv-hug-say', vt); if (s) s.textContent = 'Tahan lebih lama dong, pelukannya kurang lama 🥺'; } }));
+    b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bumpCount('peluk', b, ['🫂', '💗']); } });
+  }
+
+  function openLetter(k) {
+    const l = OPEN_WHEN.find(x => x[0] === k); if (!l) return;
+    const read = getLS('rr_ow', []); if (!read.includes(k)) { read.push(k); setLS('rr_ow', read); }
+    const m = document.createElement('div'); m.className = 'lv-modal';
+    m.innerHTML = `<div class="lv-letter" role="dialog" aria-modal="true" aria-label="${esc(l[2])}"><span class="seal">${l[1]}</span><h3>${esc(l[2])}</h3><p>${esc(l[3])}</p><div class="sig">— dari aku, yang sayang kamu selalu 💗</div><button type="button" class="rr-btn pri">Peluk dulu, terus tutup 🫂</button></div>`;
+    vt.appendChild(m);
+    const close = () => { m.remove(); renderGift(); };
+    m.addEventListener('click', e => { if (e.target === m || e.target.closest('button')) close(); });
+    $('button', m).focus(); burstAt($('.seal', m), ['💗', '✨', '💌'], 10);
+  }
+
+  /* 🎮 games */
+  let askTries = 0, game = null;
+  function renderPlay(force) {
+    const p = $('[data-panel="play"]', vt); if (!p || (p.firstChild && !force)) return;
+    if (game) endGame(true);
+    askTries = 0;
+    const best = getLS('rr_heart_best', 0), yes = getLS('rr_yes', 0);
+    p.innerHTML = `<div class="rr-card lv-ask"><div class="lv-ask-bun" aria-hidden="true">🐰</div>
+        <h3>Pertanyaan penting nih…</h3><p class="q">Kamu sayang aku gak? 🥺👉👈</p>
+        <div class="lv-ask-area"><button type="button" class="rr-btn pri big lv-yes" data-l="yes">Iya 💗</button><button type="button" class="rr-btn ghost lv-no" data-l="no">Nggak 🙄</button></div>
+        ${yes ? `<small class="lv-yes-n">Kamu udah jawab "iya" ${yes}× 🥰</small>` : ''}</div>
+      <div class="rr-grid2">
+        <div class="rr-card lv-calc"><h3>Kalkulator cinta 💘 <small>super akurat (katanya)</small></h3>
+          <form class="lv-calc-f"><input class="rr-input" maxlength="20" placeholder="Nama kamu" aria-label="Nama kamu"><span>💞</span><input class="rr-input" maxlength="20" placeholder="Nama aku" aria-label="Nama aku"><button class="rr-btn pri wide">Hitung kecocokan</button></form>
+          <div class="lv-calc-out" aria-live="polite"></div></div>
+        <div class="rr-card lv-gacha"><h3>Gacha gombal 🎰 <small>siap-siap salting</small></h3>
+          <button type="button" class="lv-machine" data-l="gacha" aria-label="Putar gacha"><span class="dome">${['💗', '💛', '💜', '💙', '💚', '🧡'].map((c, i) => `<i style="--i:${i}">${c}</i>`).join('')}</span><span class="base">PUTAR</span></button>
+          <div class="lv-gombal" aria-live="polite">Putar mesinnya buat dapet gombalan 😳</div></div>
+      </div>
+      <div class="rr-card lv-catch"><div class="lv-catch-hd"><div><h3>Tangkap hatiku! 💗</h3><p>Ketuk hati yang jatuh dalam 20 detik. 💖 = +3, 💔 = −2</p></div>
+          <div class="lv-score"><span>Skor <b class="sc">0</b></span><span>⏱ <b class="tm">20</b></span><span>🏆 <b class="bs">${best}</b></span></div></div>
+        <div class="lv-field"><div class="lv-field-msg"><b>Siap?</b><button type="button" class="rr-btn pri big" data-l="game">▶ Mulai</button></div></div></div>`;
+    $('.lv-calc-f', p).addEventListener('submit', e => { e.preventDefault(); loveCalc(); });
+    const no = $('.lv-no', p);
+    no.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(no); });
+  }
+  function dodge(no) {
+    askTries++;
+    const area = $('.lv-ask-area', vt), yesB = $('.lv-yes', vt), r = area.getBoundingClientRect();
+    no.classList.add('run');
+    no.style.left = Math.random() * Math.max(0, r.width - no.offsetWidth) + 'px';
+    no.style.top = Math.random() * Math.max(0, r.height - no.offsetHeight) + 'px';
+    no.textContent = ASK_NO[askTries % ASK_NO.length];
+    yesB.style.transform = `scale(${Math.min(1.9, 1 + askTries * .1)})`;
+    if (askTries >= 8) { no.style.transform = `scale(${Math.max(.35, 1 - (askTries - 7) * .12)})`; }
+    $('.lv-ask-bun', vt).textContent = askTries > 5 ? '😭' : askTries > 2 ? '🥺' : '🐰';
+  }
+  function sayYes(b) {
+    setLS('rr_yes', getLS('rr_yes', 0) + 1);
+    confetti(); burstAt(b, ['💗', '💖', '💕', '🥰', '💘'], 20);
+    const card = $('.lv-ask', vt);
+    card.innerHTML = `<div class="lv-ask-bun yay" aria-hidden="true">🥰</div><h3>Yeaaay! Aku tau kok 🥹</h3>
+      <p class="q">Aku juga sayang kamu — lebih banyak dari jumlah kanji di dunia, lebih lama dari selamanya. 大好きだよ 💗</p>
+      <button type="button" class="rr-btn ghost sm" data-l="ask-again">Tanya lagi dong 🙈</button>`;
+  }
+  function loveCalc() {
+    const [a, b] = $$('.lv-calc-f input', vt).map(i => i.value.trim()), out = $('.lv-calc-out', vt);
+    if (!a || !b) { out.innerHTML = '<p>Isi dua-duanya dulu ya 🥺</p>'; return; }
+    const fake = 72 + Math.floor(seeded(a.toLowerCase() + '+' + b.toLowerCase())() * 22);
+    out.innerHTML = `<div class="lv-meter"><i></i></div><div class="lv-pct">0%</div><p class="lv-calc-msg">menghitung… 🔮</p>`;
+    const bar = $('.lv-meter i', out), pct = $('.lv-pct', out), msg = $('.lv-calc-msg', out);
+    const run = (to, ms, done) => { const t0 = performance.now(), from = parseInt(pct.textContent) || 0; const f = now => { const k = Math.min(1, (now - t0) / ms), v = Math.round(from + (to - from) * (1 - (1 - k) ** 3)); pct.textContent = v + '%'; bar.style.width = Math.min(100, v / (to > 100 ? 10 : 1)) + '%'; if (k < 1) requestAnimationFrame(f); else done?.(); }; requestAnimationFrame(f); };
+    run(fake, reduced ? 1 : 1200, () => {
+      msg.textContent = `${fake}%? …eh tunggu, alatnya error 😤`;
+      setTimeout(() => {
+        out.classList.add('fixed'); msg.innerHTML = `<b>${esc(a)} 💞 ${esc(b)}</b><br>Hasil sebenarnya: jodoh dunia akhirat. Sistem gak sanggup ngitung 🫠💍`;
+        bar.style.width = '100%'; run(1000, reduced ? 1 : 900, () => { pct.textContent = '1000% 💯'; confetti(); });
+      }, reduced ? 50 : 1300);
+    });
+  }
+  function gacha(b) {
+    const out = $('.lv-gombal', vt); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin'); b.disabled = true;
+    out.classList.remove('pop'); out.textContent = '…';
+    setTimeout(() => { b.disabled = false; let i = getLS('rr_gombal', -1); i = (i + 1 + Math.floor(Math.random() * (GOMBAL.length - 1))) % GOMBAL.length; setLS('rr_gombal', i);
+      out.textContent = GOMBAL[i]; void out.offsetWidth; out.classList.add('pop'); burstAt(out, ['😳', '💗', '✨'], 8); }, reduced ? 50 : 900);
+  }
+  function startGame() {
+    const field = $('.lv-field', vt); if (!field || game) return;
+    field.innerHTML = '';
+    game = { score: 0, left: 20, field, hearts: new Set(), last: performance.now(), spawn: 0, raf: 0, end: performance.now() + 20000 };
+    const sc = $('.lv-score .sc', vt), tm = $('.lv-score .tm', vt); sc.textContent = 0;
+    const loop = now => {
+      if (!game) return;
+      const dt = Math.min(50, now - game.last); game.last = now; game.spawn -= dt;
+      const h = field.clientHeight, left = Math.max(0, Math.ceil((game.end - now) / 1000)); tm.textContent = left;
+      if (game.spawn <= 0) {
+        game.spawn = 380 + Math.random() * 380 - Math.min(250, (20 - left) * 12);
+        const roll = Math.random(), kind = roll < .12 ? ['💖', 3] : roll < .27 ? ['💔', -2] : ['💗', 1];
+        const el = document.createElement('button'); el.type = 'button'; el.className = 'lv-fall'; el.textContent = kind[0];
+        el.setAttribute('aria-label', kind[1] > 0 ? 'Tangkap hati' : 'Hati patah');
+        const o = { el, y: -40, v: .09 + Math.random() * .08 + (20 - left) * .004, pts: kind[1] };
+        el.style.left = Math.random() * (field.clientWidth - 44) + 'px';
+        el.addEventListener('pointerdown', e => { e.preventDefault(); if (!game) return; game.score = Math.max(0, game.score + o.pts); sc.textContent = game.score; burst(e.clientX, e.clientY, o.pts > 0 ? ['💗', '✨'] : ['💔', '😵'], 6); el.remove(); game.hearts.delete(o); });
+        field.appendChild(el); game.hearts.add(o);
+      }
+      game.hearts.forEach(o => { o.y += o.v * dt; o.el.style.transform = `translateY(${o.y}px)`; if (o.y > h) { o.el.remove(); game.hearts.delete(o); } });
+      if (now >= game.end) return endGame();
+      game.raf = requestAnimationFrame(loop);
+    };
+    game.raf = requestAnimationFrame(loop);
+  }
+  function endGame(silent) {
+    if (!game) return; const g = game; game = null; cancelAnimationFrame(g.raf);
+    g.hearts.forEach(o => o.el.remove()); if (silent) return;
+    const best = getLS('rr_heart_best', 0), rec = g.score > best; if (rec) setLS('rr_heart_best', g.score);
+    $('.lv-score .bs', vt).textContent = Math.max(best, g.score);
+    const msg = g.score >= 40 ? 'Wah, kamu nangkep hatiku semua! Ya emang udah punya kamu sih 😳💗' : g.score >= 20 ? 'Jago banget! Hatiku aman di tanganmu 🥰' : g.score >= 8 ? 'Lumayan! Tapi tenang, hatiku tetap buat kamu kok 💕' : 'Gapapa, hatiku udah lama kamu tangkap 🤭';
+    g.field.innerHTML = `<div class="lv-field-msg"><b>${g.score} poin${rec ? ' · rekor baru! 🏆' : ''}</b><p>${msg}</p><button type="button" class="rr-btn pri big" data-l="game">↻ Main lagi</button></div>`;
+    if (rec && g.score > 0) confetti();
+  }
+
+  /* clicks for the two new tabs (data-l) */
+  function loveClick(t) {
+    const el = t.closest('[data-l]'); if (!el) return false;
+    const l = el.dataset.l;
+    if (l === 'jar') {
+      const opened = getLS('rr_reasons', []); let pool = REASONS.map((_, i) => i).filter(i => !opened.includes(i));
+      if (!pool.length) { setLS('rr_reasons', []); pool = REASONS.map((_, i) => i); toast('Semua alasan udah dibuka! Diulang dari awal ya — alasannya gak pernah habis 💗'); }
+      const i = pickR(Math.random, pool), now = pool.length === REASONS.length ? [i] : [...opened, i];
+      setLS('rr_reasons', now); setLS('rr_reason_last', i);
+      el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+      const box = $('.lv-reason', vt); box.innerHTML = `<small>Alasan #${i + 1}</small>${esc(REASONS[i])}`; box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+      $('.lv-jar-card h3 small', vt).textContent = `${now.length}/${REASONS.length} dibuka`;
+      burstAt(el, ['📜', '💗', '✨'], 8);
+    } else if (l === 'kiss') bumpCount('cium', el, ['💋', '😘', '💗', '💕']);
+    else if (l === 'ow') openLetter(el.dataset.k);
+    else if (l === 'since-edit') { const f = $('.lv-since', vt); f.hidden = !f.hidden; if (!f.hidden) $('input', f).focus(); }
+    else if (l === 'coupon') {
+      const id = el.closest('[data-cid]').dataset.cid, was = !!roomData?.counters?.['coupon:' + id];
+      if (was && !confirm('Kembalikan kupon ini jadi belum dipakai?')) return true;
+      el.disabled = true;
+      send('coupon', 'POST', { id, used: !was }).then(j => {
+        if (roomData) roomData.counters[j.key] = j.value; renderGift();
+        if (!was) { const c = $(`[data-cid="${id}"]`, vt); if (c) burstAt(c, ['🎟️', '💗', '✨'], 12); toast('🎟️ Kupon ditukar! Tunjukin ke aku ya, nanti aku tepati 🤞'); }
+      }).catch(err => { el.disabled = false; toast(err.message); });
+    }
+    else if (l === 'yes') sayYes(el);
+    else if (l === 'no') dodge(el);
+    else if (l === 'ask-again') renderPlay(true);
+    else if (l === 'gacha') gacha(el);
+    else if (l === 'game') startGame();
+    else if (l === 'pet') {
+      const b = $('.lv-bubble', vt); b.textContent = pickR(Math.random, PET_LINES); b.hidden = false;
+      el.classList.remove('hop'); void el.offsetWidth; el.classList.add('hop'); burstAt(el, ['💗', '✨', '🌸'], 6);
+      clearTimeout(loveClick.pt); loveClick.pt = setTimeout(() => { b.hidden = true; }, 2600);
+    }
+    return true;
+  }
+
   /* ---------- videos ---------- */
   async function refresh() {
     if (!items.length) grid.innerHTML = '<div class="vt-empty"><b>Memuat…</b>sebentar ya 🎞️</div>';
@@ -747,6 +1033,7 @@
     const ns = t.closest('[data-nstk]');
     if (ns) { noteSticker = ns.dataset.nstk; $$('[data-nstk]', vt).forEach(b => b.classList.toggle('on', b === ns)); $('.rr-paper .stk', vt).textContent = noteSticker; return; }
     const idea = t.closest('[data-idea]'); if (idea) return addDream(idea.dataset.idea, idea.dataset.emo);
+    if (loveClick(t)) return;
 
     const x = t.closest('[data-x]')?.dataset.x;
     if (x) {
