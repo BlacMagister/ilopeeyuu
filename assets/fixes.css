@@ -49,3 +49,10 @@
 .du-stuck p { color: #9c6e86; font-weight: 700; max-width: 360px; }
 .du-stuck .du-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .du-stuck .du-btn { padding: 12px 22px; min-width: 170px; }
+
+/* Room code card: lite mode (phones / low-power devices) turns every .du-panel
+   white, which hid the white room code and share buttons. Keep the card dark. */
+html.lite .du-panel.du-codecard {
+  background: linear-gradient(150deg, #5a1f45, #8e2c62 60%, #b13c74);
+  color: #fff;
+}
