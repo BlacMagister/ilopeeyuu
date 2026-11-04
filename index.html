@@ -11,7 +11,7 @@
     <!-- Google Fonts: Noto Serif JP & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,800;1,9..144,600;1,9..144,800&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -159,6 +159,8 @@
     </style>
     <link rel="stylesheet" href="assets/usagi-show.css">
     <link rel="stylesheet" href="assets/kanji-flash.css">
+    <link rel="stylesheet" href="assets/premium.css">
+    <link rel="stylesheet" href="assets/duel.css">
 </head>
 <body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -174,26 +176,20 @@
             </div>
 
             <!-- Mode Switcher -->
-            <div class="flex bg-sakura-50 p-1 rounded-xl border border-sakura-100">
-                <button id="tab-flashcard" onclick="switchMode('flashcard')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm">
-                    <i class="fa-solid fa-clone"></i>
-                    <span>Flashcards</span>
-                </button>
-                <button id="tab-memory" onclick="switchMode('memory')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <span>Memory Match</span>
-                </button>
-                <button id="tab-kanji" onclick="switchMode('kanji')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600">
-                    <span class="font-jp font-bold" aria-hidden="true">漢</span>
-                    <span>Kanji</span>
-                    <span class="kj-new-badge" aria-hidden="true">new♡</span>
-                </button>
-            </div>
+            <nav class="nav-tabs" id="nav-tabs" aria-label="Menu utama">
+                <button id="tab-home" type="button" onclick="switchMode('home')" class="nav-tab is-active"><span class="ni" aria-hidden="true">🏠</span><span>Beranda</span></button>
+                <button id="tab-flashcard" type="button" onclick="switchMode('flashcard')" class="nav-tab"><span class="ni" aria-hidden="true"><i class="fa-solid fa-clone"></i></span><span>Flashcards</span></button>
+                <button id="tab-memory" type="button" onclick="switchMode('memory')" class="nav-tab"><span class="ni" aria-hidden="true"><i class="fa-solid fa-puzzle-piece"></i></span><span>Memory</span></button>
+                <button id="tab-kanji" type="button" onclick="switchMode('kanji')" class="nav-tab"><span class="ni font-jp" aria-hidden="true">漢</span><span>Kanji</span></button>
+                <button id="tab-duel" type="button" onclick="switchMode('duel')" class="nav-tab nav-duel"><span class="ni" aria-hidden="true">⚔️</span><span>Duel</span><span class="nav-live" aria-hidden="true">live</span></button>
+            </nav>
         </div>
     </header>
 
     <!-- Main Container -->
     <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+        <!-- ============ BERANDA (Home) ============ -->
+        <section id="mode-home" aria-label="Beranda">
         <!-- Usagi-chan motion graphic video (synced to assets/voiceover.mp3) -->
         <section class="vs-wrap" id="usagi-show" aria-label="Video pesan dari Usagi-chan">
             <div class="vs-head">
@@ -354,7 +350,7 @@
                         <span class="pt">Daisuki dayo~ 💗</span>
                         <div class="row">
                             <button type="button" id="vs-replay">🔁 Tonton lagi</button>
-                            <a href="#mode-flashcard" id="vs-go">📚 Mulai belajar</a>
+                            <a href="#" id="vs-go" onclick="event.preventDefault();switchMode('flashcard')">📚 Mulai belajar</a>
                         </div>
                     </div>
                 </div>
@@ -382,8 +378,40 @@
             <div class="hero-art" aria-hidden="true">🐰</div>
         </section>
 
+        <section class="home-menu" aria-label="Pilih menu belajar">
+            <div class="home-menu-head">
+                <span class="lux-kicker">✦ Pilih petualanganmu ✦</span>
+                <h3>Mau belajar apa hari ini?</h3>
+            </div>
+            <div class="home-grid">
+                <button type="button" class="home-card" onclick="switchMode('flashcard')" style="--c1:#ffd6e7;--c2:#ffeef5;--ink:#a33d6e">
+                    <span class="hc-ico"><i class="fa-solid fa-clone"></i></span>
+                    <b>Flashcards</b><small>88 hyougen JFT A2 &amp; N4 — balik kartu, dengar pengucapan.</small>
+                    <span class="hc-go">Mulai →</span>
+                </button>
+                <button type="button" class="home-card" onclick="switchMode('memory')" style="--c1:#e8e0ff;--c2:#f5f1ff;--ink:#5b45a8">
+                    <span class="hc-ico"><i class="fa-solid fa-puzzle-piece"></i></span>
+                    <b>Memory Match</b><small>Cocokkan kata Jepang dengan artinya secepat mungkin.</small>
+                    <span class="hc-go">Main →</span>
+                </button>
+                <button type="button" class="home-card" onclick="switchMode('kanji')" style="--c1:#ffe7cc;--c2:#fff5ea;--ink:#a2561b">
+                    <span class="hc-ico font-jp">漢</span>
+                    <b>Kanji Deck</b><small>610 kanji JFT per paket — tandai yang sudah hafal.</small>
+                    <span class="hc-go">Hafalan →</span>
+                </button>
+                <button type="button" class="home-card hc-duel" onclick="switchMode('duel')">
+                    <span class="hc-live"><i></i> LIVE</span>
+                    <span class="hc-ico">⚔️</span>
+                    <b>Duel Kanji</b><small>Multiplayer realtime! Buat room, bagikan kode, adu cepat jawab.</small>
+                    <span class="hc-go">Tantang teman →</span>
+                </button>
+            </div>
+        </section>
+        </section>
+        <!-- ============ /BERANDA ============ -->
+
         <!-- Controls & Filter Bar -->
-        <div id="hyougen-controls" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div id="hyougen-controls" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-wrap items-center justify-between gap-4">
             <!-- Category Selector -->
             <div class="flex items-center space-x-2 w-full md:w-auto">
                 <label for="category-select" class="text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap">Kategori:</label>
@@ -414,7 +442,7 @@
         </div>
 
         <!-- MODE 1: FLASHCARD STUDY MODE -->
-        <section id="mode-flashcard" class="space-y-6">
+        <section id="mode-flashcard" class="hidden space-y-6">
             <div class="section-heading"><h3>Daily little lessons 🌷</h3><p>Satu kartu, satu langkah lebih dekat ke impianmu.</p>
             <div class="progress-track"><div id="study-progress"></div></div><div id="progress-label" class="progress-label">Ayo mulai belajar ♡</div></div>
             <div class="flex flex-col items-center">
@@ -612,6 +640,11 @@
             </div>
         </section>
 
+        <!-- MODE 4: DUEL KANJI (realtime multiplayer) -->
+        <section id="mode-duel" class="hidden" aria-label="Duel Kanji multiplayer">
+            <div id="duel-root" class="duel-root"></div>
+        </section>
+
     </main>
 
     <!-- Victory Modal for Memory Game -->
@@ -752,7 +785,7 @@
         ];
 
         // State variables
-        let currentMode = 'flashcard'; // 'flashcard' or 'memory'
+        let currentMode = ''; // home | flashcard | memory | kanji | duel
         let selectedCategory = 'all';
         let filteredData = [...hyougenData];
         let currentCardIndex = 0;
@@ -780,25 +813,38 @@
                 const count = hyougenData.filter(item => item.cat === opt.value).length;
                 opt.textContent = opt.textContent.replace(/\(\d+\)$/, `(${count})`);
             });
+            const wanted = new URLSearchParams(location.search).get('room') ? 'duel' : location.hash.slice(1);
+            switchMode(wanted || 'home');
         };
+        window.addEventListener('hashchange', () => { const m = location.hash.slice(1) || 'home'; if (m !== currentMode) switchMode(m); });
 
         // Switch between Flashcard and Memory modes
         function switchMode(mode) {
+            const MODES = ['home', 'flashcard', 'memory', 'kanji', 'duel'];
+            if (!MODES.includes(mode)) mode = 'home';
+            const prev = currentMode;
             currentMode = mode;
-            const ON = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 bg-sakura-500 text-white shadow-sm";
-            const OFF = "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:text-sakura-600";
-            ['flashcard', 'memory', 'kanji'].forEach(m => {
-                document.getElementById('tab-' + m).className = m === mode ? ON : OFF;
+            MODES.forEach(m => {
+                const tab = document.getElementById('tab-' + m);
+                tab.classList.toggle('is-active', m === mode);
+                tab.setAttribute('aria-current', m === mode ? 'page' : 'false');
                 document.getElementById('mode-' + m).classList.toggle('hidden', m !== mode);
             });
-            document.getElementById('hyougen-controls').classList.toggle('hidden', mode === 'kanji');
+            document.body.dataset.mode = mode;
+            document.getElementById('hyougen-controls').classList.toggle('hidden', mode !== 'flashcard' && mode !== 'memory');
+            if (mode !== 'home') { const a = document.getElementById('vs-audio'); if (a && !a.paused) a.pause(); }
             if (mode !== 'memory') {
                 clearInterval(memoryTimer);
                 isTimerRunning = false;
-            } else {
+            } else if (prev !== 'memory') {
                 initMemoryGame();
             }
+            if (mode === 'flashcard') updateFlashcardDisplay();
             if (mode === 'kanji' && window.KanjiDeck) window.KanjiDeck.show();
+            if (window.Duel) window.Duel[mode === 'duel' ? 'show' : 'hide']();
+            const hash = mode === 'home' ? '' : '#' + mode;
+            if (location.hash !== hash) history.replaceState(null, '', location.pathname + location.search + hash);
+            if (prev && prev !== mode) window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Handle Category Filtering
@@ -1399,5 +1445,6 @@
     <script src="assets/usagi-show.js" defer></script>
     <script src="assets/kanji-data.js" defer></script>
     <script src="assets/kanji-flash.js" defer></script>
+    <script src="assets/duel.js" defer></script>
 </body>
 </html>
