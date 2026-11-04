@@ -56,3 +56,19 @@ html.lite .du-panel.du-codecard {
   background: linear-gradient(150deg, #5a1f45, #8e2c62 60%, #b13c74);
   color: #fff;
 }
+
+/* ---------- Device code / progress backup (footer) ---------- */
+.ds-box { margin: 10px auto 0; max-width: 420px; padding: 10px 12px; border: 1px dashed #f3c2d4; border-radius: 14px; background: #fff7fa; color: #8a6170; font-size: 12px; line-height: 1.5; }
+.ds-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.ds-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; color: #c2416f; font-size: 13px; }
+.ds-btn { border: 1px solid #f3c2d4; background: #fff; color: #c2416f; border-radius: 999px; padding: 2px 10px; font-weight: 700; font-size: 11px; cursor: pointer; }
+.ds-btn:hover { background: #ffe4ee; }
+.ds-primary { background: #ec6a98; color: #fff; border-color: #ec6a98; }
+.ds-primary:hover { background: #d9527f; }
+.ds-state { margin-top: 2px; color: #a08592; }
+.ds-form { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.ds-form[hidden] { display: none; }
+.ds-input { border: 1px solid #f3c2d4; border-radius: 10px; padding: 4px 8px; font-family: ui-monospace, monospace; text-transform: uppercase; width: 160px; text-align: center; color: #6b4a57; }
+.ds-msg { width: 100%; color: #c2416f; font-weight: 700; }
+.ds-msg:empty { display: none; }
+.ds-hint { width: 100%; font-size: 11px; color: #b39aa6; }
