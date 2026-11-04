@@ -128,6 +128,7 @@
     <link rel="stylesheet" href="assets/memory.css">
     <link rel="stylesheet" href="assets/vault.css">
     <link rel="stylesheet" href="assets/love.css">
+    <link rel="stylesheet" href="assets/pet.css">
 </head>
 <body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -149,6 +150,8 @@
                 <button id="tab-memory" type="button" onclick="switchMode('memory')" class="nav-tab"><span class="ni" aria-hidden="true"><i class="fa-solid fa-puzzle-piece"></i></span><span>Memory</span></button>
                 <button id="tab-kanji" type="button" onclick="switchMode('kanji')" class="nav-tab"><span class="ni font-jp" aria-hidden="true">漢</span><span>Kanji</span></button>
                 <button id="tab-duel" type="button" onclick="switchMode('duel')" class="nav-tab nav-duel"><span class="ni" aria-hidden="true">⚔️</span><span>Duel</span><span class="nav-live" aria-hidden="true">live</span></button>
+                <button id="tab-pet" type="button" onclick="switchMode('pet')" class="nav-tab"><span class="ni" aria-hidden="true">🐰</span><span>Usagi</span><span class="nav-badge" id="pet-badge" hidden></span></button>
+                <button id="tab-mochi" type="button" onclick="switchMode('mochi')" class="nav-tab"><span class="ni" aria-hidden="true">🍡</span><span>Mochi</span></button>
             </nav>
             <button type="button" id="menu-btn" class="menu-btn" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><span></span><span></span><span></span></button>
         </div>
@@ -372,6 +375,17 @@
                     <span class="hc-ico">⚔️</span>
                     <b>Duel Kanji</b><small>Multiplayer realtime! Buat room, bagikan kode, adu cepat jawab.</small>
                     <span class="hc-go">Tantang teman →</span>
+                </button>
+                <button type="button" class="home-card" onclick="switchMode('pet')" style="--c1:#ffe2cf;--c2:#fff4ec;--ink:#b4541b">
+                    <span class="hc-ico">🐰</span>
+                    <b>Usagi Peliharaan</b><small>Belajar dapat wortel 🥕, suapin Usagi, naik level &amp; buka baju baru.</small>
+                    <span class="hc-pet-status" id="hc-pet-status"></span>
+                    <span class="hc-go">Main sama Usagi →</span>
+                </button>
+                <button type="button" class="home-card" onclick="switchMode('mochi')" style="--c1:#e3f7df;--c2:#f3fcf1;--ink:#2d7d4c">
+                    <span class="hc-ico">🍡</span>
+                    <b>Tangkap Mochi</b><small>Mochi berhuruf kana berjatuhan — pilih romaji yang benar sebelum jatuh!</small>
+                    <span class="hc-go">Tangkap →</span>
                 </button>
             </div>
         </section>
@@ -620,6 +634,14 @@
         </section>
 
         <!-- MODE 4: DUEL KANJI (realtime multiplayer) -->
+        <section id="mode-pet" class="hidden pt" aria-label="Usagi Peliharaan">
+            <div class="section-heading"><h3>Usagi Peliharaan 🐰</h3><p>Rajin belajar = Usagi kenyang &amp; bahagia ♡</p></div>
+            <div id="pet-root"></div>
+        </section>
+        <section id="mode-mochi" class="hidden mo" aria-label="Tangkap Mochi">
+            <div class="section-heading"><h3>Tangkap Mochi 🍡</h3><p>Latihan baca hiragana &amp; katakana sambil main.</p></div>
+            <div id="mochi-root"></div>
+        </section>
         <section id="mode-duel" class="hidden" aria-label="Duel Kanji multiplayer">
             <div id="duel-root" class="duel-root"></div>
         </section>
@@ -805,7 +827,7 @@
 
         // Switch between Flashcard and Memory modes
         function switchMode(mode) {
-            const MODES = ['home', 'flashcard', 'memory', 'kanji', 'duel'];
+            const MODES = ['home', 'flashcard', 'memory', 'kanji', 'duel', 'pet', 'mochi'];
             if (!MODES.includes(mode)) mode = 'home';
             const prev = currentMode;
             currentMode = mode;
@@ -827,6 +849,8 @@
             if (mode === 'flashcard') updateFlashcardDisplay();
             if (mode === 'kanji' && window.KanjiDeck) window.KanjiDeck.show();
             if (window.Duel) window.Duel[mode === 'duel' ? 'show' : 'hide']();
+            if (window.UsagiPet) window.UsagiPet[mode === 'pet' ? 'show' : 'hide']();
+            if (window.Mochi) window.Mochi[mode === 'mochi' ? 'show' : 'hide']();
             const hash = mode === 'home' ? '' : '#' + mode;
             if (location.hash !== hash) history.replaceState(null, '', location.pathname + location.search + hash);
             if (prev && prev !== mode) window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -877,6 +901,7 @@
         function flipMainCard() {
             const inner = document.getElementById('main-card-inner');
             isCardFlipped = !isCardFlipped;
+            if (isCardFlipped && window.UsagiPet && filteredData[currentCardIndex]) window.UsagiPet.study('flash', filteredData[currentCardIndex].jp);
             if (isCardFlipped) {
                 inner.classList.add('rotate-y-180');
             } else {
@@ -1193,6 +1218,7 @@
         }
 
         function showVictoryModal() {
+            if (window.UsagiPet) window.UsagiPet.study('memory');
             const pairs = memoryCards.length / 2;
             const stars = memoryMoves <= Math.ceil(pairs * 1.5) ? 3 : memoryMoves <= pairs * 2 + 2 ? 2 : 1;
             const best = memGetBest(pairs);
@@ -1508,5 +1534,7 @@
     <script src="assets/kanji-flash.js" defer></script>
     <script src="assets/duel.js" defer></script>
     <script src="assets/vault.js" defer></script>
+    <script src="assets/pet.js" defer></script>
+    <script src="assets/mochi.js" defer></script>
 </body>
 </html>
