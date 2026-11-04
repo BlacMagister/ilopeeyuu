@@ -205,6 +205,7 @@
         const i = order[pos];
         const wasKnown = known.has(keyOf(i));
         known.add(keyOf(i)); saveKnown();
+        if (!wasKnown && window.UsagiPet) window.UsagiPet.study('kanji', keyOf(i));
         combo++; showCombo();
         els.knownTag.classList.add('on');
         els.stamp.classList.remove('show'); void els.stamp.offsetWidth; els.stamp.classList.add('show');
