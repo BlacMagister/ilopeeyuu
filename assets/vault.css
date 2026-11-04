@@ -279,3 +279,24 @@ body.vt-open{overflow:hidden}
  .rr-brand,.rr-side-foot{display:none}.rr-tabs{grid-template-columns:repeat(6,1fr)}.rr-tabs button{flex-direction:column;gap:2px;padding:7px 2px;font-size:10px;text-align:center}.rr-tabs .ic{font-size:19px}
  .rr-grid2{grid-template-columns:1fr}.rr-hero .art{display:none}.omi-lucky{grid-template-columns:1fr}.lg-say{left:auto;right:100%;border-radius:14px 14px 4px 14px}}
 @media(prefers-reduced-motion:reduce){.lg-floaty,.rr-sky{display:none}.bn-ear,.rr-hero .art{animation:none}}
+/* ---- tidy-up: login card + bunny bubble stay inside the screen, nothing cropped ---- */
+.lg-back{align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lg-card{margin:auto}
+.lg-bun svg{overflow:visible}
+.bn-paw.l{transform:translate(52px,139px)}.bn-paw.r{transform:translate(108px,139px)}
+.lg-say,.lg-say[class]{left:auto;right:calc(100% - 26px);top:2px;width:max-content;max-width:118px;white-space:normal;text-align:center;line-height:1.3;border-radius:14px 14px 4px 14px}
+.lg-chip{margin-top:12px}
+@media(max-width:480px){
+ .lg-back{padding:14px}
+ .lg-card{padding:16px 20px 18px;border-radius:28px}
+ .lg-bun,.lg-bun svg{width:112px}
+ .lg-say,.lg-say[class]{max-width:104px;font-size:11px;padding:5px 8px}
+ .lg-card h2{font-size:23px}
+}
+/* mobile bottom bar: equal-width tabs that snap cleanly instead of being cut in half */
+@media(max-width:820px){
+ .rr-tabs{grid-auto-columns:64px!important;scroll-snap-type:x mandatory;scroll-padding:0 6px;justify-content:start}
+ .rr-tabs button{scroll-snap-align:start;min-width:0}
+ .rr-tabs .nm{display:block;line-height:1.15;white-space:normal;word-break:normal}
+}
+@media(min-width:560px) and (max-width:820px){.rr-tabs{justify-content:center}}
