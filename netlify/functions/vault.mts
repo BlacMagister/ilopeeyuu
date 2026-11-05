@@ -1,4 +1,4 @@
-import type { Config } from "@netlify/functions";
+import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { existsSync, readFileSync, statSync, openSync, readSync, closeSync } from "node:fs";
 import { join } from "node:path";
@@ -31,6 +31,21 @@ const store = () => getStore({ name: "vault", consistency: "strong" });
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { "cache-control": "no-store" } });
 const fail = (error: string, status = 400) => json({ error }, status);
+/** Parse a JSON body; anything that isn't a plain object (null, arrays, bad JSON) becomes {}. */
+const readBody = async (req: Request): Promise<Record<string, any>> => {
+  const b = await req.json().catch(() => null);
+  return b && typeof b === "object" && !Array.isArray(b) ? b : {};
+};
+
+/* Login brute-force guard: after too many wrong passwords from one IP, wait a while. */
+const MAX_FAILS = 8;
+const FAIL_WINDOW_MS = 15 * 60 * 1000;
+type Fails = { n: number; first: number };
+const failKey = (ip: string) => "_fails/" + (ip || "unknown").replace(/[^a-zA-Z0-9.:_-]/g, "").slice(0, 64);
+async function readFails(ip: string): Promise<Fails> {
+  const f = (await store().get(failKey(ip), { type: "json" }).catch(() => null)) as Fails | null;
+  return f && Date.now() - f.first < FAIL_WINDOW_MS ? f : { n: 0, first: Date.now() };
+}
 
 const enc = new TextEncoder();
 const hex = (buf: ArrayBuffer) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -103,19 +118,36 @@ const validId = (id: string | null): id is string => !!id && /^[a-f0-9]{24}$/.te
 const cleanName = (n: unknown) =>
   String(n || "video").replace(/[\\/:*?"<>|\u0000-\u001f]/g, "").trim().slice(0, 120) || "video";
 
-export default async (req: Request) => {
+export default async (req: Request, context: Context) => {
+  try {
+    return await handle(req, context);
+  } catch (err) {
+    console.error("vault error", err);
+    return fail("Server sedang sibuk, coba lagi ya 🙏", 500);
+  }
+};
+
+async function handle(req: Request, context: Context): Promise<Response> {
   const url = new URL(req.url);
   const action = url.pathname.replace(/^\/api\/vault\/?/, "");
   const s = store();
 
   if (action === "login" && req.method === "POST") {
-    const body = await req.json().catch(() => ({}));
-    const u = String(body.u || "").trim().toLowerCase();
-    const p = String(body.p || "");
+    const ip = context.ip || req.headers.get("x-nf-client-connection-ip") || "";
+    const fails = await readFails(ip);
+    if (fails.n >= MAX_FAILS) {
+      const mins = Math.max(1, Math.ceil((fails.first + FAIL_WINDOW_MS - Date.now()) / 60000));
+      return fail(`Terlalu banyak percobaan. Coba lagi ${mins} menit lagi ya`, 429);
+    }
+    const body = await readBody(req);
+    const u = String(body.u || "").trim().toLowerCase().slice(0, 200);
+    const p = String(body.p || "").slice(0, 200);
     if (!safeEq(await sha256(`${u}:${p}`), CRED_HASH)) {
+      await store().setJSON(failKey(ip), { n: fails.n + 1, first: fails.first }).catch(() => {});
       await new Promise((r) => setTimeout(r, 700));
       return fail("Username atau password salah", 401);
     }
+    if (fails.n) await store().delete(failKey(ip)).catch(() => {});
     const key = (await secret(true))!;
     const exp = String(Date.now() + TOKEN_DAYS * 864e5);
     return json({ token: `${exp}.${await sign(exp, key)}` });
@@ -127,8 +159,17 @@ export default async (req: Request) => {
 
   if (action === "list" && req.method === "GET") {
     const { blobs } = await s.list({ prefix: "meta/" });
-    const saved = (await Promise.all(blobs.map((b) => s.get(b.key, { type: "json" }) as Promise<Meta | null>)))
-      .filter((m): m is Meta => !!m && m.done);
+    const metas = await Promise.all(blobs.map((b) => s.get(b.key, { type: "json" }) as Promise<Meta | null>));
+    const saved = metas.filter((m): m is Meta => !!m && m.done);
+    // Housekeeping: uploads that were abandoned more than a day ago only waste storage.
+    const stale = metas.filter((m): m is Meta => !!m && !m.done && Date.now() - m.created > 864e5);
+    if (stale.length) {
+      await Promise.all(stale.map(async (m) => {
+        const { blobs: parts } = await s.list({ prefix: `chunk/${m.id}/` });
+        await Promise.all(parts.map((b) => s.delete(b.key)));
+        await s.delete(`meta/${m.id}`);
+      })).catch((err) => console.error("vault cleanup", err));
+    }
     const items = [...motions().map(({ file, thumb, ...m }) => ({ ...m, hasThumb: !!thumb })), ...saved].sort((a, b) => b.created - a.created);
     return json({ items, chunk: CHUNK });
   }
@@ -138,7 +179,7 @@ export default async (req: Request) => {
   if (room) return room;
 
   if (action === "init" && req.method === "POST") {
-    const body = await req.json().catch(() => ({}));
+    const body = await readBody(req);
     const size = Number(body.size);
     if (!(size > 0)) return fail("File kosong");
     const chunks = Math.ceil(size / CHUNK);
@@ -176,6 +217,7 @@ export default async (req: Request) => {
   const validN = Number.isInteger(n) && n >= 0 && n < meta.chunks;
 
   if (action === "chunk" && req.method === "PUT") {
+    if (meta.done) return fail("Video ini sudah selesai diupload", 409);
     if (!validN) return fail("Bagian tidak valid");
     const data = await req.arrayBuffer();
     if (!data.byteLength || data.byteLength > CHUNK) return fail("Ukuran bagian tidak valid");
@@ -201,7 +243,7 @@ export default async (req: Request) => {
   }
 
   if (action === "rename" && req.method === "POST") {
-    const body = await req.json().catch(() => ({}));
+    const body = await readBody(req);
     meta.name = cleanName(body.name);
     await s.setJSON(`meta/${id}`, meta);
     return json({ item: meta });
@@ -215,7 +257,7 @@ export default async (req: Request) => {
   }
 
   return fail("Tidak ditemukan", 404);
-};
+}
 
 const clip = (v: unknown, n: number) => String(v ?? "").replace(/[\u0000-\u0008\u000b-\u001f]/g, "").trim().slice(0, n);
 const pick = <T extends string>(v: unknown, list: readonly T[], d: T): T => (list.includes(v as T) ? (v as T) : d);
@@ -232,7 +274,7 @@ const sticker = (v: unknown, d: string) => clip(v, 8) || d;
 async function roomRoutes(action: string, req: Request, url: URL): Promise<Response | null> {
   if (!ROOM_ACTIONS.has(action)) return null;
   const m = req.method;
-  const body = m === "POST" || m === "PUT" ? await req.json().catch(() => ({})) : {};
+  const body = m === "POST" || m === "PUT" ? await readBody(req) : {};
 
   if (action === "room" && m === "GET") {
     const since = new Date(Date.now() - 62 * 864e5).toISOString().slice(0, 10);

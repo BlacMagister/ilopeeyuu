@@ -257,8 +257,11 @@
 
   function pause(on) {
     if (!G || !G.running) return;
+    if (G.paused === on) return;
     G.paused = on; el('pause').hidden = !on;
-    if (!on) lastT = performance.now();
+    // While paused (tab hidden, menu changed) the frame loop is stopped so it doesn't drain the battery.
+    cancelAnimationFrame(raf);
+    if (!on) { lastT = performance.now(); raf = requestAnimationFrame(loop); }
   }
 
   /* ---------- wiring ---------- */

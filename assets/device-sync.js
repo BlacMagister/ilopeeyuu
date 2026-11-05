@@ -74,8 +74,12 @@
     var body = JSON.stringify({ id: id, data: snapshot() });
     if (body === lastSent || (pushing && !beacon)) return;
     if (beacon) {
-      lastSent = body;
-      try { fetch(API, { method: 'PUT', body: body, keepalive: body.length < 60000, headers: { 'content-type': 'application/json' }, credentials: 'same-origin' }); } catch (_) {}
+      // Only remember it as sent once the server confirms, so a failed page-hide save is retried later.
+      try {
+        fetch(API, { method: 'PUT', body: body, keepalive: body.length < 60000, headers: { 'content-type': 'application/json' }, credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (res) { if (res) { lastSent = body; ls.setItem(AT_KEY, String(res.updatedAt)); } }, function () {});
+      } catch (_) {}
       return;
     }
     pushing = true;
@@ -161,7 +165,16 @@
     box.querySelector('[data-ds-copy]').addEventListener('click', function (e) {
       var code = ls.getItem(ID_KEY) || '', btn = e.currentTarget;
       var done = function () { btn.textContent = 'Tersalin ✓'; setTimeout(function () { btn.textContent = 'Salin'; }, 1500); };
-      if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, function () {}); else done();
+      var fallback = function () {
+        // Older browsers / non-secure contexts: copy through a temporary text field.
+        var t = document.createElement('textarea');
+        t.value = code; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+        document.body.appendChild(t); t.select();
+        var ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
+        t.remove();
+        if (ok) done(); else btn.textContent = code;
+      };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(code).then(done, fallback); else fallback();
     });
     box.querySelector('[data-ds-open]').addEventListener('click', function () { form.hidden = !form.hidden; if (!form.hidden) form.querySelector('input').focus(); });
     form.addEventListener('submit', function (e) {
