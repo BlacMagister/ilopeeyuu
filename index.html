@@ -7,7 +7,7 @@
     <!-- Fonts (non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,800&family=Noto+Serif+JP:wght@700;900&family=Noto+Sans+JP:wght@700&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,800&family=Noto+Serif+JP:wght@700;900&family=Noto+Sans+JP:wght@700&family=Zen+Maru+Gothic:wght@500;700&display=swap" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="assets/icons.css">
     <script src="assets/device-sync.js"></script>
     <script>
@@ -101,7 +101,10 @@
         #main-card-inner>div {border-radius:32px!important;}
         #main-card-inner>div:first-child {background:radial-gradient(circle at 85% 15%,#ffe6f2,transparent 47%),linear-gradient(155deg,#fff,#fff7fb)!important;}
         #main-card-inner>div:nth-child(2) {background:radial-gradient(circle at 82% 12%,#fff0f6,transparent 45%),linear-gradient(155deg,#fff,#fff5f9)!important;border-color:#f8c8df!important;}
-        #fc-kanji {color:#693553!important;line-height:1.4;overflow-wrap:anywhere;font-size:clamp(1.7rem,5.5vw,3rem)!important;}
+        #fc-kanji,#fc-furigana {font-family:"Zen Maru Gothic","Noto Sans JP","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif!important;font-synthesis:none;-webkit-font-smoothing:antialiased;}
+        #fc-kanji {color:#5a2a46!important;font-weight:700!important;letter-spacing:.02em!important;line-height:1.35;overflow-wrap:anywhere;font-size:clamp(1.6rem,6vw,2.5rem)!important;}
+        #fc-furigana {font-weight:500;font-size:.95rem!important;}
+        .fc-wrap {max-width:22rem!important;height:16.5rem!important;}
         #fc-meaning {color:#733f5b!important;}
         #fc-furigana {color:#c45a8a!important;}
         #card-counter {min-width:98px;text-align:center;}
@@ -430,7 +433,7 @@
             <div class="progress-track"><div id="study-progress"></div></div><div id="progress-label" class="progress-label">Ayo mulai belajar ♡</div></div>
             <div class="flex flex-col items-center">
                 <!-- Single Big Flip Card -->
-                <div class="w-full max-w-md h-80 perspective-1000 cursor-pointer" onclick="flipMainCard()">
+                <div class="fc-wrap w-full max-w-md h-80 perspective-1000 cursor-pointer" onclick="flipMainCard()">
                     <div id="main-card-inner" class="relative w-full h-full transform-style-3d shadow-xl rounded-3xl bg-white border border-sakura-100">
                         
                         <!-- Front side (Japanese) -->
