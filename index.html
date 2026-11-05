@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,800&family=Noto+Serif+JP:wght@700;900&family=Noto+Sans+JP:wght@700&family=Zen+Maru+Gothic:wght@500;700&display=swap" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="assets/icons.css">
     <script src="assets/device-sync.js"></script>
+    <script src="assets/jp-font.js"></script>
     <script>
         // Lite mode for phones / low-end devices: fewer effects, no costly blur
         (function () {
@@ -104,6 +105,8 @@
         #fc-kanji,#fc-furigana {font-family:"Zen Maru Gothic","Noto Sans JP","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif!important;font-synthesis:none;-webkit-font-smoothing:antialiased;}
         #fc-kanji {color:#5a2a46!important;font-weight:700!important;letter-spacing:.02em!important;line-height:1.35;overflow-wrap:anywhere;font-size:clamp(1.6rem,6vw,2.5rem)!important;}
         #fc-furigana {font-weight:500;font-size:.95rem!important;}
+        .jp-wait {opacity:0!important;}
+        #fc-kanji,#fc-furigana,.kj-kanji,.kj-reading,.kj-mini-kanji {transition:opacity .12s ease;}
         .fc-wrap {max-width:22rem!important;height:16.5rem!important;}
         #fc-meaning {color:#733f5b!important;}
         #fc-furigana {color:#c45a8a!important;}
@@ -927,6 +930,12 @@
             document.getElementById('fc-furigana').innerText = current.furigana;
             document.getElementById('fc-romaji').innerText = current.romaji;
             document.getElementById('fc-meaning').innerText = current.idn;
+            if (window.jpFont) {
+                window.jpFont.wait([document.getElementById('fc-kanji'), document.getElementById('fc-furigana')], current.jp + current.furigana);
+                const n = filteredData.length, ahead = [];
+                [1, 2, 3, -1].forEach(d => { const c = filteredData[(currentCardIndex + d + n) % n]; if (c) ahead.push(c.jp + c.furigana); });
+                window.jpFont.prefetch(ahead);
+            }
 
             document.getElementById('card-counter').innerText = `${currentCardIndex + 1} / ${filteredData.length}`;
 
@@ -947,20 +956,29 @@
             document.getElementById('fc-romaji').style.display = showRomaji ? 'block' : 'none';
         }
 
-        function nextCard() {
+        // Turn the card back to the front instantly (no 0.6s spin), so the
+        // next card's answer never flashes on the back while it rotates.
+        function unflipMainCardInstant() {
+            if (!isCardFlipped) return;
+            const inner = document.getElementById('main-card-inner');
+            inner.style.transition = 'none';
             resetMainCardFlip();
-            setTimeout(() => {
-                currentCardIndex = (currentCardIndex + 1) % filteredData.length;
-                updateFlashcard();
-            }, 150);
+            void inner.offsetWidth;
+            inner.style.transition = '';
+        }
+
+        function nextCard() {
+            if (!filteredData.length) return;
+            unflipMainCardInstant();
+            currentCardIndex = (currentCardIndex + 1) % filteredData.length;
+            updateFlashcard();
         }
 
         function prevCard() {
-            resetMainCardFlip();
-            setTimeout(() => {
-                currentCardIndex = (currentCardIndex - 1 + filteredData.length) % filteredData.length;
-                updateFlashcard();
-            }, 150);
+            if (!filteredData.length) return;
+            unflipMainCardInstant();
+            currentCardIndex = (currentCardIndex - 1 + filteredData.length) % filteredData.length;
+            updateFlashcard();
         }
 
         function shuffleFlashcards() {
@@ -980,7 +998,9 @@
         function speakJapanese(e) {
             e.stopPropagation(); // prevent flipping card when clicking speaker icon
             const current = filteredData[currentCardIndex];
+            if (!current) return;
             if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(current.jp);
                 utterance.lang = 'ja-JP';
                 utterance.rate = 0.85; // Slightly slower for clear learning
@@ -993,9 +1013,10 @@
         function setupKeyboardNav() {
             document.addEventListener('keydown', (e) => {
                 if (currentMode !== 'flashcard') return;
+                if (e.target.closest && e.target.closest('input, select, textarea')) return;
                 if (e.key === 'ArrowRight') nextCard();
                 if (e.key === 'ArrowLeft') prevCard();
-                if (e.key === ' ' || e.key === 'Spacebar') {
+                if ((e.key === ' ' || e.key === 'Spacebar') && !(e.target.closest && e.target.closest('button, a'))) {
                     e.preventDefault();
                     flipMainCard();
                 }

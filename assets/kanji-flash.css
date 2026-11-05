@@ -89,10 +89,10 @@ body.kj-seen .kj-new-badge{display:none}
 .kj-speak:active{transform:scale(.9)}
 
 /* card change animations — transform/opacity only (ringan) */
-.kj-card.out-l{animation:kjOutL .2s ease-in forwards}
-.kj-card.out-r{animation:kjOutR .2s ease-in forwards}
-.kj-card.in-l{animation:kjInL .32s cubic-bezier(.25,1.4,.5,1)}
-.kj-card.in-r{animation:kjInR .32s cubic-bezier(.25,1.4,.5,1)}
+.kj-card.out-l{animation:kjOutL .13s ease-in forwards}
+.kj-card.out-r{animation:kjOutR .13s ease-in forwards}
+.kj-card.in-l{animation:kjInL .22s cubic-bezier(.2,1.25,.5,1)}
+.kj-card.in-r{animation:kjInR .22s cubic-bezier(.2,1.25,.5,1)}
 @keyframes kjOutL{to{transform:translateX(-60%) rotate(-10deg);opacity:0}}
 @keyframes kjOutR{to{transform:translateX(60%) rotate(10deg);opacity:0}}
 @keyframes kjInL{from{transform:translateX(40%) scale(.92) rotate(4deg);opacity:0}}
