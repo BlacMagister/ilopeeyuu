@@ -47,15 +47,24 @@
         try { return WEIGHTS.every(w => document.fonts.check(`${w} 32px ${FAMILY}`, String(text))); } catch (_) { return true; }
     }
 
-    let token = 0;
+    // Each element keeps its own ticket, so the regular flashcards and the
+    // kanji deck never cancel each other's "show again" step.
+    const tickets = new WeakMap();
+    let seq = 0;
     // Hide the given elements until the font for `text` is ready (max MAX_WAIT ms).
     function wait(elems, text) {
-        const my = ++token;
         const list = elems.filter(Boolean);
-        if (isReady(text)) { list.forEach(el => el.classList.remove('jp-wait')); return; }
-        list.forEach(el => el.classList.add('jp-wait'));
-        const show = () => { if (my === token) list.forEach(el => el.classList.remove('jp-wait')); };
-        Promise.race([load(text), new Promise(r => setTimeout(r, MAX_WAIT))]).then(show, show);
+        if (!list.length) return;
+        if (isReady(text)) { list.forEach(el => { tickets.delete(el); el.classList.remove('jp-wait'); }); return; }
+        const my = ++seq;
+        list.forEach(el => { tickets.set(el, my); el.classList.add('jp-wait'); });
+        let shown = false;
+        const show = () => {
+            if (shown) return; shown = true;
+            list.forEach(el => { if (tickets.get(el) === my) { tickets.delete(el); el.classList.remove('jp-wait'); } });
+        };
+        load(text).then(show, show);
+        setTimeout(show, MAX_WAIT);
     }
 
     window.jpFont = { load, isReady, wait, prefetch: texts => texts.forEach(t => load(t)) };

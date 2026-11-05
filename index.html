@@ -956,20 +956,29 @@
             document.getElementById('fc-romaji').style.display = showRomaji ? 'block' : 'none';
         }
 
-        function nextCard() {
+        // Turn the card back to the front instantly (no 0.6s spin), so the
+        // next card's answer never flashes on the back while it rotates.
+        function unflipMainCardInstant() {
+            if (!isCardFlipped) return;
+            const inner = document.getElementById('main-card-inner');
+            inner.style.transition = 'none';
             resetMainCardFlip();
-            setTimeout(() => {
-                currentCardIndex = (currentCardIndex + 1) % filteredData.length;
-                updateFlashcard();
-            }, 150);
+            void inner.offsetWidth;
+            inner.style.transition = '';
+        }
+
+        function nextCard() {
+            if (!filteredData.length) return;
+            unflipMainCardInstant();
+            currentCardIndex = (currentCardIndex + 1) % filteredData.length;
+            updateFlashcard();
         }
 
         function prevCard() {
-            resetMainCardFlip();
-            setTimeout(() => {
-                currentCardIndex = (currentCardIndex - 1 + filteredData.length) % filteredData.length;
-                updateFlashcard();
-            }, 150);
+            if (!filteredData.length) return;
+            unflipMainCardInstant();
+            currentCardIndex = (currentCardIndex - 1 + filteredData.length) % filteredData.length;
+            updateFlashcard();
         }
 
         function shuffleFlashcards() {
@@ -989,7 +998,9 @@
         function speakJapanese(e) {
             e.stopPropagation(); // prevent flipping card when clicking speaker icon
             const current = filteredData[currentCardIndex];
+            if (!current) return;
             if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(current.jp);
                 utterance.lang = 'ja-JP';
                 utterance.rate = 0.85; // Slightly slower for clear learning
@@ -1002,9 +1013,10 @@
         function setupKeyboardNav() {
             document.addEventListener('keydown', (e) => {
                 if (currentMode !== 'flashcard') return;
+                if (e.target.closest && e.target.closest('input, select, textarea')) return;
                 if (e.key === 'ArrowRight') nextCard();
                 if (e.key === 'ArrowLeft') prevCard();
-                if (e.key === ' ' || e.key === 'Spacebar') {
+                if ((e.key === ' ' || e.key === 'Spacebar') && !(e.target.closest && e.target.closest('button, a'))) {
                     e.preventDefault();
                     flipMainCard();
                 }

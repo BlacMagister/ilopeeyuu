@@ -57,6 +57,7 @@
     if (!(packIdx >= -2 && packIdx < packs.length)) packIdx = 0;
     let onlyUnknown = false;
     let order = [], pos = 0, flipped = false, busy = false, combo = 0;
+    let queued = false; // an answer button already scheduled the next card
 
     function packRange() {
         if (packIdx === -1) return [0, N];
@@ -168,7 +169,7 @@
 
     // Light swap: slide out → swap content (instantly unflipped) → slide in
     function go(dir) {
-        if (busy || order.length === 0) return;
+        if (busy || queued || order.length === 0) return;
         if (order.length === 1 && dir !== 0) { wiggle(); return; }
         busy = true;
         const outCls = dir >= 0 ? 'out-l' : 'out-r', inCls = dir >= 0 ? 'in-l' : 'in-r';
@@ -201,7 +202,7 @@
     }
 
     function flip() {
-        if (busy || order.length === 0) return;
+        if (busy || queued || order.length === 0) return;
         setFlip(!flipped);
         if (flipped) popAt(els.card, 6, ['✨', '💫', '🌸', '⭐']);
     }
@@ -216,7 +217,9 @@
     }
 
     function markYes() {
-        if (busy || order.length === 0) return;
+        if (busy || queued || order.length === 0) return;
+        queued = true;
+        const deck = order; // if the pack/shuffle changes meanwhile, don't advance
         const i = order[pos];
         const wasKnown = known.has(keyOf(i));
         known.add(keyOf(i)); saveKnown();
@@ -239,6 +242,8 @@
         }
 
         setTimeout(() => {
+            queued = false;
+            if (order !== deck) return;
             if (onlyUnknown) {
                 // remove from queue, show the next one in its place
                 busy = true;
@@ -264,7 +269,9 @@
     }
 
     function markNope() {
-        if (busy || order.length === 0) return;
+        if (busy || queued || order.length === 0) return;
+        queued = true;
+        const deck = order; // if the pack/shuffle changes meanwhile, don't advance
         const i = order[pos];
         if (known.delete(keyOf(i))) saveKnown();
         combo = 0; showCombo();
@@ -272,7 +279,7 @@
         updateStats();
         wiggle();
         if (Math.random() < .4) say(pick(OOPS), 1800);
-        setTimeout(() => go(1), reduce ? 100 : 300);
+        setTimeout(() => { queued = false; if (order === deck) go(1); }, reduce ? 100 : 300);
     }
 
     function speak(e) {
