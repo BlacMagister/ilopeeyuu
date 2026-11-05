@@ -1,6 +1,7 @@
 /* Header ☰ menu → cute login → "Ruang Rahasia" (private space, /api/vault).
    Inside: home dashboard, motion-video collection, love letters, mood diary,
-   shared bucket list, daily omikuji and a "kangen" button.
+   shared bucket list, daily omikuji, a "kangen" button and the 🧸 Pojok Gemes corner
+   (claw machine, bouquet maker, magic mirror, head pats).
    Motion videos generated for this site are added to the vault automatically on the server
    (vault-motions/), so there is nothing to upload or record here — just watch and download. */
 (() => {
@@ -65,6 +66,7 @@
     { id: 'omikuji', ic: '🎋', name: 'Omikuji', sub: 'Ramalan keberuntungan harian ala kuil Jepang' },
     { id: 'play', ic: '🎮', name: 'Main Yuk', sub: 'Game-game gemes buat kita berdua' },
     { id: 'fun', ic: '🎡', name: 'Seru-seru', sub: 'Mainan kecil buat ngusir bosan & bikin senyum' },
+    { id: 'cute', ic: '🧸', name: 'Pojok Gemes', sub: 'Mesin capit boneka, buket bunga, cermin ajaib & usap-usap Usagi' },
   ];
 
   /* ---------- menu ---------- */
@@ -219,6 +221,7 @@
       <section class="rr-panel" data-panel="gift" hidden></section>
       <section class="rr-panel" data-panel="play" hidden></section>
       <section class="rr-panel" data-panel="fun" hidden></section>
+      <section class="rr-panel" data-panel="cute" hidden></section>
     </main>
     <div class="lv-pet"><div class="lv-bubble" hidden aria-live="polite"></div><button type="button" class="lv-pet-b" data-l="pet" aria-label="Usagi-chan">🐰</button></div>
   </div>`;
@@ -461,6 +464,7 @@
     if (tab === 'home') renderHome(); else if (tab === 'notes') renderBoard(); else if (tab === 'mood') renderMood();
     else if (tab === 'dream') renderDreams(); else if (tab === 'omikuji') renderOmikuji();
     else if (tab === 'gift') renderGift(); else if (tab === 'play') renderPlay(); else if (tab === 'fun') renderFun();
+    else if (tab === 'cute') renderCute();
     if (tab !== 'play' && game) endGame(true);
   }
   async function loadRoom() {
@@ -608,6 +612,7 @@
           ${latest ? `<div class="mini-note c-${esc(latest.color)}"><span class="stk">${esc(latest.sticker)}</span>${esc(latest.body)}</div>` : `<p>Belum ada surat. Jadi yang pertama nulis yuk ✍️</p>`}
           <button type="button" class="rr-btn ghost sm" data-go="notes">${latest ? 'Lihat semua →' : '✍️ Tulis surat'}</button></div>
         <div class="rr-card w-fun" data-go="fun" role="button" tabindex="0"><h3>Seru-seru 🎡</h3><div class="wf-ic" aria-hidden="true">🎡🎁🥠🫧</div><p>Roda kencan, kartu gosok, kue keberuntungan & bubble wrap nunggu kamu~</p></div>
+        ${(() => { const got = Object.keys(plushOwned()).length; return `<div class="rr-card w-cute" data-go="cute" role="button" tabindex="0"><h3>Pojok Gemes 🧸</h3><div class="wf-ic" aria-hidden="true">🕹️💐🪞🐰</div><p>${got ? `${got}/${PLUSH.length} boneka udah kamu capit. Masih ada yang nunggu dijemput~` : 'Mesin capit boneka, buket bunga & cermin ajaib nunggu kamu~'}</p></div>`; })()}
         ${items.length ? `<div class="rr-card w-video"><h3>Video spesial</h3><p>${esc(items[0].name)}</p><button type="button" class="rr-btn pri sm" data-playfirst>▶ Putar sekarang</button></div>` : ''}
       </div>`;
   }
@@ -864,7 +869,7 @@
     'Aku rela jadi flashcard, asal kamu bolak-balik tiap hari 🃏', 'Hidupku kayak memory game. Begitu ketemu kamu: MATCH! 🧩', 'Kamu tuh login-nya, aku password-nya. Gak lengkap kalau gak bareng 🔐',
   ];
   const ASK_NO = ['Nggak 🙄', 'yakin? 🥺', 'masa sih?', 'pikir lagi deh', 'ih jahat 😢', 'gak bisa dipencet wlee 😛', 'coba lagi~', 'nope 🙅', 'salah tombol!', 'hehe 🤭'];
-  const PET_LINES = ['Halo cantik! 🐰', 'Dia sayang banget sama kamu loh 🤫', 'Udah makan belum? 🍙', 'Pencet aku lagi dong~ 💗', 'Kamu wangi deh 🌸', 'Jangan lupa senyum ya 😊', 'Psst… cek tab Untukmu 💝', 'Coba tab Seru-seru deh 🎡', 'Aku disuruh jagain kamu 🛡️', 'Gemes banget sih kamu 🫠', 'Daisuki! 大好き 💕'];
+  const PET_LINES = ['Halo cantik! 🐰', 'Dia sayang banget sama kamu loh 🤫', 'Udah makan belum? 🍙', 'Pencet aku lagi dong~ 💗', 'Kamu wangi deh 🌸', 'Jangan lupa senyum ya 😊', 'Psst… cek tab Untukmu 💝', 'Coba tab Seru-seru deh 🎡', 'Main mesin capit di Pojok Gemes yuk 🧸', 'Aku mau diusap-usap… di Pojok Gemes 🥺', 'Aku disuruh jagain kamu 🛡️', 'Gemes banget sih kamu 🫠', 'Daisuki! 大好き 💕'];
 
   const getLS = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
   const setLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -1243,6 +1248,314 @@
     return true;
   }
 
+  /* ---------- 🧸 Pojok Gemes: claw machine, bouquet maker, magic mirror, head pats ---------- */
+  // [id, emoji, name, japanese word, rare?, note from me]
+  const PLUSH = [
+    ['usa', '🐰', 'Usagi-chan', 'うさぎ', 0, 'Aku dikirim buat nemenin kamu tidur. Peluk aku kalau lagi kangen dia ya 🐰💗'],
+    ['kuma', '🧸', 'Kuma-kun', 'くま', 0, 'Aku beruang paling empuk sedunia. Tugasku: jadi bantal pelukan cadangan 🧸'],
+    ['neko', '🐱', 'Neko-chan', 'ねこ', 0, 'Nyaa~ katanya kamu lebih gemes dari kucing. Aku agak tersinggung, tapi setuju 😼'],
+    ['panda', '🐼', 'Panda-san', 'パンダ', 0, 'Aku makan bambu, kamu makan yang manis-manis. Kita sama-sama lucu 🎋'],
+    ['kitsune', '🦊', 'Kitsune', 'きつね', 0, 'Aku rubah ajaib. Satu permintaanmu bakal dikabulin… sama dia, bukan aku 🦊✨'],
+    ['pen', '🐧', 'Pen-chan', 'ペンギン', 0, 'Penguin setia sama satu pasangan seumur hidup. Kayak seseorang ke kamu 🐧'],
+    ['hamu', '🐹', 'Hamu-tarō', 'ハムスター', 0, 'Pipiku penuh biji. Pipimu penuh… merah tiap digombalin 🐹'],
+    ['inu', '🐶', 'Inu-kun', 'いぬ', 0, 'Guk! Aku bakal jagain kamu, terutama dari bad mood 🐶'],
+    ['kero', '🐸', 'Kero-chan', 'かえる', 0, 'かえる juga artinya "pulang". Semoga kamu selalu pulang ke orang yang sayang kamu 🐸'],
+    ['tako', '🐙', 'Tako-chan', 'たこ', 0, 'Tanganku delapan, jadi bisa meluk kamu delapan kali sekaligus 🐙'],
+    ['hiyoko', '🐥', 'Hiyoko', 'ひよこ', 0, 'Ciap! Kecil-kecil gini aku bawa semangat buat seharian 🐥'],
+    ['dango', '🍡', 'Dango-chan', 'だんご', 0, 'Tiga bulatan: kamu, dia, dan kebahagiaan kalian berdua 🍡'],
+    ['yume', '🦄', 'Yume-chan', 'ゆめ', 1, 'Aku boneka langka! Kayak kamu: cuma ada satu di dunia 🦄🌈'],
+    ['kujira', '🐳', 'Kujira', 'くじら', 1, 'Boneka langka! Sayangnya dia ke kamu segede ikan paus 🐳💙'],
+    ['hoshi', '🌟', 'Hoshi-chan', 'ほし', 1, 'Bintang jatuh ketangkep! Dia udah bikin permohonan, dan permohonannya itu kamu 🌠'],
+  ];
+  const CLAW_COINS = 10, CLAW_SLOTS = [.24, .4, .56, .72, .88], CLAW_MIN = .07, CLAW_MAX = .93;
+  const plushOwned = () => { const o = getLS('rr_plush', {}); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; };
+  const plushBy = id => PLUSH.find(p => p[0] === id);
+  const clawDay = () => { const c = getLS('rr_claw', {}); return c && c.d === dayKey() ? { d: c.d, n: Math.max(0, +c.n || 0), miss: Math.max(0, +c.miss || 0) } : { d: dayKey(), n: 0, miss: 0 }; };
+  const pickPlush = (avoid = []) => { const pool = PLUSH.filter(p => !avoid.includes(p[0])).flatMap(p => Array(p[4] ? 1 : 5).fill(p)); return pickR(Math.random, pool); };
+  const claw = { x: .5, dir: 0, raf: 0, last: 0, busy: false, slots: [] };
+
+  const FLOWERS = [ // [emoji, japanese, reading, name, hanakotoba]
+    ['🌸', '桜', 'さくら', 'Sakura', 'kelembutan & kebaikan hati'], ['🌹', 'バラ', 'ばら', 'Mawar', 'aku cinta kamu'],
+    ['🌷', 'チューリップ', 'ちゅーりっぷ', 'Tulip', 'cinta yang tulus'], ['🌻', 'ひまわり', 'ひまわり', 'Bunga matahari', 'aku cuma lihat kamu'],
+    ['🌼', 'デイジー', 'でいじー', 'Daisy', 'hati yang setia'], ['🌺', 'ハイビスカス', 'はいびすかす', 'Kembang sepatu', 'kamu cantik banget'],
+    ['💮', '白い花', 'しろいはな', 'Bunga putih', 'perasaan yang murni'], ['🍀', 'クローバー', 'くろーばー', 'Semanggi', 'jadilah milikku'],
+    ['🌿', '葉っぱ', 'はっぱ', 'Daun', 'biar buketnya makin penuh'],
+  ];
+  const WRAPS = [['pink', '#ffc2d9', 'Pink'], ['lilac', '#d9c8ff', 'Lilac'], ['mint', '#bfeccf', 'Mint'], ['cream', '#fff0c9', 'Krem'], ['kraft', '#e0b98f', 'Kraft']];
+  const BQ_POS = [[50, 2, 0], [32, 16, -14], [68, 16, 14], [17, 36, -24], [50, 28, 0], [83, 36, 24], [33, 48, -10], [67, 48, 10], [50, 58, 0]];
+  const BQ_MAX = BQ_POS.length;
+  const BQ_NOTES = ['Buat kamu yang paling cantik 💗', 'Satu buket, sejuta sayang 🌷', 'Semoga harimu seharum bunga ini 🌸', 'Dari aku, untuk senyummu ✨', 'Bunganya layu, sayangku enggak 💐'];
+  let bq = { f: [], w: 'pink' };
+  const bqSaved = () => { const a = getLS('rr_bouquets', []); return Array.isArray(a) ? a.filter(b => b && Array.isArray(b.f)) : []; };
+  const bqHTML = (f, w, msg, mini) => `<div class="gm-bq${mini ? ' mini' : ''}" data-w="${WRAPS.some(x => x[0] === w) ? w : 'pink'}" aria-hidden="true">
+      <div class="gm-bq-fl">${f.slice(0, BQ_MAX).map((i, k) => { const [x, y, r] = BQ_POS[k]; return `<span style="left:${x}%;top:${y}%;--r:${r}deg;--k:${k}">${FLOWERS[i]?.[0] || '🌸'}</span>`; }).join('')}</div>
+      <div class="gm-bq-wrap"></div><span class="gm-bq-bow">🎀</span>${msg ? `<span class="gm-bq-tag">${esc(msg)}</span>` : ''}</div>`;
+
+  const MIRROR = [
+    'Yang paling cantik? Ya jelas kamu. Aku cuma cermin, tapi aku gak bisa bohong 🪞✨', 'Kamu! Bahkan cermin pun jadi silau liat kamu 😵‍💫💗',
+    'Pipi kamu gemes, senyum kamu manis, hatimu baik. Udah, menang kamu 👑', 'Kata cermin: hari ini level gemesmu 1000%. Hati-hati, bisa bikin orang meleleh 🫠',
+    'Coba senyum dikit… nah kan! Dunia langsung jadi lebih terang ☀️', 'Cermin ajaib menyatakan: kamu pantas dapat pelukan, makanan enak, dan tidur nyenyak hari ini 🫂🍰😴',
+    'Gak usah dandan juga udah cantik. Tapi kalau dandan, ya makin bahaya 💄😳', 'Aku udah lihat banyak wajah, tapi wajah yang bikin seseorang senyum tiap hari cuma kamu 🥹',
+    'Mata kamu kayak bintang, rambut kamu kayak awan, kamunya kayak… pacar terbaik sedunia 🌟', 'Cantik luar dalem. Itu bukan gombal, itu laporan resmi dari cermin 📋💗',
+    'Kalau ada lomba paling gemes se-galaksi, juri langsung pulang. Udah ketahuan pemenangnya 🏆', 'Kamu itu alasan aku dipoles tiap hari. Biar layak mantulin wajahmu ✨',
+  ];
+  let mirrorLast = -1;
+  const PAT_SAY = ['ehehe~ 🥰', 'lagi dong~ 🥺', 'enak banget diusap-usap 😌', 'nyaman… 🥹', 'kamu jago ngelus 🫶', 'telinga juga dong 🐰', 'mmh… ngantuk… 😪'];
+  const pat = { fill: 0, dist: 0, sleep: 0, lastSay: 0 };
+
+  function renderCute(force) {
+    const p = $('[data-panel="cute"]', vt); if (!p) return;
+    if (p.firstChild && !force) { clawInfo(true); return; }
+    p.innerHTML = `<div class="rr-card gm-claw-card">
+        <div class="gm-claw-hd"><div><h3>Mesin capit boneka 🕹️ <small>geser capitnya, lalu pencet CAPIT! Boneka yang ketangkep masuk ke rak koleksimu</small></h3></div><span class="gm-coins"></span></div>
+        <div class="gm-machine">
+          <div class="gm-box" aria-label="Mesin capit">
+            <div class="gm-rail" aria-hidden="true"></div>
+            <div class="gm-arm" style="left:${claw.x * 100}%"><i class="gm-rope"></i><div class="gm-head"><b class="gm-pr l"></b><b class="gm-pr r"></b><span class="gm-hold"></span></div></div>
+            <div class="gm-chute" aria-hidden="true">AMBIL</div>
+            <div class="gm-floor"></div>
+            <div class="gm-glare" aria-hidden="true"></div>
+          </div>
+          <div class="gm-ctrl">
+            <button type="button" class="gm-mv" data-dir="-1" aria-label="Geser capit ke kiri">◀</button>
+            <button type="button" class="gm-go" data-g="grab">CAPIT!</button>
+            <button type="button" class="gm-mv" data-dir="1" aria-label="Geser capit ke kanan">▶</button>
+          </div>
+        </div>
+        <div class="gm-out" aria-live="polite">Tahan tombol ◀ ▶ (atau panah di keyboard) buat geser capitnya 💗</div>
+        <h3 class="gm-shelf-h">Rak boneka <small class="gm-shelf-n"></small></h3>
+        <div class="gm-shelf"></div>
+      </div>
+      <div class="rr-grid2 gm-row">
+        <div class="rr-card gm-flower"><h3>Rangkai buket 💐 <small>ketuk bunga buat dimasukin. Tiap bunga punya arti (hanakotoba 花言葉)</small></h3>
+          <div class="gm-bq-stage"></div>
+          <div class="gm-hk" aria-live="polite">Pilih bunga pertamamu 🌷</div>
+          <div class="gm-fl-pick" role="group" aria-label="Bunga">${FLOWERS.map(([e, jp, , nm], i) => `<button type="button" data-g="flower" data-i="${i}" title="${esc(nm)} · ${esc(jp)}" aria-label="Tambah ${esc(nm)}">${e}</button>`).join('')}</div>
+          <div class="gm-wraps" role="group" aria-label="Kertas buket">${WRAPS.map(([k, c, n]) => `<button type="button" data-g="wrap" data-w="${k}" style="--c:${c}" aria-label="Kertas ${n}" title="Kertas ${n}"></button>`).join('')}</div>
+          <input class="rr-input gm-bq-msg" maxlength="60" placeholder="Tulis kartu kecil (opsional) 💌" aria-label="Kartu buket">
+          <div class="gm-bq-act"><button type="button" class="rr-btn ghost sm" data-g="bq-undo">↩ Ambil satu</button><button type="button" class="rr-btn ghost sm" data-g="bq-rand">🎲 Kejutan</button><button type="button" class="rr-btn pri sm" data-g="bq-save">💾 Simpan buket</button></div>
+          <div class="gm-vase"></div></div>
+        <div class="gm-col">
+          <div class="rr-card gm-mirror-card"><h3>Cermin ajaib 🪞 <small>"Cermin, cermin… siapa yang paling gemes sedunia?"</small></h3>
+            <button type="button" class="gm-mirror" data-g="mirror" aria-label="Tanya cermin ajaib"><span class="gm-glass"><span class="gm-ref">✨</span></span></button>
+            <div class="gm-mirror-say" aria-live="polite">Ketuk cerminnya buat nanya 💫</div></div>
+          <div class="rr-card gm-pat-card"><h3>Usap-usap Usagi 🐰 <small>gosok kepalanya pakai jari atau mouse</small></h3>
+            <button type="button" class="gm-pat" aria-label="Usap kepala Usagi"><span class="gm-bun">🐰</span><i class="gm-blush l"></i><i class="gm-blush r"></i><span class="gm-zz" hidden>💤</span></button>
+            <div class="lv-meter gm-meter"><i></i></div>
+            <div class="gm-pat-say" aria-live="polite">Usagi lagi nunggu dielus~</div>
+            <small class="gm-pat-n"></small></div>
+        </div>
+      </div>`;
+    claw.slots = []; const used = [];
+    CLAW_SLOTS.forEach((x, i) => { const pl = pickPlush(used); used.push(pl[0]); claw.slots[i] = { x: x + (Math.random() - .5) * .03, p: pl }; });
+    drawFloor(); clawInfo(true); renderShelf(); renderBouquet(); renderVase(); patInfo(); setupClawControls(); setupPat();
+    $('.gm-bq-msg', p).addEventListener('input', () => { if (bq.f.length) renderBouquet(); });
+  }
+
+  /* claw machine */
+  function clawInfo(showEmpty) {
+    const c = clawDay(), left = CLAW_COINS - c.n, el = $('.gm-coins', vt); if (!el) return;
+    el.innerHTML = `🪙 <b>${left}</b>/${CLAW_COINS} koin hari ini`;
+    const go = $('.gm-go', vt); if (go && !claw.busy) go.disabled = left <= 0;
+    if (left <= 0 && !claw.busy && showEmpty) { const o = $('.gm-out', vt); if (o) o.textContent = 'Koin hari ini habis~ besok diisi lagi ya 🪙 (atau minta dia ajak ke Timezone beneran 😳)'; }
+  }
+  function drawFloor() {
+    const f = $('.gm-floor', vt); if (!f) return;
+    f.innerHTML = claw.slots.map((s, i) => s ? `<span class="gm-pl${s.p[4] ? ' rare' : ''}" data-slot="${i}" style="left:${s.x * 100}%">${s.p[1]}</span>` : '').join('');
+  }
+  function renderShelf() {
+    const own = plushOwned(), box = $('.gm-shelf', vt); if (!box) return;
+    const got = PLUSH.filter(p => own[p[0]]).length;
+    $('.gm-shelf-n', vt).textContent = `${got}/${PLUSH.length} terkumpul${got === PLUSH.length ? ' · lengkap! 🏆' : ''}`;
+    box.innerHTML = PLUSH.map(([id, e, nm, , rare]) => own[id]
+      ? `<button type="button" class="gm-sh${rare ? ' rare' : ''}" data-g="plush" data-id="${id}" title="${esc(nm)}"><span>${e}</span><b>${esc(nm)}</b>${own[id] > 1 ? `<i>×${own[id]}</i>` : ''}</button>`
+      : `<div class="gm-sh lock" title="Belum ketangkep"><span>${e}</span><b>???</b></div>`).join('');
+  }
+  function showPlush(p, isNew, n) {
+    const o = $('.gm-out', vt); if (!o) return;
+    o.innerHTML = `<div class="gm-got${p[4] ? ' rare' : ''}"><span class="e">${p[1]}</span><div><b>${esc(p[2])} <span class="jp">${esc(p[3])}</span>${isNew ? ' <em>baru!</em>' : n > 1 ? ` <em>×${n}</em>` : ''}</b><p>${esc(p[5])}</p></div></div>`;
+    o.classList.remove('pop'); void o.offsetWidth; o.classList.add('pop');
+  }
+  function moveArm(anim) {
+    const arm = $('.gm-arm', vt); if (!arm) return;
+    arm.classList.toggle('slide', !!anim); arm.style.left = (claw.x * 100) + '%';
+  }
+  function setupClawControls() {
+    const loop = now => {
+      if (!claw.dir || claw.busy || !$('.gm-arm', vt)) { claw.raf = 0; return; }
+      const dt = Math.min(50, now - claw.last); claw.last = now;
+      claw.x = Math.min(CLAW_MAX, Math.max(CLAW_MIN, claw.x + claw.dir * dt * .00045)); moveArm();
+      claw.raf = requestAnimationFrame(loop);
+    };
+    const start = d => { if (claw.busy) return; claw.dir = d; if (!claw.raf) { claw.last = performance.now(); claw.raf = requestAnimationFrame(loop); } };
+    const stop = () => { claw.dir = 0; };
+    $$('.gm-mv', vt).forEach(b => {
+      const d = +b.dataset.dir;
+      b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture?.(e.pointerId); start(d); });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => b.addEventListener(ev, stop));
+      b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!claw.busy) { claw.x = Math.min(CLAW_MAX, Math.max(CLAW_MIN, claw.x + d * .04)); moveArm(); } } });
+    });
+    const m = $('.gm-machine', vt);
+    m.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); if (!e.repeat) start(e.key === 'ArrowLeft' ? -1 : 1);
+    });
+    m.addEventListener('keyup', e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') stop(); });
+    m.addEventListener('focusout', stop);
+  }
+  function grab() {
+    if (claw.busy) return;
+    const c = clawDay(); if (c.n >= CLAW_COINS) return clawInfo();
+    const arm = $('.gm-arm', vt), box = $('.gm-box', vt); if (!arm || !box) return;
+    claw.busy = true; claw.dir = 0; c.n++; setLS('rr_claw', c);
+    const go = $('.gm-go', vt), mvs = $$('.gm-mv', vt), out = $('.gm-out', vt);
+    go.disabled = true; mvs.forEach(b => { b.disabled = true; }); clawInfo();
+    out.textContent = 'Turun… turun… 🤞'; out.classList.remove('pop');
+    const T = reduced ? .05 : 1, rope = $('.gm-rope', arm), head = $('.gm-head', arm), hold = $('.gm-hold', arm);
+    const drop = Math.max(80, box.clientHeight - 112);
+    rope.style.height = (18 + drop) + 'px'; head.style.transform = `translateY(${drop}px)`;
+    // nearest plushie under the claw
+    let best = -1, dist = 1;
+    claw.slots.forEach((s, i) => { if (s && Math.abs(s.x - claw.x) < dist) { dist = Math.abs(s.x - claw.x); best = i; } });
+    const chance = dist < .04 ? .9 : dist < .075 ? .5 : 0;
+    const win = best >= 0 && chance > 0 && (Math.random() < chance || (c.miss >= 3 && dist < .075));
+    setTimeout(() => {
+      arm.classList.add('closed');
+      if (win) { const el = $(`.gm-pl[data-slot="${best}"]`, box); if (el) { hold.textContent = el.textContent; hold.className = 'gm-hold on' + (el.classList.contains('rare') ? ' rare' : ''); el.remove(); } }
+      else if (best >= 0 && dist < .11) { const el = $(`.gm-pl[data-slot="${best}"]`, box); el?.classList.add('wob'); }
+      setTimeout(() => {
+        rope.style.height = ''; head.style.transform = '';
+        setTimeout(() => {
+          if (!win) {
+            arm.classList.remove('closed'); claw.busy = false; mvs.forEach(b => { b.disabled = false; });
+            const cc = clawDay(); cc.miss++; setLS('rr_claw', cc);
+            out.textContent = dist < .11 ? pickR(Math.random, ['Yaah, lepas dikit lagi! 😭 coba lagi~', 'Hampir! Bonekanya malu-malu 🥺', 'Ih licin! Geser dikit lagi ya 🤏']) : 'Meleset~ coba geser capitnya pas di atas boneka ya 🎯';
+            clawInfo(); return;
+          }
+          const back = claw.x; claw.x = CLAW_MIN; moveArm(true);
+          setTimeout(() => {
+            arm.classList.remove('closed');
+            const p = claw.slots[best].p, own = plushOwned(), isNew = !own[p[0]];
+            own[p[0]] = (own[p[0]] || 0) + 1; setLS('rr_plush', own);
+            const cc = clawDay(); cc.miss = 0; setLS('rr_claw', cc);
+            hold.className = 'gm-hold drop'; setTimeout(() => { hold.className = 'gm-hold'; hold.textContent = ''; }, 500 * T);
+            showPlush(p, isNew, own[p[0]]); renderShelf();
+            const chute = $('.gm-chute', box); if (chute) burstAt(chute, ['💗', '✨', p[1]], p[4] ? 18 : 10);
+            if (p[4] && isNew) { confetti(); toast('🌈 Boneka langka ketangkep! ' + p[2]); }
+            if (PLUSH.every(x => own[x[0]]) && isNew) { confetti(); toast('🏆 Rak boneka lengkap! Kamu raja mesin capit 👑'); }
+            const used = claw.slots.filter(Boolean).map(s => s.p[0]);
+            claw.slots[best] = { x: CLAW_SLOTS[best] + (Math.random() - .5) * .03, p: pickPlush(used) };
+            setTimeout(() => {
+              drawFloor(); const np = $(`.gm-pl[data-slot="${best}"]`, box); np?.classList.add('new');
+              claw.x = back; moveArm(true); claw.busy = false; mvs.forEach(b => { b.disabled = false; }); clawInfo();
+            }, 650 * T);
+          }, 700 * T);
+        }, 750 * T);
+      }, 350 * T);
+    }, 750 * T);
+  }
+
+  /* bouquet maker */
+  function renderBouquet() {
+    const st = $('.gm-bq-stage', vt); if (!st) return;
+    st.innerHTML = bq.f.length ? bqHTML(bq.f, bq.w, $('.gm-bq-msg', vt)?.value.trim()) : `<div class="gm-bq-empty">💐<small>buketnya masih kosong</small></div>`;
+    $$('[data-g="wrap"]', vt).forEach(b => b.classList.toggle('on', b.dataset.w === bq.w));
+    $$('[data-g="flower"]', vt).forEach(b => { b.disabled = bq.f.length >= BQ_MAX; });
+  }
+  function renderVase() {
+    const v = $('.gm-vase', vt); if (!v) return; const all = bqSaved();
+    v.innerHTML = all.length ? `<h4>Buket yang udah dirangkai</h4><div class="gm-vase-g">${all.map((b, i) => `<figure>${bqHTML(b.f, b.w, '', true)}<figcaption>${b.msg ? esc(b.msg) : '💐'}<small>${esc(b.d || '')}</small></figcaption><button type="button" class="gm-x" data-g="bq-del" data-i="${i}" aria-label="Hapus buket">✕</button></figure>`).join('')}</div>` : '';
+  }
+  function addFlower(i) {
+    if (bq.f.length >= BQ_MAX) return toast('Buketnya udah penuh, cantik banget 💐');
+    const fl = FLOWERS[i]; if (!fl) return;
+    bq.f.push(i); renderBouquet();
+    const hk = $('.gm-hk', vt); hk.innerHTML = `${fl[0]} <b>${esc(fl[3])}</b> · <span class="jp">${esc(fl[1])}</span> <small>(${esc(fl[2])})</small><br><em>artinya: "${esc(fl[4])}"</em>`;
+    hk.classList.remove('pop'); void hk.offsetWidth; hk.classList.add('pop');
+    const last = $$('.gm-bq-stage .gm-bq-fl span', vt).pop(); if (last) { last.classList.add('new'); burstAt(last, ['✨', fl[0]], 5); }
+  }
+  function saveBouquet(btnEl) {
+    if (bq.f.length < 3) return toast('Masukin minimal 3 bunga dulu ya 🌷');
+    const msgEl = $('.gm-bq-msg', vt), all = bqSaved();
+    all.unshift({ f: bq.f.slice(), w: bq.w, msg: msgEl.value.trim().slice(0, 60), d: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) });
+    setLS('rr_bouquets', all.slice(0, 6));
+    burstAt(btnEl, ['💐', '💗', '🌸'], 12); toast(all.length > 6 ? '💐 Disimpan! (buket paling lama dipindah ke kenangan)' : '💐 Buketnya disimpan di vas!');
+    bq.f = []; msgEl.value = ''; renderBouquet(); renderVase();
+    $('.gm-hk', vt).textContent = 'Mau rangkai buket lagi? 🌷';
+  }
+
+  /* magic mirror */
+  function askMirror(b) {
+    if (b.classList.contains('busy')) return;
+    let i; do { i = Math.floor(Math.random() * MIRROR.length); } while (i === mirrorLast); mirrorLast = i;
+    const say = $('.gm-mirror-say', vt), ref = $('.gm-ref', b);
+    b.classList.add('busy', 'shine'); say.textContent = 'Cermin lagi mikir… ✨'; ref.textContent = '🌀';
+    setTimeout(() => {
+      b.classList.remove('busy', 'shine'); ref.textContent = pickR(Math.random, ['👸', '🥰', '😍', '👑', '💖', '🌷']);
+      say.textContent = MIRROR[i]; say.classList.remove('pop'); void say.offsetWidth; say.classList.add('pop');
+      burstAt(b, ['✨', '💗', '⭐'], 10);
+    }, reduced ? 50 : 1100);
+  }
+
+  /* head pats */
+  function patInfo() {
+    const n = getLS('rr_pats', 0), el = $('.gm-pat-n', vt);
+    if (el) el.textContent = n ? `Usagi udah ${n.toLocaleString('id-ID')}× ketiduran gara-gara kamu elus 💤` : '';
+    const m = $('.gm-meter i', vt); if (m) m.style.width = pat.fill + '%';
+  }
+  function patOnce(amount, x, y) {
+    if (pat.sleep) return;
+    const b = $('.gm-pat', vt); if (!b) return;
+    pat.fill = Math.min(100, pat.fill + amount); b.classList.add('happy');
+    b.classList.remove('squish'); void b.offsetWidth; b.classList.add('squish');
+    if (x != null && Math.random() < .35) burst(x, y, ['💗', '✨', '🌸'], 2);
+    const say = $('.gm-pat-say', vt), now = Date.now();
+    if (now - pat.lastSay > 1300) { pat.lastSay = now; say.textContent = PAT_SAY[Math.min(PAT_SAY.length - 1, Math.floor(pat.fill / 100 * PAT_SAY.length))]; }
+    if (pat.fill >= 100) {
+      pat.sleep = 1; setLS('rr_pats', getLS('rr_pats', 0) + 1);
+      b.classList.add('sleep'); $('.gm-zz', b).hidden = false; say.textContent = 'Zzz… Usagi ketiduran saking nyamannya 😴💗';
+      burstAt(b, ['💤', '💗', '🌙'], 10);
+      setTimeout(() => {
+        pat.sleep = 0; pat.fill = 0; const bb = $('.gm-pat', vt);
+        if (bb) { bb.classList.remove('sleep', 'happy'); $('.gm-zz', bb).hidden = true; $('.gm-pat-say', vt).textContent = 'Usagi bangun! Mau dielus lagi katanya 🥺'; }
+        patInfo();
+      }, reduced ? 1500 : 4200);
+    }
+    patInfo();
+  }
+  function setupPat() {
+    const b = $('.gm-pat', vt); if (!b) return;
+    let lx = null, ly = null, down = false, moved = 0;
+    b.addEventListener('pointerdown', e => { down = true; moved = 0; lx = e.clientX; ly = e.clientY; b.setPointerCapture?.(e.pointerId); });
+    b.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse' && !down) return;
+      if (lx != null) { const d = Math.hypot(e.clientX - lx, e.clientY - ly); moved += d; pat.dist += d; while (pat.dist > 45) { pat.dist -= 45; patOnce(3, e.clientX, e.clientY); } }
+      lx = e.clientX; ly = e.clientY;
+    });
+    ['pointerup', 'pointercancel'].forEach(ev => b.addEventListener(ev, () => { down = false; }));
+    b.addEventListener('pointerleave', () => { lx = ly = null; b.classList.remove('happy'); });
+    b.addEventListener('click', e => { if (e.detail === 0 || moved < 10) patOnce(8); moved = 0; });
+  }
+
+  function gemesClick(t) {
+    const el = t.closest('[data-g]'); if (!el) return false;
+    const g = el.dataset.g;
+    if (g === 'grab') grab();
+    else if (g === 'plush') { const p = plushBy(el.dataset.id); if (p) { showPlush(p, false, plushOwned()[p[0]]); burstAt(el, ['💗', p[1]], 6); } }
+    else if (g === 'flower') addFlower(+el.dataset.i);
+    else if (g === 'wrap') { bq.w = el.dataset.w; renderBouquet(); }
+    else if (g === 'bq-undo') { bq.f.pop(); renderBouquet(); }
+    else if (g === 'bq-rand') {
+      const n = 5 + Math.floor(Math.random() * 4); bq.f = Array.from({ length: n }, () => Math.floor(Math.random() * FLOWERS.length));
+      bq.w = pickR(Math.random, WRAPS)[0]; const m = $('.gm-bq-msg', vt); if (m && !m.value.trim()) m.value = pickR(Math.random, BQ_NOTES);
+      renderBouquet(); $('.gm-hk', vt).textContent = 'Taraa~ buket kejutan dari aku 💐 mau disimpan?'; burstAt($('.gm-bq-stage', vt), ['🌸', '🌷', '💗'], 10);
+    }
+    else if (g === 'bq-save') saveBouquet(el);
+    else if (g === 'bq-del') { if (!confirm('Hapus buket ini dari vas?')) return true; const all = bqSaved(); all.splice(+el.dataset.i, 1); setLS('rr_bouquets', all); renderVase(); }
+    else if (g === 'mirror') askMirror(el);
+    return true;
+  }
+
   /* ---------- videos ---------- */
   async function refresh() {
     if (!items.length) grid.innerHTML = '<div class="vt-empty"><b>Memuat…</b>sebentar ya 🎞️</div>';
@@ -1287,7 +1600,7 @@
     const ns = t.closest('[data-nstk]');
     if (ns) { noteSticker = ns.dataset.nstk; $$('[data-nstk]', vt).forEach(b => b.classList.toggle('on', b === ns)); $('.rr-paper .stk', vt).textContent = noteSticker; return; }
     const idea = t.closest('[data-idea]'); if (idea) return addDream(idea.dataset.idea, idea.dataset.emo);
-    if (loveClick(t) || funClick(t)) return;
+    if (loveClick(t) || funClick(t) || gemesClick(t)) return;
 
     const x = t.closest('[data-x]')?.dataset.x;
     if (x) {
