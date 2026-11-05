@@ -14,6 +14,9 @@
     };
 
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const OUT_MS = reduce ? 20 : 130, IN_MS = reduce ? 20 : 220;
+    const cardText = i => DATA[i][0] + DATA[i][1];
+    const jpf = window.jpFont;
     const say = (t, ms) => window.cuteSay && window.cuteSay(t, ms);
     const happy = () => window.cuteHappy && window.cuteHappy();
     const popAt = (el, n, set) => window.cutePopAt && window.cutePopAt(el, n, set);
@@ -144,6 +147,11 @@
         els.sticker.textContent = STICKERS[i % STICKERS.length];
         els.knownTag.classList.toggle('on', known.has(keyOf(i)));
         els.counter.textContent = `${pos + 1} / ${order.length}`;
+        if (jpf) {
+            jpf.wait([els.kanji, els.reading, els.mini], k + r);
+            const n = order.length;
+            jpf.prefetch([1, 2, 3, 4, -1, -2].map(d => cardText(order[(pos + d + n * 4) % n])));
+        }
     }
 
     function updateStats() {
@@ -164,6 +172,10 @@
         if (order.length === 1 && dir !== 0) { wiggle(); return; }
         busy = true;
         const outCls = dir >= 0 ? 'out-l' : 'out-r', inCls = dir >= 0 ? 'in-l' : 'in-r';
+        const n = order.length;
+        if (jpf) jpf.load(cardText(order[(pos + (dir > 0 ? 1 : dir < 0 ? -1 : 0) + n) % n]));
+        const my = ++animToken;
+        els.card.classList.remove('in-l', 'in-r');
         const swap = () => {
             els.card.classList.remove('out-l', 'out-r');
             els.card.style.transform = '';
@@ -174,12 +186,15 @@
             render();
             if (order.length === 0) { busy = false; return; }
             els.card.classList.add(inCls);
-            setTimeout(() => { els.card.classList.remove(inCls); busy = false; }, reduce ? 20 : 330);
+            // allow the next swipe right away; just clean up the class later
+            busy = false;
+            setTimeout(() => { if (my === animToken) els.card.classList.remove(inCls); }, IN_MS + 20);
         };
         els.card.classList.add(outCls);
-        setTimeout(swap, reduce ? 20 : 200);
+        setTimeout(swap, OUT_MS);
     }
 
+    let animToken = 0;
     function wiggle() {
         els.card.classList.remove('wiggle'); void els.card.offsetWidth; els.card.classList.add('wiggle');
         setTimeout(() => els.card.classList.remove('wiggle'), 420);
@@ -227,6 +242,8 @@
             if (onlyUnknown) {
                 // remove from queue, show the next one in its place
                 busy = true;
+                const my = ++animToken;
+                els.card.classList.remove('in-l', 'in-r');
                 els.card.classList.add('out-l');
                 setTimeout(() => {
                     order.splice(pos, 1);
@@ -236,13 +253,14 @@
                     render();
                     if (order.length) {
                         els.card.classList.add('in-l');
-                        setTimeout(() => { els.card.classList.remove('in-l'); busy = false; }, reduce ? 20 : 330);
-                    } else busy = false;
-                }, reduce ? 20 : 200);
+                        setTimeout(() => { if (my === animToken) els.card.classList.remove('in-l'); }, IN_MS + 20);
+                    }
+                    busy = false;
+                }, OUT_MS);
             } else {
                 go(1);
             }
-        }, reduce ? 150 : 520);
+        }, reduce ? 150 : 420);
     }
 
     function markNope() {
@@ -254,7 +272,7 @@
         updateStats();
         wiggle();
         if (Math.random() < .4) say(pick(OOPS), 1800);
-        setTimeout(() => go(1), reduce ? 100 : 380);
+        setTimeout(() => go(1), reduce ? 100 : 300);
     }
 
     function speak(e) {
@@ -269,14 +287,18 @@
 
     // Swipe / tap handling
     let startX = 0, startY = 0, dx = 0, dragging = false, pressed = false;
+    let lastX = 0, lastT = 0, vx = 0; // px per ms, for quick flicks
     els.card.addEventListener('pointerdown', e => {
         if (e.target.closest('.kj-speak') || busy) return;
         pressed = true; dragging = false; startX = e.clientX; startY = e.clientY; dx = 0;
+        lastX = e.clientX; lastT = performance.now(); vx = 0;
     });
     els.card.addEventListener('pointermove', e => {
         if (!pressed) return;
         dx = e.clientX - startX;
-        if (!dragging && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(e.clientY - startY)) {
+        const t = performance.now(), dt = t - lastT;
+        if (dt > 0) { vx = vx * 0.3 + ((e.clientX - lastX) / dt) * 0.7; lastX = e.clientX; lastT = t; }
+        if (!dragging && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(e.clientY - startY)) {
             dragging = true;
             try { els.card.setPointerCapture(e.pointerId); } catch (_) {}
         }
@@ -287,7 +309,9 @@
         pressed = false;
         if (dragging) {
             dragging = false;
-            if (Math.abs(dx) > 70) { go(dx < 0 ? 1 : -1); }
+            const stale = (performance.now() - lastT) > 120;
+            const flick = !stale && Math.abs(vx) > 0.35 && Math.abs(dx) > 24 && Math.sign(vx) === Math.sign(dx);
+            if (Math.abs(dx) > 55 || flick) { go(dx < 0 ? 1 : -1); }
             else {
                 els.card.style.transition = 'transform .25s cubic-bezier(.3,1.5,.5,1)';
                 els.card.style.transform = '';
@@ -355,7 +379,7 @@
     });
     els.shuffle.addEventListener('click', () => {
         rebuildOrder(true); setFlip(false, true); render();
-        els.card.classList.add('in-l'); setTimeout(() => els.card.classList.remove('in-l'), 330);
+        els.card.classList.add('in-l'); setTimeout(() => els.card.classList.remove('in-l'), IN_MS + 20);
         popAt(els.shuffle, 6, ['🔀', '✨', '🎲']);
     });
     els.reset.addEventListener('click', () => {
