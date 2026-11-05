@@ -73,6 +73,9 @@ function buildQuestions(s: Settings): Question[] {
     const wrong: string[] = [];
     for (const j of shuffle([...pool])) {
       const v = DATA[j][field];
+      // Several words share a meaning (外国/海外 = "Luar negeri"); when the meaning is the prompt,
+      // a kanji with that same meaning would also be correct, so it can't be a wrong option.
+      if (kind === "reverse" && DATA[j][2] === arti) continue;
       if (!seen.has(v) && DATA[j][0] !== kanji) { seen.add(v); wrong.push(v); }
       if (wrong.length === 3) break;
     }
@@ -96,8 +99,9 @@ async function uniqueCode() {
   throw new Error("Tidak bisa membuat kode room");
 }
 
-async function auth(code: string, pid: string, token: string) {
-  if (!code || !pid || !token) return null;
+async function auth(code: unknown, pid: unknown, token: unknown) {
+  if (typeof code !== "string" || typeof pid !== "string" || typeof token !== "string") return null;
+  if (!code || !pid || !token || pid.length > 64 || token.length > 128) return null;
   const [p] = await db.select().from(duelPlayers)
     .where(and(eq(duelPlayers.id, pid), eq(duelPlayers.roomCode, code)));
   if (!p || p.token !== token) return null;
@@ -158,6 +162,16 @@ async function snapshot(code: string, me: string) {
   const now = Date.now();
   const qs = room.questions as Question[];
   const players = await db.select().from(duelPlayers).where(eq(duelPlayers.roomCode, code)).orderBy(asc(duelPlayers.joinedAt));
+  // If the host closed the tab, hand the crown to the longest-waiting online player so the room isn't stuck.
+  const isOnline = (p: { lastSeen: Date }) => now - p.lastSeen.getTime() < ONLINE_MS;
+  const host = players.find((p) => p.id === room.hostId);
+  if (!host || !isOnline(host)) {
+    const next = players.find(isOnline);
+    if (next && next.id !== room.hostId) {
+      await db.update(duelRooms).set({ hostId: next.id }).where(and(eq(duelRooms.code, code), eq(duelRooms.hostId, room.hostId)));
+      room.hostId = next.id;
+    }
+  }
   const showQ = room.status === "question" || room.status === "reveal";
   const answers = showQ
     ? await db.select().from(duelAnswers).where(and(eq(duelAnswers.roomCode, code), eq(duelAnswers.qIndex, room.qIndex)))
@@ -220,7 +234,8 @@ async function handle(req: Request) {
   }
 
   if (req.method !== "POST") return fail("Method not allowed", 405);
-  const body: any = await req.json().catch(() => ({}));
+  const raw = await req.json().catch(() => null);
+  const body: any = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
 
   if (action === "create") {
     // Housekeeping: drop rooms older than 6 hours.
@@ -288,6 +303,7 @@ async function handle(req: Request) {
     if (!(choice >= 0 && choice < q.choices.length)) return fail("Pilihan tidak valid");
     const now = Date.now();
     const start = cur.phaseStartedAt!.getTime(), end = cur.phaseEndsAt!.getTime();
+    if (now < start - GRACE_MS) return fail("Soalnya belum mulai", 409);
     if (now > end + GRACE_MS) return fail("Waktu habis ⏰", 409);
     const limit = end - start;
     const ms = clamp(now - start, 0, limit);

@@ -89,7 +89,7 @@
   btn.addEventListener('click', e => { e.stopPropagation(); toggleMenu(); });
   document.addEventListener('click', e => { if (!pop.hidden && !pop.contains(e.target)) toggleMenu(false); });
   addEventListener('resize', () => { if (!pop.hidden) placeMenu(); });
-  addEventListener('keydown', e => { if (e.key === 'Escape') { if (!pop.hidden) toggleMenu(false); else if (!lg.hidden) closeLogin(); else if (!player.hidden) closePlayer(); else if (!vt.hidden) closeVault(); } });
+  addEventListener('keydown', e => { if (e.key === 'Escape') { const letter = !vt.hidden && vt.querySelector('.lv-modal'); if (!pop.hidden) toggleMenu(false); else if (!lg.hidden) closeLogin(); else if (!player.hidden) closePlayer(); else if (letter) { letter.remove(); renderGift(); } else if (!vt.hidden) closeVault(); } });
   pop.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'), a = b?.dataset.a; if (!a) return;
     toggleMenu(false);
@@ -180,6 +180,7 @@
   function logout(expired) {
     token = ''; localStorage.removeItem(TK);
     cache.forEach(u => URL.revokeObjectURL(u)); cache.clear(); items = [];
+    thumbs.forEach(u => u && URL.revokeObjectURL(u)); thumbs.clear();
     moments.splice(0).forEach(m => URL.revokeObjectURL(m.url)); renderMoments();
     roomData = null;
     closeVault(); toast(expired ? 'Sesi berakhir, silakan masuk lagi' : 'Sampai jumpa lagi~ 👋💗');
@@ -445,7 +446,7 @@
     trackVisit(); switchTab(t);
     loadRoom(); refresh();
   }
-  function closeVault() { if (game) endGame(true); vt.hidden = true; document.body.classList.remove('vt-open'); closePlayer(); }
+  function closeVault() { if (game) endGame(true); $$('.lv-modal', vt).forEach(m => m.remove()); const was = !vt.hidden; vt.hidden = true; document.body.classList.remove('vt-open'); closePlayer(); if (was) btn.focus(); }
   function switchTab(t) {
     tab = TABS.some(x => x.id === t) ? t : 'home';
     const info = TABS.find(x => x.id === tab);

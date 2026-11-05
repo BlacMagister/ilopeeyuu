@@ -185,14 +185,27 @@
     st: freshSt(), ach: {}, colors: {}, fur: 'white', room: 'pink', fresh: [],
     coins: 30, coinInit: false, species: 'usagi', name: 'Usagi-chan', named: false, own: [], decor: freshDecor(), snacks: {}, visited: ['pink'], gift: '' });
   let S;
-  try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch (_) { S = fresh(); }
-  S.st = Object.assign(freshSt(), S.st || {});
+  try { const raw = JSON.parse(localStorage.getItem(KEY)); S = Object.assign(fresh(), raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}); } catch (_) { S = fresh(); }
+  // A damaged save must never turn into NaN / negative numbers that spread through the whole pet.
+  { const d = fresh(); ['carrots', 'full', 'xp', 'points', 'fed', 'last'].forEach(k => { if (!Number.isFinite(S[k]) || S[k] < 0) S[k] = d[k]; }); }
+  S.full = Math.min(100, S.full); S.carrots = Math.floor(S.carrots);
+  if (S.last > Date.now() + 864e5) S.last = Date.now(); // clock was far in the future when saved
+  ['mis', 'done', 'ach'].forEach(k => { if (!S[k] || typeof S[k] !== 'object' || Array.isArray(S[k])) S[k] = {}; });
+  if (!Array.isArray(S.seen)) S.seen = [];
+  if (typeof S.name !== 'string' || !S.name.trim()) { S.name = fresh().name; S.named = false; }
+  S.name = S.name.slice(0, 16);
+  S.st = Object.assign(freshSt(), S.st && typeof S.st === 'object' ? S.st : {});
+  { const d = freshSt(); for (const k in d) if (typeof d[k] === 'number' && !Number.isFinite(S.st[k])) S.st[k] = 0; }
+  if (!Array.isArray(S.fresh)) S.fresh = [];
+  if (!S.colors || typeof S.colors !== 'object') S.colors = {};
   S.wear = Object.assign(fresh().wear, S.wear || {});
   S.decor = Object.assign(freshDecor(), S.decor || {});
   if (!Array.isArray(S.own)) S.own = [];
   if (!Array.isArray(S.visited)) S.visited = [];
   if (!S.snacks || typeof S.snacks !== 'object') S.snacks = {};
-  if (!Number.isFinite(S.coins)) S.coins = 0;
+  if (!Number.isFinite(S.coins) || S.coins < 0) S.coins = 0;
+  S.coins = Math.floor(S.coins);
+  for (const k in S.snacks) if (!Number.isInteger(S.snacks[k]) || S.snacks[k] <= 0) delete S.snacks[k];
   if (!S.visited.includes(S.room)) S.visited.push(S.room);
   if (S.wear.body === 'scarf') { S.wear.body = null; S.wear.neck = 'scarf'; } // scarf moved to its own slot
   // older saves: coins for the study already done, so the shop isn't empty for long-time players
