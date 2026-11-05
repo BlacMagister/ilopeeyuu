@@ -27,6 +27,14 @@
   const send = (path, method, data) => api(path, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(data || {}) }).then(r => r.json());
   const retry = async (fn, n = 3) => { for (let i = 0; ; i++) { try { return await fn(); } catch (e) { if (i >= n - 1 || /Sesi/.test(e.message)) throw e; await new Promise(r => setTimeout(r, 800 * (i + 1))); } } };
 
+  /* activity ping → owner's Telegram bot (fire-and-forget, never blocks the UI) */
+  const pingAt = {};
+  function notify(text, key, gapMs = 0) {
+    if (!token) return;
+    if (key) { const now = Date.now(); if (pingAt[key] && now - pingAt[key] < gapMs) return; pingAt[key] = now; }
+    send('notify', 'POST', { text }).catch(() => {});
+  }
+
   function toast(msg) {
     $$('.vt-toast').forEach(t => t.remove());
     const t = document.createElement('div'); t.className = 'vt-toast'; t.textContent = msg; t.setAttribute('role', 'status');
@@ -628,6 +636,7 @@
     if (pendingKangen) kangenTimer = setTimeout(sendKangen, 300);
   }
   function tapKangen(b) {
+    notify('🥺 Dia lagi pencet tombol KANGEN! Kabarin dia dong 💗', 'kangen', 10 * 60e3);
     pendingKangen++; burstAt(b, ['💗', '💖', '💕', '🥺', '💘'], 8);
     b.classList.remove('pump'); void b.offsetWidth; b.classList.add('pump');
     const total = (roomData?.counters?.kangen || 0) + pendingKangen;
@@ -671,6 +680,7 @@
       selMood = mood; if (from) burstAt(from, [moodOf(mood)[1], '✨', '💗'], 10);
       const rep = $('.rr-reply', vt); if (rep) rep.textContent = moodOf(mood)[3];
       toast(moodOf(mood)[1] + ' Mood tersimpan'); renderTab();
+      notify(`${moodOf(mood)[1]} Mood dia hari ini: ${moodOf(mood)[2].toUpperCase()}${note ? `\n📝 "${note}"` : ''}`);
     } catch (e) { toast(e.message); }
   }
 
@@ -715,6 +725,7 @@
     setTimeout(() => {
       stage.classList.remove('shaking'); localStorage.setItem('rr_omi', dayKey());
       renderOmikuji(true); const o = omikuji();
+      notify(`🎋 Dia membuka omikuji hari ini: ${o.rank[0]} (${o.rank[1]})`);
       if (o.rank[0] === '大吉') confetti(); burstAt($('.omi-box', vt), ['✨', '🎋', '🌸', '⭐'], 14);
       $('.omi-paper', vt).scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
     }, reduced ? 50 : 1500);
@@ -884,6 +895,8 @@
     });
   }
   function bumpCount(key, el, chars) {
+    const COUNT_PING = { peluk: '🫂 Dia ngirim PELUKAN buat kamu!', cium: '💋 Dia ngirim CIUM buat kamu! 😘' };
+    if (COUNT_PING[key]) notify(COUNT_PING[key], 'cnt:' + key, 10 * 60e3);
     pendingCount[key]++; burstAt(el, chars, 10);
     el.classList.remove('pump'); void el.offsetWidth; el.classList.add('pump');
     const out = $(`[data-lc="${key}"]`, vt); if (out) out.textContent = ctr(key).toLocaleString('id-ID');
@@ -978,6 +991,7 @@
       if (e.target === m || b) close();
     });
     $('[data-ow="close"]', m).focus(); burstAt($('.seal', m), ['💗', '✨', '💌'], 10);
+    notify(`💌 Dia membuka amplop ${l[1]} "${l[2]}"\n\nIsi suratnya:\n${msgs[idx]}`, 'ow:' + k, 60e3);
   }
 
   /* 🎮 games */
@@ -1094,6 +1108,7 @@
       const box = $('.lv-reason', vt); box.innerHTML = `<small>Alasan #${i + 1}</small>${esc(REASONS[i])}`; box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
       $('.lv-jar-card h3 small', vt).textContent = `${now.length}/${REASONS.length} dibuka`;
       burstAt(el, ['📜', '💗', '✨'], 8);
+      notify(`📜 Dia membuka toples alasan #${i + 1}:\n${REASONS[i]}`, 'jar', 5 * 60e3);
     } else if (l === 'kiss') bumpCount('cium', el, ['💋', '😘', '💗', '💕']);
     else if (l === 'ow') openLetter(el.dataset.k);
     else if (l === 'since-edit') { const f = $('.lv-since', vt); f.hidden = !f.hidden; if (!f.hidden) $('input', f).focus(); }
@@ -1103,7 +1118,8 @@
       el.disabled = true;
       send('coupon', 'POST', { id, used: !was }).then(j => {
         if (roomData) roomData.counters[j.key] = j.value; renderGift();
-        if (!was) { const c = $(`[data-cid="${id}"]`, vt); if (c) burstAt(c, ['🎟️', '💗', '✨'], 12); toast('🎟️ Kupon ditukar! Tunjukin ke aku ya, nanti aku tepati 🤞'); }
+        if (!was) { const c = $(`[data-cid="${id}"]`, vt); if (c) burstAt(c, ['🎟️', '💗', '✨'], 12); toast('🎟️ Kupon ditukar! Tunjukin ke aku ya, nanti aku tepati 🤞');
+          const cp = COUPONS.find(x => x[0] === id); notify(`🎟️ Dia menukar kupon: ${cp ? cp[1] + ' ' + cp[2] : id}\nSiap-siap ditagih ya 😆`); }
       }).catch(err => { el.disabled = false; toast(err.message); });
     }
     else if (l === 'yes') sayYes(el);
@@ -1618,6 +1634,7 @@
           const j = await send('notes', 'POST', { body, color: noteColor, sticker: noteSticker });
           roomData?.notes.splice(roomData.notes.filter(n => n.pinned).length, 0, j.note);
           ta.value = ''; ta.dispatchEvent(new Event('input')); renderBoard(); burstAt(b, ['💌', '💗', '✨'], 10); toast('📌 Surat ditempel!');
+          notify(`📌 Dia menulis surat di papan:\n"${body}"`);
         } catch (err) { toast(err.message); } finally { b.disabled = false; }
         return;
       }
@@ -1642,7 +1659,7 @@
           if (x === 'dream-del') { if (!confirm('Hapus mimpi ini?')) return; await api('bucket?id=' + id, { method: 'DELETE' }); roomData.bucket = roomData.bucket.filter(d => d.id !== id); }
           else {
             const j = await send('bucket/toggle?id=' + id, 'POST'); roomData.bucket = roomData.bucket.map(d => d.id === id ? j.item : d);
-            if (j.item.done) { confetti(); toast('🎉 Yeay! Satu mimpi terwujud'); }
+            if (j.item.done) { confetti(); toast('🎉 Yeay! Satu mimpi terwujud'); notify(`⭐ Dia menandai mimpi terwujud: ${j.item.emoji} ${j.item.text}`); }
           }
           renderDreams();
         } catch (err) { toast(err.message); }
@@ -1689,23 +1706,65 @@
     cache.set(it.id, url);
     return url;
   }
-  const loading = new Map();
-  function load(it) {
+  const loading = new Map(), listeners = new Map();
+  function load(it, onp) {
+    if (onp) { if (!listeners.has(it.id)) listeners.set(it.id, new Set()); listeners.get(it.id).add(onp); }
     if (!loading.has(it.id)) {
       const j = cache.has(it.id) ? null : job('Memuat ' + it.name);
-      loading.set(it.id, fetchVideo(it, p => j?.set(p)).then(u => { j?.done(); return u; }, e => { j?.fail(e.message); throw e; }).finally(() => loading.delete(it.id)));
+      loading.set(it.id, fetchVideo(it, p => { j?.set(p); listeners.get(it.id)?.forEach(f => f(p)); })
+        .then(u => { j?.done(); return u; }, e => { j?.fail(e.message); throw e; })
+        .finally(() => { loading.delete(it.id); listeners.delete(it.id); }));
     }
     return loading.get(it.id);
   }
+
+  /* big "loading xx%" pop-up so a tap on a video always shows it registered */
+  const lp = document.createElement('div'); lp.className = 'vt-loadpop'; lp.hidden = true;
+  lp.setAttribute('role', 'dialog'); lp.setAttribute('aria-modal', 'true'); lp.setAttribute('aria-label', 'Memuat video');
+  lp.innerHTML = `<div class="lp-card">
+      <div class="lp-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52"/><circle class="fill" cx="60" cy="60" r="52"/></svg><b class="lp-pct" aria-live="polite">0%</b><span class="lp-bun" aria-hidden="true">🐰</span></div>
+      <div class="lp-what">Memuat video…</div><div class="lp-nm"></div>
+      <div class="lp-bar"><i></i></div><div class="lp-sub">sebentar ya, lagi disiapin 🎞️</div>
+      <button type="button" class="lp-x">Sembunyikan</button></div>`;
+  document.body.appendChild(lp);
+  let lpFor = null;
+  const LP_SAY = ['sebentar ya, lagi disiapin 🎞️', 'popcorn-nya siapin dulu 🍿', 'hampir sampai… 💗', 'dikit lagi, sabar ya sayang 🥺', 'siap-siap nonton! ✨'];
+  function lpSet(p) {
+    const pc = Math.max(0, Math.min(100, Math.floor(p * 100)));
+    $('.lp-pct', lp).textContent = pc + '%';
+    $('.lp-bar i', lp).style.width = pc + '%';
+    $('.lp-ring .fill', lp).style.strokeDashoffset = String(326.7 * (1 - pc / 100));
+    const it = lpFor; if (it) $('.lp-sub', lp).textContent = `${fmtSize(it.size * Math.min(1, p))} / ${fmtSize(it.size)} · ${LP_SAY[Math.min(LP_SAY.length - 1, Math.floor(pc / 21))]}`;
+  }
+  function lpOpen(it, what) {
+    lpFor = it; $('.lp-what', lp).textContent = what; $('.lp-nm', lp).textContent = it.name;
+    lp.classList.remove('done'); lpSet(0); lp.hidden = false;
+  }
+  function lpClose(ok) {
+    if (lp.hidden) return;
+    if (ok) { lpSet(1); lp.classList.add('done'); $('.lp-sub', lp).textContent = 'Siap! ✨'; setTimeout(() => { lp.hidden = true; }, reduced ? 0 : 450); }
+    else lp.hidden = true;
+    lpFor = null;
+  }
+  $('.lp-x', lp).addEventListener('click', () => { lp.hidden = true; lpFor = null; toast('Video tetap dimuat di belakang ya 🎞️'); });
+  async function withPop(it, what) {
+    if (cache.has(it.id)) return load(it);
+    lpOpen(it, what);
+    const id = it.id;
+    try { const u = await load(it, p => { if (lpFor?.id === id) lpSet(p); }); if (lpFor?.id === id) lpClose(true); return u; }
+    catch (e) { if (lpFor?.id === id) lpClose(false); throw e; }
+  }
+
   async function download(it) {
     try {
-      const url = await load(it);
+      const url = await withPop(it, 'Menyiapkan unduhan…');
       const a = document.createElement('a'); a.href = url; a.download = it.name; document.body.appendChild(a); a.click(); a.remove();
       renderGrid();
     } catch (e) { toast(e.message || 'Gagal mengunduh'); }
   }
   async function play(it) {
-    try { const url = await load(it); playing = it; setRate(1); pv.src = url; player.hidden = false; pv.play().catch(() => {}); renderGrid(); }
+    notify(`🎬 Dia memutar video "${it.name}"`, 'play:' + it.id, 10 * 60e3);
+    try { const url = await withPop(it, 'Memuat video…'); playing = it; setRate(1); pv.src = url; player.hidden = false; pv.play().catch(() => {}); renderGrid(); }
     catch (e) { toast(e.message || 'Gagal memutar'); }
   }
 

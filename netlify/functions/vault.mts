@@ -118,6 +118,41 @@ const validId = (id: string | null): id is string => !!id && /^[a-f0-9]{24}$/.te
 const cleanName = (n: unknown) =>
   String(n || "video").replace(/[\\/:*?"<>|\u0000-\u001f]/g, "").trim().slice(0, 120) || "video";
 
+/* ---------- Telegram notifications (activity in the room → owner's bot) ----------
+ * TELEGRAM_BOT_TOKEN is required. TELEGRAM_CHAT_ID is optional: when it is missing, the chat of
+ * whoever last messaged the bot (e.g. "/start") is looked up once via getUpdates and remembered. */
+async function telegramChat(bot: string): Promise<string | null> {
+  const fixed = process.env.TELEGRAM_CHAT_ID;
+  if (fixed) return fixed;
+  const saved = await store().get("_tg_chat").catch(() => null);
+  if (saved) return saved;
+  const r = await fetch(`https://api.telegram.org/bot${bot}/getUpdates?limit=50`).catch(() => null);
+  const j: any = r && r.ok ? await r.json().catch(() => null) : null;
+  const msgs = (j?.result || []).map((u: any) => u.message || u.edited_message).filter((m: any) => m?.chat?.id);
+  const chat = msgs.length ? String(msgs[msgs.length - 1].chat.id) : null;
+  if (chat) await store().set("_tg_chat", chat).catch(() => {});
+  return chat;
+}
+async function telegram(text: string): Promise<boolean> {
+  const bot = process.env.TELEGRAM_BOT_TOKEN;
+  if (!bot) return false;
+  try {
+    const chat = await telegramChat(bot);
+    if (!chat) { console.warn("telegram: no chat yet — send /start to the bot first"); return false; }
+    const time = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    const r = await fetch(`https://api.telegram.org/bot${bot}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chat_id: chat, text: `${text}\n\n🕒 ${time} WIB`, disable_web_page_preview: true }),
+    });
+    if (!r.ok) console.warn("telegram send failed", r.status);
+    return r.ok;
+  } catch (err) {
+    console.warn("telegram error", err);
+    return false;
+  }
+}
+
 export default async (req: Request, context: Context) => {
   try {
     return await handle(req, context);
@@ -150,12 +185,22 @@ async function handle(req: Request, context: Context): Promise<Response> {
     if (fails.n) await store().delete(failKey(ip)).catch(() => {});
     const key = (await secret(true))!;
     const exp = String(Date.now() + TOKEN_DAYS * 864e5);
+    const ping = telegram("🔐 Dia baru saja masuk ke Ruang Rahasia 💗");
+    if (typeof (context as any).waitUntil === "function") (context as any).waitUntil(ping); else await ping;
     return json({ token: `${exp}.${await sign(exp, key)}` });
   }
 
   if (!(await authed(req))) return fail("Sesi berakhir, silakan masuk lagi", 401);
 
   if (action === "check") return json({ ok: true });
+
+  if (action === "notify" && req.method === "POST") {
+    const body = await readBody(req);
+    const text = String(body.text || "").replace(/[\u0000-\u0008\u000b-\u001f]/g, "").trim().slice(0, 900);
+    if (!text) return fail("Pesan kosong");
+    const sent = await telegram(text);
+    return json({ ok: sent });
+  }
 
   if (action === "list" && req.method === "GET") {
     const { blobs } = await s.list({ prefix: "meta/" });
